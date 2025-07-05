@@ -6,6 +6,9 @@ const API_URL = 'https://controlhub-api.onrender.com/api/fileshare';
 
 function FileShareBoardPage() {
   const [board, setBoard] = useState(null);
+  const [loading, setLoading] = useState(true); // Add loading state
+  const [error, setError] = useState(null);     // Add error state
+
   const [newBug, setNewBug] = useState('');
   const [newFeature, setNewFeature] = useState('');
   const [newFeatureLink, setNewFeatureLink] = useState('');
@@ -18,19 +21,54 @@ function FileShareBoardPage() {
 
   const fetchBoard = async () => {
     try {
+      setLoading(true); // Start loading
+      setError(null);   // Clear previous errors
+
       const res = await axios.get(API_URL);
-      setBoard(res.data[0]); // assume one board document
+
+      // --- FIX STARTS HERE ---
+      // Check if res.data is an array and has at least one element
+      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+        setBoard(res.data[0]);
+      } else {
+        // If no board document exists, initialize an empty structure for the frontend
+        // and log a warning. You might want to automatically create one on the backend
+        // or prompt the user to create it. For now, we'll just show an empty board.
+        console.warn('No existing FileShare board found. Displaying an empty board.');
+        setBoard({
+          version: 'N/A',
+          changelog: [],
+          bugs: [],
+          features: []
+        });
+      }
+      // --- FIX ENDS HERE ---
+
     } catch (err) {
       console.error('Error fetching board:', err);
+      // Set an error message to display to the user
+      setError('Failed to load project board. Please try again later.');
+    } finally {
+      setLoading(false); // End loading, whether success or fail
     }
   };
 
   const updateBoard = async (updated) => {
     try {
-      const res = await axios.put(`${API_URL}/${board._id}`, updated);
-      setBoard(res.data);
+      // Only try to PUT if a board._id exists (i.e., it's an existing board)
+      if (board && board._id) {
+        const res = await axios.put(`${API_URL}/${board._id}`, updated);
+        setBoard(res.data);
+      } else {
+        // If no board_id, it means we just initialized an empty board on frontend
+        // This is where you might need to make a POST request to create the *first* board.
+        // For now, we'll just update the local state without backend interaction for new board.
+        console.warn('Attempted to update a board with no _id. Consider adding POST logic for initial board creation.');
+        setBoard(updated); // Update local state
+      }
     } catch (err) {
       console.error('Error updating board:', err);
+      // Handle update errors (e.g., show a toast notification)
     }
   };
 
@@ -38,7 +76,7 @@ function FileShareBoardPage() {
     if (newBug.trim()) {
       const updated = {
         ...board,
-        bugs: [...(board.bugs || []), { text: newBug, status: 'Pending' }]
+        bugs: [...(board.bugs || []), { text: newBug.trim(), status: 'Pending' }]
       };
       updateBoard(updated);
       setNewBug('');
@@ -51,7 +89,7 @@ function FileShareBoardPage() {
         ...board,
         features: [
           ...(board.features || []),
-          { text: newFeature, status: 'Planned', link: newFeatureLink }
+          { text: newFeature.trim(), status: 'Planned', link: newFeatureLink.trim() }
         ]
       };
       updateBoard(updated);
@@ -61,23 +99,27 @@ function FileShareBoardPage() {
   };
 
   const updateBugStatus = (index, status) => {
+    if (!board || !board.bugs) return; // Add safeguard
     const updatedBugs = [...board.bugs];
     updatedBugs[index].status = status;
     updateBoard({ ...board, bugs: updatedBugs });
   };
 
   const updateFeatureStatus = (index, status) => {
+    if (!board || !board.features) return; // Add safeguard
     const updatedFeatures = [...board.features];
     updatedFeatures[index].status = status;
     updateBoard({ ...board, features: updatedFeatures });
   };
 
   const removeBug = (index) => {
+    if (!board || !board.bugs) return; // Add safeguard
     const updatedBugs = board.bugs.filter((_, i) => i !== index);
     updateBoard({ ...board, bugs: updatedBugs });
   };
 
   const removeFeature = (index) => {
+    if (!board || !board.features) return; // Add safeguard
     const updatedFeatures = board.features.filter((_, i) => i !== index);
     updateBoard({ ...board, features: updatedFeatures });
   };
@@ -104,7 +146,56 @@ function FileShareBoardPage() {
     }
   };
 
-  if (!board) return <div>Loading...</div>;
+  // Render logic based on loading, error, or board data
+  if (loading) {
+    return (
+      <div className="fileshare-page">
+        <div className="loading-message">Loading project board...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="fileshare-page">
+        <div className="error-message">Error: {error}</div>
+      </div>
+    );
+  }
+
+  // If board is still null or an empty object after loading, show a "create board" message
+  // This helps if the API consistently returns an empty array and you want user to create the first one.
+  if (!board || (Object.keys(board).length === 0 && board.constructor === Object)) {
+      return (
+          <div className="fileshare-page">
+              <div className="project-info glow-hover">
+                  <p>No project board found. Would you like to create the initial board?</p>
+                  {/* You might want to add an initial "Create Board" button here
+                      that sends a POST request to your API to create the first document.
+                      For example:
+                      <button onClick={handleCreateInitialBoard}>Create Initial Board</button>
+                  */}
+                  <p>Please add a version summary to start your project board.</p>
+                  <div className="input-group">
+                    <input
+                      type="text"
+                      placeholder="New Version (e.g. v1.1.0)"
+                      value={newVersion}
+                      onChange={(e) => setNewVersion(e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Version Summary"
+                      value={newSummary}
+                      onChange={(e) => setNewSummary(e.target.value)}
+                    />
+                    <button onClick={addChangelog}>Create Board</button>
+                  </div>
+              </div>
+          </div>
+      );
+  }
+
 
   return (
     <div className="fileshare-page">
