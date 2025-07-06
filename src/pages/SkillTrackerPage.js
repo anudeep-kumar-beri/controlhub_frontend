@@ -1,14 +1,13 @@
-// src/pages/SkillTrackerPage.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './SkillTrackerPage.css';
 
-const API_URL = 'https://controlhub-api.onrender.com/api/skills'; // Replace with your localhost if needed
+const API_URL = 'https://controlhub-backend.onrender.com/api/skills';
 
 function SkillTrackerPage() {
   const [skills, setSkills] = useState([]);
   const [newSkill, setNewSkill] = useState('');
-  const [newLevel, setNewLevel] = useState(0);
+  const [newProgress, setNewProgress] = useState(0);
   const [category, setCategory] = useState('General');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('All');
@@ -28,35 +27,32 @@ function SkillTrackerPage() {
   };
 
   const addSkill = async () => {
-  if (newSkill.trim() === '') return;
+    if (newSkill.trim() === '') return;
+    try {
+      const res = await axios.post(API_URL, {
+        name: newSkill.trim(),
+        progress: newProgress,
+        category
+      });
+      setSkills([...skills, res.data]);
+      setNewSkill('');
+      setNewProgress(0);
+    } catch (err) {
+      console.error('Error adding skill', err);
+    }
+  };
 
-  try {
-    const res = await axios.post(API_URL, {
-      name: newSkill.trim(),
-      progress: newLevel, // was 'level'
-      category
-    });
-    setSkills([...skills, res.data]);
-    setNewSkill('');
-    setNewLevel(0);
-  } catch (err) {
-    console.error('Error adding skill', err);
-  }
-};
-
-
-  const updateLevel = async (index, value) => {
-  const skill = skills[index];
-  try {
-    await axios.put(`${API_URL}/${skill._id}`, { progress: value }); // changed 'level' to 'progress'
-    const updated = [...skills];
-    updated[index].progress = value; // reflect updated backend value
-    setSkills(updated);
-  } catch (err) {
-    console.error('Error updating skill level', err);
-  }
-};
-
+  const updateProgress = async (index, value) => {
+    const skill = skills[index];
+    try {
+      await axios.put(`${API_URL}/${skill._id}`, { progress: value });
+      const updated = [...skills];
+      updated[index].progress = value;
+      setSkills(updated);
+    } catch (err) {
+      console.error('Error updating skill progress', err);
+    }
+  };
 
   const removeSkill = async (index) => {
     const skill = skills[index];
@@ -70,41 +66,36 @@ function SkillTrackerPage() {
   };
 
   const getAlert = (progress) => {
-    if (level < 30) return '🔴 Beginner';
-    if (level < 70) return '🟡 Intermediate';
-    if (level < 100) return '🟢 Advanced';
+    if (progress < 30) return '🔴 Beginner';
+    if (progress < 70) return '🟡 Intermediate';
+    if (progress < 100) return '🟢 Advanced';
     return '✅ Mastered';
   };
 
   const average =
-  skills.length === 0
-    ? 0
-    : Math.round(skills.reduce((sum, s) => sum + s.progress, 0) / skills.length);
-
+    skills.length === 0
+      ? 0
+      : Math.round(skills.reduce((sum, s) => sum + s.progress, 0) / skills.length);
 
   const filteredSortedSkills = () => {
     let filtered = [...skills];
-
     if (filterCategory !== 'All') {
       filtered = filtered.filter(skill => skill.category === filterCategory);
     }
-
     if (searchTerm.trim()) {
       filtered = filtered.filter(skill =>
         skill.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
     if (sortOrder === 'A-Z') {
       filtered.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortOrder === 'Z-A') {
       filtered.sort((a, b) => b.name.localeCompare(a.name));
     } else if (sortOrder === 'High-Low') {
-      filtered.sort((a, b) => b.level - a.level);
+      filtered.sort((a, b) => b.progress - a.progress);
     } else if (sortOrder === 'Low-High') {
-      filtered.sort((a, b) => a.level - b.level);
+      filtered.sort((a, b) => a.progress - b.progress);
     }
-
     return filtered;
   };
 
@@ -112,7 +103,6 @@ function SkillTrackerPage() {
     <div className="skill-page">
       <div className="aurora-layer" />
       <h1>Skill Tracker</h1>
-
       <div className="skill-add-form">
         <input
           type="text"
@@ -125,10 +115,10 @@ function SkillTrackerPage() {
           type="number"
           className="input-dark"
           placeholder="%"
-          value={newLevel}
+          value={newProgress}
           min="0"
           max="100"
-          onChange={(e) => setNewLevel(Number(e.target.value))}
+          onChange={(e) => setNewProgress(Number(e.target.value))}
         />
         <select
           className="input-dark"
@@ -144,7 +134,6 @@ function SkillTrackerPage() {
         </select>
         <button className="neon-add" onClick={addSkill}>＋</button>
       </div>
-
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
         <input
           type="text"
@@ -175,7 +164,6 @@ function SkillTrackerPage() {
           📈 Average Skill Level: <strong>{average}%</strong>
         </p>
       </div>
-
       <div className="skill-list">
         {filteredSortedSkills().map((skill, idx) => (
           <div className="skill-item glow-hover" key={idx}>
@@ -190,7 +178,7 @@ function SkillTrackerPage() {
               min="0"
               max="100"
               value={skill.progress}
-              onChange={(e) => updateLevel(idx, Number(e.target.value))}
+              onChange={(e) => updateProgress(idx, Number(e.target.value))}
             />
             <div className="progress-bar">
               <div
