@@ -78,6 +78,6 @@ test.describe('ControlHub Main Flows', () => {
 
   test('FileShare Board loads', async ({ page }) => {
     await page.goto(BASE + 'file-share-board');
-    await expect(page.locator('text=File Share Board')).toBeVisible();
+    await expect(page.locator('role=heading[name="FileShare Board"]')).toBeVisible();
   });
 });
