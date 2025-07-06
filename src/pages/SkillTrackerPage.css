@@ -101,6 +101,18 @@
 
 .input-dark:focus {
   border-color: #00ff99;
+  outline: none;
+  box-shadow: 0 0 0 2px #00ff99;
+}
+
+.input-dark::-webkit-outer-spin-button,
+.input-dark::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.input-dark[type=number] {
+  -moz-appearance: textfield;
 }
 
 .neon-add {

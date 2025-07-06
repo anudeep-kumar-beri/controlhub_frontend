@@ -99,6 +99,14 @@
   width: 100%;
   max-width: 300px;
   box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-group input:focus {
+  border-color: #00cfff;
+  outline: none;
+  box-shadow: 0 0 0 2px #00cfff;
 }
 
 /* Mobile input groups */
@@ -156,6 +164,14 @@
   border: 1px solid #00cfff55;
   border-radius: 4px;
   padding: 0.3rem 0.5rem;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-info select:focus {
+  border-color: #00cfff;
+  outline: none;
+  box-shadow: 0 0 0 2px #00cfff;
 }
 
 .remove-btn {

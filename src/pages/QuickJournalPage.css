@@ -129,8 +129,8 @@ textarea:focus {
   text-align: left;
 }
 
-.clear-btn,
-.update-btn {
+.neon-save,
+.neon-delete {
   background-color: #2a0f2a;
   border: 1px solid #cc66ffaa;
   color: #ffccff;
@@ -142,14 +142,14 @@ textarea:focus {
   box-shadow: 0 0 10px #cc66ff44, inset 0 0 6px #cc66ff22;
 }
 
-.clear-btn:hover,
-.update-btn:hover {
+.neon-save:hover,
+.neon-delete:hover {
   background-color: #3a1040;
   box-shadow: 0 0 14px #e699ff77, inset 0 0 8px #e699ff55;
 }
 
-.clear-btn:focus,
-.update-btn:focus {
+.neon-save:focus,
+.neon-delete:focus {
   outline: none;
   box-shadow: 0 0 0 2px #cc66ff;
 }
@@ -188,8 +188,8 @@ textarea:focus {
     align-items: flex-start;
   }
 
-  .clear-btn,
-  .update-btn {
+  .neon-save,
+  .neon-delete {
     width: 100%;
     text-align: center;
   }

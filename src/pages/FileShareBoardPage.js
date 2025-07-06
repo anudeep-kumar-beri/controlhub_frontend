@@ -4,7 +4,6 @@ import './FileShareBoardPage.css';
 
 function FileShareBoardPage() {
   const [board, setBoard] = useState(null);
-  const [loading, setLoading] = useState(true); // Add loading state
   const [error, setError] = useState(null);     // Add error state
 
   const [newBug, setNewBug] = useState('');
@@ -26,7 +25,6 @@ function FileShareBoardPage() {
 
   const fetchBoard = async () => {
     try {
-      setLoading(true);
       setError(null);
 
       const res = await api.get('/fileshare');
@@ -45,8 +43,7 @@ function FileShareBoardPage() {
     } catch (err) {
       console.error('Error fetching board:', err);
       setError('Failed to load project board. Please try again later.');
-    } finally {
-      setLoading(false);
+      setBoard(createEmptyBoard()); // Set empty board on error
     }
   };
 
@@ -143,15 +140,7 @@ function FileShareBoardPage() {
     }
   };
 
-  // Render logic based on loading, error, or board data
-  if (loading) {
-    return (
-      <div className="fileshare-page">
-        <div className="loading-message">Loading project board...</div>
-      </div>
-    );
-  }
-
+  // Render logic based on error or board data
   if (error) {
     return (
       <div className="fileshare-page">
