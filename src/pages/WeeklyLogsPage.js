@@ -3,8 +3,8 @@ import axios from 'axios';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import './WeeklyLogsPage.css';
-
 import API_BASE_URL from '../config/api';
+
 const API_URL = `${API_BASE_URL}/weeklylogs`;
 
 function WeeklyLogsPage() {
@@ -48,12 +48,10 @@ function WeeklyLogsPage() {
   const addOrUpdateLog = async () => {
     const cleanedObjectives = objectives.filter((obj) => obj.trim() !== '');
     if (!weekRange || cleanedObjectives.length === 0) return;
-
     const payload = {
       weekRange,
       objectives: cleanedObjectives
     };
-
     try {
       if (editingId) {
         const res = await axios.put(`${API_URL}/${editingId}`, payload);
@@ -89,14 +87,11 @@ function WeeklyLogsPage() {
     doc.setTextColor('#00cfff');
     doc.text('Weekly Objectives Summary', 14, 20);
     let y = 30;
-
     logs.forEach((log) => {
       doc.setFontSize(14);
       doc.setTextColor('#00cfff');
       doc.text(`Week: ${log.weekRange}`, 14, y);
-
       const rows = log.objectives.map(obj => [`• ${obj.trim()}`]);
-
       doc.autoTable({
         startY: y + 5,
         head: [['Objectives']],
@@ -112,10 +107,8 @@ function WeeklyLogsPage() {
         },
         margin: { left: 14, right: 14 },
       });
-
       y = doc.lastAutoTable.finalY + 10;
     });
-
     doc.save('weekly_objectives.pdf');
   };
 
@@ -123,7 +116,6 @@ function WeeklyLogsPage() {
     <div className="weekly-page">
       <div className="aurora-layer" />
       <h1 className="weekly-title">Weekly Objectives</h1>
-
       <div className="log-form">
         <input
           className="input-dark"
@@ -132,7 +124,6 @@ function WeeklyLogsPage() {
           value={weekRange}
           onChange={(e) => setWeekRange(e.target.value)}
         />
-
         {objectives.map((obj, idx) => (
           <div key={idx} className="objective-row">
             <input
@@ -147,7 +138,6 @@ function WeeklyLogsPage() {
             )}
           </div>
         ))}
-
         <div className="button-group">
           <button className="neon-add" onClick={addObjectiveField}>＋ Add Field</button>
           <button className="neon-save" onClick={addOrUpdateLog}>
@@ -155,7 +145,6 @@ function WeeklyLogsPage() {
           </button>
         </div>
       </div>
-
       <div className="log-list">
         {logs.length === 0 ? (
           <p className="empty-message">No objectives added yet. Plan your week!</p>
@@ -177,7 +166,6 @@ function WeeklyLogsPage() {
                 </ul>
               </div>
             ))}
-
             <div style={{ textAlign: 'center', marginTop: '2rem' }}>
               <button className="neon-save" onClick={exportToPDF}>⬇ Export as PDF</button>
             </div>
