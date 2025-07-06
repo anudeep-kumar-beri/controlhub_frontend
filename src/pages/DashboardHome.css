@@ -50,9 +50,10 @@ body {
 
 .dashboard-title {
   font-family: 'Catchland', sans-serif;
-  font-size: 4rem;
   font-weight: normal;
-  color: #ffffff;
+  font-size: 5rem;
+   color: rgba(255, 255, 255, 0.281); /* translucent fill */
+  letter-spacing: 1px;
 
   /* Remove liquid matte gradient */
   background: none;
@@ -63,11 +64,15 @@ body {
   -webkit-text-stroke: 0.8px #ffffff;
 
   /* Completely remove shadows */
-  text-shadow: none;
-  filter: none;
+  text-shadow:
+    0 0 4px rgba(255, 255, 255, 0.15),
+    0 0 10px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 
   margin-bottom: 2.5rem;
 }
+
 
 
 
