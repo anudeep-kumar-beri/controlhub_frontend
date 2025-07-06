@@ -3,7 +3,7 @@ import axios from 'axios';
 import jsPDF from 'jspdf';
 import './QuickJournalPage.css';
 
-const API_URL = 'https://controlhub-api.onrender.com/api/journal';
+const API_URL = 'https://controlhub-backend.onrender.com/api/journal';
 
 function QuickJournalPage() {
   const [journal, setJournal] = useState('');
