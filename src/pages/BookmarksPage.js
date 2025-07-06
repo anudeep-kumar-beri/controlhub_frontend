@@ -26,7 +26,6 @@ function BookmarksPage() {
 
   const handleAddOrUpdate = async () => {
     if (!newBookmark.title || !newBookmark.link) return;
-
     try {
       if (editingId) {
         const res = await axios.put(`${API_URL}/${editingId}`, newBookmark);
@@ -71,7 +70,6 @@ function BookmarksPage() {
     <div className="bookmark-page">
       <div className="aurora-layer" />
       <h1 className="bookmark-title">🔖 Bookmarks</h1>
-
       <input
         type="text"
         placeholder="🔍 Search by title or category"
@@ -79,7 +77,6 @@ function BookmarksPage() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-
       <div className="bookmark-input">
         <input
           type="text"
@@ -109,7 +106,6 @@ function BookmarksPage() {
           <button className="neon-delete" onClick={handleClear}>Cancel</button>
         )}
       </div>
-
       <div className="bookmark-list">
         {filtered.length === 0 ? (
           <p className="empty-message">No bookmarks found.</p>
