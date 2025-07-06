@@ -112,6 +112,11 @@
   box-shadow: 0 0 12px #84b9ff99;
 }
 
+.bookmark-input button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #58a6ff;
+}
+
 .clear-edit {
   background-color: #333;
   color: #fff;
@@ -177,6 +182,33 @@
 .bookmark-edit:hover,
 .bookmark-delete:hover {
   color: #a6dfff;
+}
+
+.bookmark-edit:focus,
+.bookmark-delete:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #58a6ff;
+}
+
+.neon-delete {
+  background-color: transparent;
+  color: #58a6ff;
+  border: 1px solid #58a6ff;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.neon-delete:hover {
+  background-color: #58a6ff;
+  color: #000;
+}
+
+.neon-delete:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #58a6ff;
 }
 
 .empty-message {

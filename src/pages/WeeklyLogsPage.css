@@ -115,12 +115,22 @@
 .neon-save:hover,
 .neon-delete:hover,
 .neon-edit:hover {
-  background-color: #ffaa33;
+  background-color: #ff9100;
+  color: #000;
+}
+
+.neon-add:focus,
+.neon-save:focus,
+.neon-delete:focus,
+.neon-edit:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #ff9100;
 }
 
 .log-list {
   max-width: 700px;
   margin: 0 auto;
+  padding-top: 1rem;
 }
 
 .log-card {

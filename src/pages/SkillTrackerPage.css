@@ -120,6 +120,11 @@
   color: #000;
 }
 
+.neon-add:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #00ff99;
+}
+
 .skill-list {
   max-width: 600px;
   margin: 0 auto;
@@ -187,6 +192,11 @@ input[type="range"] {
 .neon-delete:hover {
   background-color: #00ff99;
   color: #000;
+}
+
+.neon-delete:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #00ff99;
 }
 
 .badge {

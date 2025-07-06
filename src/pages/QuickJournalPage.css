@@ -148,6 +148,34 @@ textarea:focus {
   box-shadow: 0 0 14px #e699ff77, inset 0 0 8px #e699ff55;
 }
 
+.clear-btn:focus,
+.update-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #cc66ff;
+}
+
+.neon-export {
+  background-color: #2a0f2a;
+  border: 1px solid #cc66ffaa;
+  color: #ffccff;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  box-shadow: 0 0 10px #cc66ff44, inset 0 0 6px #cc66ff22;
+}
+
+.neon-export:hover {
+  background-color: #3a1040;
+  box-shadow: 0 0 14px #e699ff77, inset 0 0 8px #e699ff55;
+}
+
+.neon-export:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #cc66ff;
+}
+
 /* Mobile responsive */
 @media (max-width: 480px) {
   textarea {
@@ -162,6 +190,11 @@ textarea:focus {
 
   .clear-btn,
   .update-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .neon-export {
     width: 100%;
     text-align: center;
   }

@@ -12,3 +12,36 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Global button focus styles to prevent orange outlines */
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+}
+
+/* Default button styles */
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Remove default button focus outline */
+button:focus {
+  outline: none;
+}
+
+/* Override any default browser button styles */
+button::-moz-focus-inner {
+  border: 0;
+}
+
+/* Remove default outline on focus for form elements */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+}

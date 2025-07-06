@@ -129,7 +129,13 @@
 }
 
 .input-group button:hover {
-  background-color: #00e6ff;
+  background-color: #66d9ff;
+  color: #000;
+}
+
+.input-group button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #00cfff;
 }
 
 .project-info ul {
@@ -164,4 +170,11 @@
 
 .remove-btn:hover {
   color: #ff9999;
+}
+
+.file-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
 }
