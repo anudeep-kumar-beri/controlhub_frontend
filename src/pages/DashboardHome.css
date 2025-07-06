@@ -47,12 +47,6 @@ body {
   100% { transform: translate(0%, 0%) rotate(360deg); }
 }
 
-@font-face {
-  font-family: 'Catchland';
-  src: url('/fonts/Catchland-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
 
 .dashboard-title {
   font-family: 'Catchland', sans-serif; /* Ensure Catchland is first */
