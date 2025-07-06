@@ -1,6 +1,6 @@
-.weekly-page {
-  background-color: #10131a; /* deep, dark, almost black */
-  color: #00eaff; /* neon cyan */
+.page {
+  background-color: #10131a;
+  color: #00eaff;
   min-height: 100vh;
   padding: 2rem;
   font-family: 'Segoe UI', 'Arial', sans-serif;
@@ -8,7 +8,7 @@
   overflow-x: hidden;
 }
 
-.weekly-title {
+.title {
   text-align: center;
   font-size: 2rem;
   margin-bottom: 2rem;
@@ -17,7 +17,7 @@
   font-weight: 700;
 }
 
-.log-form {
+.form {
   max-width: 700px;
   margin: 0 auto 2rem;
   display: flex;
@@ -25,7 +25,7 @@
   gap: 1rem;
 }
 
-.input-dark {
+.input {
   background-color: #181c23;
   color: #fff;
   border: 2px solid #00eaff;
@@ -36,22 +36,22 @@
   font-weight: 500;
   transition: border-color 0.2s;
 }
-.input-dark:focus {
+.input:focus {
   border-color: #00eaff;
 }
 
-.objective-row {
+.objectiveRow {
   display: flex;
   gap: 0.5rem;
   align-items: center;
 }
 
-.button-group {
+.buttonGroup {
   display: flex;
   gap: 0.8rem;
 }
 
-.neon-add, .neon-save, .neon-delete, .neon-edit {
+.button {
   background: #10131a;
   border: 2px solid #00eaff;
   color: #00eaff;
@@ -64,28 +64,21 @@
   transition: background 0.2s, color 0.2s;
   box-shadow: none;
 }
-.neon-add:hover,
-.neon-save:hover,
-.neon-delete:hover,
-.neon-edit:hover {
+.button:hover {
   background: #00eaff;
   color: #10131a;
 }
-
-.neon-add:focus,
-.neon-save:focus,
-.neon-delete:focus,
-.neon-edit:focus {
+.button:focus {
   outline: 2px solid #00eaff;
 }
 
-.log-list {
+.list {
   max-width: 700px;
   margin: 0 auto;
   padding-top: 1rem;
 }
 
-.log-card {
+.card {
   background: #181c23;
   padding: 1rem;
   margin-bottom: 1.5rem;
@@ -94,37 +87,52 @@
   box-shadow: none;
 }
 
-.log-header {
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.log-actions {
+.actions {
   display: flex;
   gap: 0.5rem;
 }
 
-.empty-message {
+.empty {
   text-align: center;
   font-style: italic;
   color: #00eaff99;
 }
 
-.neon-save {
-  margin-top: 1rem;
+.exportButton {
+  margin-top: 2rem;
+  background: #10131a;
+  border: 2px solid #00eaff;
+  color: #00eaff;
+  border-radius: 4px;
+  padding: 0.4rem 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: none;
+}
+.exportButton:hover {
+  background: #00eaff;
+  color: #10131a;
 }
 
 @media (max-width: 768px) {
-  .weekly-page { padding: 1rem; }
-  .weekly-title { font-size: 1.8rem; margin-bottom: 1.5rem; }
-  .objective-row { flex-direction: column; gap: 0.5rem; align-items: stretch; }
-  .objective-row .input-dark { width: 100%; }
-  .button-group { flex-direction: column; gap: 0.5rem; }
-  .log-header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
-  .log-actions { align-self: flex-end; }
+  .page { padding: 1rem; }
+  .title { font-size: 1.8rem; margin-bottom: 1.5rem; }
+  .objectiveRow { flex-direction: column; gap: 0.5rem; align-items: stretch; }
+  .input { width: 100%; }
+  .buttonGroup { flex-direction: column; gap: 0.5rem; }
+  .header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .actions { align-self: flex-end; }
 }
 @media (max-width: 480px) {
-  .weekly-page { padding: 0.5rem; }
-  .weekly-title { font-size: 1.5rem; margin-bottom: 1rem; }
+  .page { padding: 0.5rem; }
+  .title { font-size: 1.5rem; margin-bottom: 1rem; }
 }
