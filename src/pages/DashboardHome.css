@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 @font-face {
   font-family: 'Catchland';
-  src: url('public/fonts/Catchland-Regular.ttf') format('opentype');
+  src: url('/fonts/Catchland-Regular.ttf') format('opentype');
   font-weight: normal;
   font-style: normal;
 }
