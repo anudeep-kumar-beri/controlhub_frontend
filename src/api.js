@@ -1,2 +1,14 @@
-const API_BASE_URL = "https://controlhub-backend.onrender.com/api";
-export default API_BASE_URL;
+import axios from 'axios';
+import API_BASE_URL from './config/api';
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
+// ...interceptors if any...
+
+export default api;
