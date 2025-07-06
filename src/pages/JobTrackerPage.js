@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './JobTrackerPage.css';
 
-const API_URL = 'https://controlhub-api.onrender.com/api/jobs';
+const API_URL = 'https://controlhub-backend.onrender.com/api/jobs';
 
 function JobTrackerPage() {
   const [jobs, setJobs] = useState([]);
