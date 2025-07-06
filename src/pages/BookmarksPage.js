@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import './BookmarksPage.css';
 
-const API_URL = 'https://controlhub-api.onrender.com/api/bookmarks';
+const API_URL = `${API_BASE_URL}/bookmarks`;
 
 function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState([]);
