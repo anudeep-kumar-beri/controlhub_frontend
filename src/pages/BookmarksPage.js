@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api.js';
 import './BookmarksPage.css';
-
-const API_URL = 'https://controlhub-api.onrender.com/api/bookmarks';
 
 function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState([]);
@@ -16,7 +14,7 @@ function BookmarksPage() {
 
   const fetchBookmarks = async () => {
     try {
-      const res = await axios.get(API_URL);
+      const res = await api.get('/bookmarks');
       setBookmarks(res.data);
     } catch (err) {
       console.error('Failed to load bookmarks:', err);
@@ -28,10 +26,10 @@ function BookmarksPage() {
 
     try {
       if (editingId) {
-        const res = await axios.put(`${API_URL}/${editingId}`, newBookmark);
+        const res = await api.put(`/bookmarks/${editingId}`, newBookmark);
         setBookmarks(bookmarks.map(b => (b._id === editingId ? res.data : b)));
       } else {
-        const res = await axios.post(API_URL, newBookmark);
+        const res = await api.post('/bookmarks', newBookmark);
         setBookmarks([res.data, ...bookmarks]);
       }
       setNewBookmark({ title: '', link: '', category: '' });
@@ -43,7 +41,7 @@ function BookmarksPage() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await api.delete(`/bookmarks/${id}`);
       setBookmarks(bookmarks.filter(b => b._id !== id));
     } catch (err) {
       console.error('Delete failed:', err);

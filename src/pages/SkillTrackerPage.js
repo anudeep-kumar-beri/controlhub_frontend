@@ -1,9 +1,7 @@
 // src/pages/SkillTrackerPage.jsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api.js';
 import './SkillTrackerPage.css';
-
-const API_URL = 'https://controlhub-api.onrender.com/api/skills'; // Replace with your localhost if needed
 
 function SkillTrackerPage() {
   const [skills, setSkills] = useState([]);
@@ -20,7 +18,7 @@ function SkillTrackerPage() {
 
   const fetchSkills = async () => {
     try {
-      const res = await axios.get(API_URL);
+      const res = await api.get('/skills');
       setSkills(res.data);
     } catch (err) {
       console.error('Failed to load skills', err);
@@ -31,7 +29,7 @@ function SkillTrackerPage() {
     if (newSkill.trim() === '') return;
 
     try {
-      const res = await axios.post(API_URL, {
+      const res = await api.post('/skills', {
         name: newSkill.trim(),
         progress: newLevel, // Correctly using 'progress' here
         category
@@ -48,7 +46,7 @@ function SkillTrackerPage() {
   const updateLevel = async (index, value) => {
     const skill = skills[index];
     try {
-      await axios.put(`${API_URL}/${skill._id}`, { progress: value });
+      await api.put(`/skills/${skill._id}`, { progress: value });
       const updated = [...skills];
       updated[index].progress = value;
       setSkills(updated);
@@ -61,7 +59,7 @@ function SkillTrackerPage() {
   const removeSkill = async (index) => {
     const skill = skills[index];
     try {
-      await axios.delete(`${API_URL}/${skill._id}`);
+      await api.delete(`/skills/${skill._id}`);
       const updated = skills.filter((_, i) => i !== index);
       setSkills(updated);
     } catch (err) {

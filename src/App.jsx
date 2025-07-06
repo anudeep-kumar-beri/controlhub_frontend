@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import ErrorBoundary from './components/ErrorBoundary.js';
 import DashboardHome from './pages/DashboardHome.js';
 import SkillTrackerPage from './pages/SkillTrackerPage.js';
 import FileShareBoardPage from './pages/FileShareBoardPage.js';
@@ -11,16 +12,18 @@ import NotFoundPage from './pages/NotFoundPage.js';
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<DashboardHome />} />
-      <Route path="/skill-tracker" element={<SkillTrackerPage />} />
-      <Route path="/file-share-board" element={<FileShareBoardPage />} />
-      <Route path="/weekly-logs" element={<WeeklyLogsPage />} />
-      <Route path="/job-tracker" element={<JobTrackerPage />} />
-      <Route path="/bookmarks" element={<BookmarksPage />} />
-      <Route path="/quick-journal" element={<QuickJournalPage />} />
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+    <ErrorBoundary>
+      <Routes>
+        <Route path="/" element={<DashboardHome />} />
+        <Route path="/skill-tracker" element={<SkillTrackerPage />} />
+        <Route path="/file-share-board" element={<FileShareBoardPage />} />
+        <Route path="/weekly-logs" element={<WeeklyLogsPage />} />
+        <Route path="/job-tracker" element={<JobTrackerPage />} />
+        <Route path="/bookmarks" element={<BookmarksPage />} />
+        <Route path="/quick-journal" element={<QuickJournalPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </ErrorBoundary>
   );
 }
 

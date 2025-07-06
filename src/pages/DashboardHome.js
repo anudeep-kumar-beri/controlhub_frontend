@@ -2,9 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import './DashboardHome.css';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-const API_BASE = 'https://controlhub-api.onrender.com/api';
+import api from '../api.js';
 
 function DashboardHome() {
   const navigate = useNavigate();
@@ -18,10 +16,10 @@ function DashboardHome() {
     const fetchData = async () => {
       try {
         const [skillsRes, jobsRes, bookmarksRes, journalRes] = await Promise.all([
-          axios.get(`${API_BASE}/skills`),
-          axios.get(`${API_BASE}/jobs`),
-          axios.get(`${API_BASE}/bookmarks`),
-          axios.get(`${API_BASE}/journal`)
+          api.get('/skills'),
+          api.get('/jobs'),
+          api.get('/bookmarks'),
+          api.get('/journal')
         ]);
 
         setSkillData(skillsRes.data);
@@ -54,7 +52,7 @@ function DashboardHome() {
                   <div
                     className="bar-fill"
                     style={{
-                      width: `${skill.level}%`,
+                      width: `${skill.progress}%`,
                       backgroundColor: '#ffffff'
                     }}
                   ></div>

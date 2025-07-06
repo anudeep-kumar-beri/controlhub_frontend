@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api.js';
 import './JobTrackerPage.css';
-
-const API_URL = 'https://controlhub-api.onrender.com/api/jobs';
 
 function JobTrackerPage() {
   const [jobs, setJobs] = useState([]);
@@ -15,7 +13,7 @@ function JobTrackerPage() {
 
   const fetchJobs = async () => {
     try {
-      const res = await axios.get(API_URL);
+      const res = await api.get('/jobs');
       setJobs(res.data);
     } catch (err) {
       console.error('Failed to fetch jobs:', err);
@@ -30,7 +28,7 @@ function JobTrackerPage() {
       };
 
       try {
-        const res = await axios.post(API_URL, payload);
+        const res = await api.post('/jobs', payload);
         setJobs([res.data, ...jobs]);
         setNewJob({ role: '', status: '' });
       } catch (err) {
@@ -41,7 +39,7 @@ function JobTrackerPage() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await api.delete(`/jobs/${id}`);
       setJobs(jobs.filter(job => job._id !== id));
     } catch (err) {
       console.error('Delete failed:', err);
@@ -53,7 +51,7 @@ function JobTrackerPage() {
     if (!jobToUpdate) return;
 
     try {
-      const res = await axios.put(`${API_URL}/${id}`, {
+      const res = await api.put(`/jobs/${id}`, {
         ...jobToUpdate,
         status: newStatus
       });
@@ -68,7 +66,7 @@ function JobTrackerPage() {
     if (!confirm) return;
 
     try {
-      const deletions = jobs.map(job => axios.delete(`${API_URL}/${job._id}`));
+      const deletions = jobs.map(job => api.delete(`/jobs/${job._id}`));
       await Promise.all(deletions);
       setJobs([]);
     } catch (err) {

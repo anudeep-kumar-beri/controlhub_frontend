@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../api.js';
 import './FileShareBoardPage.css';
-
-const API_URL = 'https://controlhub-backend.onrender.com/api/fileshare';
 
 function FileShareBoardPage() {
   const [board, setBoard] = useState(null);
@@ -17,39 +15,38 @@ function FileShareBoardPage() {
 
   useEffect(() => {
     fetchBoard();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const createEmptyBoard = () => ({
+    version: 'v0.0.1',
+    changelog: [],
+    bugs: [],
+    features: []
+  });
 
   const fetchBoard = async () => {
     try {
-      setLoading(true); // Start loading
-      setError(null);   // Clear previous errors
+      setLoading(true);
+      setError(null);
 
-      const res = await axios.get(API_URL);
+      const res = await api.get('/fileshare');
 
-      // --- FIX STARTS HERE ---
-      // Check if res.data is an array and has at least one element
-      if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-        setBoard(res.data[0]);
+      // Handle both single object and array responses
+      if (res.data) {
+        if (Array.isArray(res.data)) {
+          setBoard(res.data.length > 0 ? res.data[0] : createEmptyBoard());
+        } else {
+          setBoard(res.data);
+        }
       } else {
-        // If no board document exists, initialize an empty structure for the frontend
-        // and log a warning. You might want to automatically create one on the backend
-        // or prompt the user to create it. For now, we'll just show an empty board.
-        console.warn('No existing FileShare board found. Displaying an empty board.');
-        setBoard({
-          version: 'N/A',
-          changelog: [],
-          bugs: [],
-          features: []
-        });
+        setBoard(createEmptyBoard());
       }
-      // --- FIX ENDS HERE ---
 
     } catch (err) {
       console.error('Error fetching board:', err);
-      // Set an error message to display to the user
       setError('Failed to load project board. Please try again later.');
     } finally {
-      setLoading(false); // End loading, whether success or fail
+      setLoading(false);
     }
   };
 
@@ -57,7 +54,7 @@ function FileShareBoardPage() {
     try {
       // Only try to PUT if a board._id exists (i.e., it's an existing board)
       if (board && board._id) {
-        const res = await axios.put(`${API_URL}/${board._id}`, updated);
+        const res = await api.put(`/fileshare/${board._id}`, updated);
         setBoard(res.data);
       } else {
         // If no board_id, it means we just initialized an empty board on frontend

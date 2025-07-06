@@ -154,23 +154,60 @@ body {
   }
 }
 
-/* Responsive Title */
-@media (max-width: 600px) {
+/* Add tablet breakpoint */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .tiles-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  
+  .wide-card {
+    grid-column: span 2;
+  }
+  
   .dashboard-title {
-    font-size: 1.9rem;
+    font-size: 2rem;
+  }
+}
+
+/* Improve mobile layout */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+  
+  .tiles-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .wide-card {
+    grid-column: span 1;
+  }
+  
+  .card {
+    padding: 1rem;
+  }
+  
+  .dashboard-title {
+    font-size: 1.8rem;
     text-align: center;
   }
 }
+
+/* Small mobile screens */
 @media (max-width: 480px) {
+  .dashboard-container {
+    padding: 0.5rem;
+  }
+
   .tiles-grid {
-    grid-template-columns: 1fr; /* 1 card per row */
-    gap: 1rem;
-    padding: 0 1rem;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
 
   .card {
-    width: 100%;
-    padding: 1rem;
+    padding: 0.75rem;
     font-size: 0.9rem;
   }
 
@@ -178,11 +215,27 @@ body {
     font-size: 1.1rem;
   }
 
-  .wide-card {
-    grid-column: span 1; /* Reset wide layout */
+  .dashboard-title {
+    font-size: 1.5rem;
   }
 
   .tall-card {
     min-height: unset;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 320px) {
+  .dashboard-title {
+    font-size: 1.3rem;
+  }
+  
+  .card h2 {
+    font-size: 1rem;
+  }
+  
+  .card {
+    padding: 0.5rem;
+    font-size: 0.8rem;
   }
 }
