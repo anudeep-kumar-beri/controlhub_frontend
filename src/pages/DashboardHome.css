@@ -1,4 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@font-face {
+  font-family: 'Catchland';
+  src: url('/fonts/Catchland.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
 
 body {
   background-color: #0d0d0f;
@@ -48,13 +54,16 @@ body {
 
 /* Title */
 .dashboard-title {
-  color: #ffffff;
-  font-size: 2.3rem;
-  font-weight: 600;
-  letter-spacing: 1.1px;
-  margin-bottom: 2rem;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.04);
+  font-family: 'Catchland', cursive;
+  font-size: 3rem;
+  color: #fff;
+  background: linear-gradient(145deg, #c0c0c0, #222);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.2);
+  filter: drop-shadow(0 1px 10px rgba(255,255,255,0.1));
 }
+
 
 /* Grid Layout */
 .tiles-grid {
