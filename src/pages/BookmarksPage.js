@@ -9,17 +9,18 @@ const initialBookmarkState = { title: '', link: '', category: '' };
 function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState([]);
   const [search, setSearch] = useState('');
-  const [newBookmark, setNewBookmark] = useState({ title: '', link: '', category: '' });
+  const [newBookmark, setNewBookmark] = useState(initialBookmarkState);
   const [editingId, setEditingId] = useState(null);
-
   const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     fetchBookmarks();
   }, []);
+
   const fetchBookmarks = async () => {
     try {
-      const res = await axios.get(API_URL);
       setIsLoading(true);
+      const res = await axios.get(API_URL);
       setBookmarks(res.data);
     } catch (err) {
       console.error('Failed to load bookmarks:', err);
@@ -29,7 +30,7 @@ function BookmarksPage() {
   };
 
   const handleAddOrUpdate = async () => {
-    if (!newBookmark.title || !newBookmark.link) return; // Basic validation
+    if (!newBookmark.title || !newBookmark.link) return;
     setIsLoading(true);
     try {
       if (editingId) {
@@ -42,24 +43,44 @@ function BookmarksPage() {
       handleClear();
     } catch (err) {
       console.error('Failed to save bookmark:', err);
-      // Consider adding user-facing error handling here, e.g., setError(err.message);
     } finally {
       setIsLoading(false);
     }
   };
-
 
   const handleClear = () => {
     setNewBookmark(initialBookmarkState);
     setEditingId(null);
   };
 
+  const handleEdit = (bookmark) => {
+    setNewBookmark({
+      title: bookmark.title,
+      link: bookmark.link,
+      category: bookmark.category,
+    });
+    setEditingId(bookmark._id);
+  };
+
+  const handleDelete = async (id) => {
+    setIsLoading(true);
+    try {
+      await axios.delete(`${API_URL}/${id}`);
+      setBookmarks(bookmarks.filter((b) => b._id !== id));
+    } catch (err) {
+      console.error('Failed to delete bookmark:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const filtered = bookmarks.filter(
     (bm) =>
-      bm && bm.title && bm.category && (
-        bm.title.toLowerCase().includes(search.toLowerCase()) ||
-        bm.category.toLowerCase().includes(search.toLowerCase())
-      )
+      bm &&
+      bm.title &&
+      bm.category &&
+      (bm.title.toLowerCase().includes(search.toLowerCase()) ||
+        bm.category.toLowerCase().includes(search.toLowerCase()))
   );
 
   return (
@@ -70,38 +91,57 @@ function BookmarksPage() {
         type="text"
         aria-label="Search bookmarks"
         placeholder="🔍 Search by title or category"
-        className="bookmark-search input-dark"
+        className="input-field bookmark-search"
         value={search}
+        onChange={(e) => setSearch(e.target.value)}
       />
+
       <div className="bookmark-input">
         <input
           aria-label="Bookmark Title"
           type="text"
           placeholder="📌 Title"
-          className="input-dark"
+          className="input-field"
           value={newBookmark.title}
           onChange={(e) => setNewBookmark({ ...newBookmark, title: e.target.value })}
           required
         />
         <input
           type="text"
+          placeholder="🏷️ Category"
+          className="input-field"
           value={newBookmark.category}
           onChange={(e) => setNewBookmark({ ...newBookmark, category: e.target.value })}
         />
+        <input
+          type="text"
+          placeholder="🔗 Link"
+          className="input-field"
+          value={newBookmark.link}
+          onChange={(e) => setNewBookmark({ ...newBookmark, link: e.target.value })}
+          required
+        />
+
         <button
-          className="neon-add"
+          className="button neon-add"
           onClick={handleAddOrUpdate}
-          aria-label={editingId ? "Update bookmark" : "Add bookmark"}
+          aria-label={editingId ? 'Update bookmark' : 'Add bookmark'}
           disabled={isLoading}
         >
           {editingId ? '✎ Update' : '＋ Add'}
         </button>
+
         {editingId && (
-          <button className="neon-delete" onClick={handleClear} aria-label="Cancel editing">
+          <button
+            className="button neon-delete"
+            onClick={handleClear}
+            aria-label="Cancel editing"
+          >
             Cancel
           </button>
         )}
       </div>
+
       <div className="bookmark-list" role="list">
         {filtered.length === 0 ? (
           <p className="empty-message">No bookmarks found.</p>
@@ -123,7 +163,13 @@ function BookmarksPage() {
                   >
                     ✎
                   </button>
-                  <button className="bookmark-delete" onClick={() => handleDelete(bm._id)} aria-label={`Delete bookmark: ${bm.title}`}>✕</button>
+                  <button
+                    className="bookmark-delete"
+                    onClick={() => handleDelete(bm._id)}
+                    aria-label={`Delete bookmark: ${bm.title}`}
+                  >
+                    ✕
+                  </button>
                 </div>
               </div>
             </div>
