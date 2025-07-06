@@ -98,7 +98,6 @@ function BookmarksPage() {
 
       <div className="bookmark-input">
         <input
-          aria-label="Bookmark Title"
           type="text"
           placeholder="📌 Title"
           className="input-field"
@@ -122,24 +121,20 @@ function BookmarksPage() {
           required
         />
 
-        <button
-          className="button neon-add"
-          onClick={handleAddOrUpdate}
-          aria-label={editingId ? 'Update bookmark' : 'Add bookmark'}
-          disabled={isLoading}
-        >
-          {editingId ? '✎ Update' : '＋ Add'}
-        </button>
-
-        {editingId && (
+        <div className="bookmark-buttons">
           <button
-            className="button neon-delete"
-            onClick={handleClear}
-            aria-label="Cancel editing"
+            className="button neon-add"
+            onClick={handleAddOrUpdate}
+            disabled={isLoading}
           >
-            Cancel
+            {editingId ? '✎ Update' : '＋ Add'}
           </button>
-        )}
+          {editingId && (
+            <button className="button neon-delete" onClick={handleClear}>
+              Cancel
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="bookmark-list" role="list">
@@ -147,7 +142,7 @@ function BookmarksPage() {
           <p className="empty-message">No bookmarks found.</p>
         ) : (
           filtered.map((bm) => (
-            <div key={bm._id} className="bookmark-item glow-hover" role="listitem">
+            <div key={bm._id} className="bookmark-item" role="listitem">
               <div className="bookmark-header">
                 <div className="bookmark-content">
                   <a href={bm.link} target="_blank" rel="noopener noreferrer">
