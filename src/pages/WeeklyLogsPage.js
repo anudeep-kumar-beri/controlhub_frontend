@@ -81,36 +81,36 @@ function WeeklyLogsPage() {
     setEditingId(log._id);
   };
 
-  const exportToPDF = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(18);
-    doc.setTextColor('#00cfff');
-    doc.text('Weekly Objectives Summary', 14, 20);
-    let y = 30;
-    logs.forEach((log) => {
-      doc.setFontSize(14);
-      doc.setTextColor('#00cfff');
-      doc.text(`Week: ${log.weekRange}`, 14, y);
-      const rows = log.objectives.map(obj => [`• ${obj.trim()}`]);
-      doc.autoTable({
-        startY: y + 5,
-        head: [['Objectives']],
-        body: rows,
-        styles: {
-          textColor: [0, 207, 255],
-          fillColor: '#111',
-          fontSize: 11,
-        },
-        headStyles: {
-          fillColor: '#00cfff',
-          textColor: '#ffffff',
-        },
-        margin: { left: 14, right: 14 },
-      });
-      y = doc.lastAutoTable.finalY + 10;
+const exportToPDF = () => {
+  const doc = new jsPDF();
+  doc.setFontSize(18);
+  doc.setTextColor('#00eaff');
+  doc.text('Weekly Objectives Summary', 14, 20);
+  let y = 30;
+  logs.forEach((log) => {
+    doc.setFontSize(14);
+    doc.setTextColor('#00eaff');
+    doc.text(`Week: ${log.weekRange}`, 14, y);
+    const rows = log.objectives.map(obj => [`• ${obj.trim()}`]);
+    doc.autoTable({
+      startY: y + 5,
+      head: [['Objectives']],
+      body: rows,
+      styles: {
+        textColor: [0, 234, 255],
+        fillColor: '#181c23',
+        fontSize: 11,
+      },
+      headStyles: {
+        fillColor: '#00eaff',
+        textColor: '#ffffff',
+      },
+      margin: { left: 14, right: 14 },
     });
-    doc.save('weekly_objectives.pdf');
-  };
+    y = doc.lastAutoTable.finalY + 10;
+  });
+  doc.save('weekly_objectives.pdf');
+};
 
   return (
     <div className="weekly-page">
