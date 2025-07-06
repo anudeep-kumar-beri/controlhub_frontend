@@ -59,12 +59,12 @@ function QuickJournalPage() {
     doc.text('📝 Quick Journal Entry', 14, 20);
 
     doc.setFontSize(12);
-    doc.setTextColor('#ffffff');
+    doc.setTextColor('#000000');
     const textLines = doc.splitTextToSize(journal || '(No journal entry)', 180);
     doc.text(textLines, 14, 40);
 
     if (lastUpdated) {
-      doc.setTextColor('#aaaaaa');
+      doc.setTextColor('#666666');
       doc.setFontSize(10);
       doc.text(`Last updated: ${lastUpdated}`, 14, doc.internal.pageSize.height - 10);
     }
@@ -87,7 +87,7 @@ function QuickJournalPage() {
         <span className="timestamp">
           {lastUpdated && `Last updated: ${lastUpdated}`}
         </span>
-        <div>
+        <div className="button-group">
           <button className="neon-save" onClick={handleUpdate} disabled={!pending}>
             {pending ? '💾 Update' : '✅ Up to Date'}
           </button>
