@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-//import './WeeklyLogsPage.css';
+import './WeeklyLogsPage.css';
 import API_BASE_URL from '../config/api';
 
 const API_URL = `${API_BASE_URL}/weeklylogs`;
