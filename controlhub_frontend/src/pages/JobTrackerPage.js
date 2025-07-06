@@ -64,12 +64,14 @@ function JobTrackerPage() {
           placeholder="Role"
           value={newJob.role}
           onChange={e => setNewJob({ ...newJob, role: e.target.value })}
+          disabled={loading}
         />
         <input
           type="text"
           placeholder="Status"
           value={newJob.status}
           onChange={e => setNewJob({ ...newJob, status: e.target.value })}
+          disabled={loading}
         />
         <button onClick={handleAdd} disabled={loading}>Add</button>
       </div>

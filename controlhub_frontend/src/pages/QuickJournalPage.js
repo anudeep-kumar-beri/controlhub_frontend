@@ -52,6 +52,7 @@ function QuickJournalPage() {
         placeholder="Write your thoughts here..."
         rows={10}
         className="journal-textarea"
+        disabled={loading}
       />
       <div className="journal-actions">
         <button onClick={handleSave} disabled={loading}>Save</button>

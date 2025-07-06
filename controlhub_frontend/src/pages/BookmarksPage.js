@@ -64,12 +64,14 @@ function BookmarksPage() {
           placeholder="Title"
           value={newBookmark.title}
           onChange={e => setNewBookmark({ ...newBookmark, title: e.target.value })}
+          disabled={loading}
         />
         <input
           type="url"
           placeholder="URL"
           value={newBookmark.url}
           onChange={e => setNewBookmark({ ...newBookmark, url: e.target.value })}
+          disabled={loading}
         />
         <button onClick={handleAdd} disabled={loading}>Add</button>
       </div>

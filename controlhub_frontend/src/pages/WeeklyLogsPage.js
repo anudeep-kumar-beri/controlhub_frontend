@@ -64,6 +64,7 @@ function WeeklyLogsPage() {
           placeholder="New log entry"
           value={newLog}
           onChange={e => setNewLog(e.target.value)}
+          disabled={loading}
         />
         <button onClick={handleAdd} disabled={loading}>Add</button>
       </div>
