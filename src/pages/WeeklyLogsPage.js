@@ -175,5 +175,8 @@ function WeeklyLogsPage() {
     </div>
   );
 }
-
+<div>
+  <input type="text" onChange={e => console.log('Test input:', e.target.value)} />
+  <button onClick={() => alert('Test button clicked!')}>Test Button</button>
+</div>
 export default WeeklyLogsPage;
