@@ -21,7 +21,7 @@ function FileShareBoardPage() {
   const fetchBoard = async () => {
     try {
       const res = await axios.get(API_URL);
-      setBoard(res.data[0]);
+      setBoard(res.data);
     } catch (err) {
       console.error('Error fetching board:', err);
     }
