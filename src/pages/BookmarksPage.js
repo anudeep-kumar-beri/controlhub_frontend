@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import './BookmarksPage.css';
 
 const API_URL = `${API_BASE_URL}/bookmarks`;
@@ -5,14 +8,15 @@ const initialBookmarkState = { title: '', link: '', category: '' };
 
 function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState([]);
+  const [search, setSearch] = useState('');
   const [newBookmark, setNewBookmark] = useState({ title: '', link: '', category: '' });
   const [editingId, setEditingId] = useState(null);
 
   const [isLoading, setIsLoading] = useState(false);
-  useEffect(() =&gt; {
+  useEffect(() => {
     fetchBookmarks();
   }, []);
-  const fetchBookmarks = async () =&gt; {
+  const fetchBookmarks = async () => {
     try {
       const res = await axios.get(API_URL);
       setIsLoading(true);
@@ -24,109 +28,110 @@ function BookmarksPage() {
     }
   };
 
-  const handleAddOrUpdate = async () =&gt; {
+  const handleAddOrUpdate = async () => {
     if (!newBookmark.title || !newBookmark.link) return; // Basic validation
     setIsLoading(true);
     try {
       if (editingId) {
         const res = await axios.put(`${API_URL}/${editingId}`, newBookmark);
-        setBookmarks(bookmarks.map(b =&gt; (b._id === editingId ? res.data : b)));
+        setBookmarks(bookmarks.map(b => (b._id === editingId ? res.data : b)));
       } else {
-          const res = await axios.post(API_URL, newBookmark);
+        const res = await axios.post(API_URL, newBookmark);
         setBookmarks([res.data, ...bookmarks]);
       }
       handleClear();
     } catch (err) {
       console.error('Failed to save bookmark:', err);
-    }
-    try {
-      await axios.delete(`${API_URL}/${id}`);
-      setBookmarks(bookmarks.filter(b =&gt; b._id !== id));
-      setIsLoading(true);
-    } catch (err) {
-      console.error('Delete failed:', err);
+      // Consider adding user-facing error handling here, e.g., setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleClear = () =&gt; {
+
+  const handleClear = () => {
     setNewBookmark(initialBookmarkState);
     setEditingId(null);
   };
 
   const filtered = bookmarks.filter(
-    (bm) =&gt;
-      bm &amp;&amp; bm.title &amp;&amp; bm.category &amp;&amp; (
-      bm.title.toLowerCase().includes(search.toLowerCase()) ||
-      bm.category.toLowerCase().includes(search.toLowerCase())
+    (bm) =>
+      bm && bm.title && bm.category && (
+        bm.title.toLowerCase().includes(search.toLowerCase()) ||
+        bm.category.toLowerCase().includes(search.toLowerCase())
       )
   );
 
   return (
-      &lt;h1 className="bookmark-title"&gt;🔖 Bookmarks&lt;/h1&gt;
-      &lt;input
+    <div className="bookmark-page">
+      <div className="aurora-layer" />
+      <h1 className="bookmark-title">🔖 Bookmarks</h1>
+      <input
         type="text"
         aria-label="Search bookmarks"
         placeholder="🔍 Search by title or category"
         className="bookmark-search input-dark"
         value={search}
-      /&gt;
-      &lt;div className="bookmark-input"&gt;
-        &lt;input
+      />
+      <div className="bookmark-input">
+        <input
           aria-label="Bookmark Title"
           type="text"
           placeholder="📌 Title"
           className="input-dark"
           value={newBookmark.title}
-          onChange={(e) =&gt; setNewBookmark({ ...newBookmark, title: e.target.value })}
+          onChange={(e) => setNewBookmark({ ...newBookmark, title: e.target.value })}
           required
-        /&gt;
-        &lt;input
+        />
+        <input
           type="text"
           value={newBookmark.category}
-          onChange={(e) =&gt; setNewBookmark({ ...newBookmark, category: e.target.value })}
-        /&gt;
-        &lt;button
+          onChange={(e) => setNewBookmark({ ...newBookmark, category: e.target.value })}
+        />
+        <button
           className="neon-add"
           onClick={handleAddOrUpdate}
           aria-label={editingId ? "Update bookmark" : "Add bookmark"}
           disabled={isLoading}
-        &gt;
+        >
           {editingId ? '✎ Update' : '＋ Add'}
-        &lt;/button&gt;
+        </button>
         {editingId && (
-          &lt;button className="neon-delete" onClick={handleClear} aria-label="Cancel editing"&gt;
+          <button className="neon-delete" onClick={handleClear} aria-label="Cancel editing">
             Cancel
-          &lt;/button&gt;
+          </button>
         )}
-      &lt;/div&gt;
-      &lt;div className="bookmark-list" role="list"&gt;
-          &lt;p className="empty-message"&gt;No bookmarks found.&lt;/p&gt;
+      </div>
+      <div className="bookmark-list" role="list">
+        {filtered.length === 0 ? (
+          <p className="empty-message">No bookmarks found.</p>
         ) : (
-          filtered.map((bm) =&gt; (
-            &lt;div key={bm._id} className="bookmark-item glow-hover" role="listitem"&gt;
-            &lt;div className="bookmark-header"&gt;
-              &lt;div className="bookmark-content"&gt;
-                &lt;a href={bm.link} target="_blank" rel="noopener noreferrer"&gt;
-                  {bm.title}
-                &lt;/a&gt;
-                {bm.category &amp;&amp; &lt;span className="bookmark-tag"&gt;#{bm.category}&lt;/span&gt;}
-              &lt;/div&gt;
-              &lt;div className="bookmark-actions"&gt;
-                &lt;button
-                  className="bookmark-edit"
-                  onClick={() =&gt; handleEdit(bm)}
-                  aria-label={`Edit bookmark: ${bm.title}`}
-                &gt;
-                  ✎
-                &lt;/button&gt;
-                &lt;button className="bookmark-delete" onClick={() =&gt; handleDelete(bm._id)} aria-label={`Delete bookmark: ${bm.title}`}&gt;✕&lt;/button&gt;
-              &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;/div&gt;
+          filtered.map((bm) => (
+            <div key={bm._id} className="bookmark-item glow-hover" role="listitem">
+              <div className="bookmark-header">
+                <div className="bookmark-content">
+                  <a href={bm.link} target="_blank" rel="noopener noreferrer">
+                    {bm.title}
+                  </a>
+                  {bm.category && <span className="bookmark-tag">#{bm.category}</span>}
+                </div>
+                <div className="bookmark-actions">
+                  <button
+                    className="bookmark-edit"
+                    onClick={() => handleEdit(bm)}
+                    aria-label={`Edit bookmark: ${bm.title}`}
+                  >
+                    ✎
+                  </button>
+                  <button className="bookmark-delete" onClick={() => handleDelete(bm._id)} aria-label={`Delete bookmark: ${bm.title}`}>✕</button>
+                </div>
+              </div>
+            </div>
           ))
         )}
+      </div>
+    </div>
+  );
 }
 
 export default BookmarksPage;
-
-
