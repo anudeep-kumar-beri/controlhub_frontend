@@ -51,7 +51,7 @@ body {
 .dashboard-title {
   font-family: 'Catchland', sans-serif;
   font-weight: normal;
-  font-size: 5rem;
+  font-size: 10rem;
    color: rgba(255, 255, 255, 0.281); /* translucent fill */
   letter-spacing: 1px;
 
