@@ -97,7 +97,7 @@ function WeeklyLogsPage() {
         head: [['Objectives']],
         body: rows,
         styles: {
-          textColor: [200, 255, 255],
+          textColor: [0, 207, 255],
           fillColor: '#111',
           fontSize: 11,
         },
