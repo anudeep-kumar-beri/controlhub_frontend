@@ -6,8 +6,21 @@
   padding: 2rem 1rem;
   box-sizing: border-box;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   z-index: 1;
+}
+
+/* Responsive padding */
+@media (max-width: 768px) {
+  .journal-page {
+    padding: 1rem 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .journal-page {
+    padding: 0.5rem 0.25rem;
+  }
 }
 
 /* 🌌 Aurora Glow Background */
@@ -53,6 +66,21 @@
   margin-bottom: 2rem;
   color: #cc66ff;
   text-shadow: 0 0 10px #cc66ff88;
+}
+
+/* Responsive title */
+@media (max-width: 768px) {
+  .journal-page h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .journal-page h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
 }
 
 textarea {

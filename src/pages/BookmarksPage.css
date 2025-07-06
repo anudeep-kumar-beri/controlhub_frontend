@@ -8,12 +8,40 @@
   overflow-x: hidden;
 }
 
+/* Responsive padding */
+@media (max-width: 768px) {
+  .bookmark-page {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .bookmark-page {
+    padding: 0.5rem;
+  }
+}
+
 .bookmark-title {
   text-align: center;
   font-size: 2rem;
   margin-bottom: 2rem;
   color: #58a6ff;
   text-shadow: 0 0 8px #58a6ff88;
+}
+
+/* Responsive title */
+@media (max-width: 768px) {
+  .bookmark-title {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .bookmark-title {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
 }
 
 .bookmark-search {
@@ -47,6 +75,24 @@
   border: 1px solid #333;
   border-radius: 4px;
   font-size: 1rem;
+  box-sizing: border-box;
+}
+
+/* Mobile bookmark input */
+@media (max-width: 768px) {
+  .bookmark-input {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .bookmark-input input {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+  
+  .bookmark-input button {
+    width: 100%;
+  }
 }
 
 .bookmark-input button {

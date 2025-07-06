@@ -1,39 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api.js';
+import LoadingSpinner from '../components/LoadingSpinner.js';
 import './JobTrackerPage.css';
 
 function JobTrackerPage() {
   const [jobs, setJobs] = useState([]);
   const [newJob, setNewJob] = useState({ role: '', status: '' });
   const [sortBy, setSortBy] = useState('date-desc');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
+    console.log('JobTrackerPage mounted, fetching jobs...');
+    console.log('API base URL:', api.defaults.baseURL);
     fetchJobs();
   }, []);
 
   const fetchJobs = async () => {
     try {
+      setLoading(true);
+      setError(null);
+      console.log('Fetching jobs from API...');
+      
       const res = await api.get('/jobs');
+      console.log('Jobs fetched successfully:', res.data);
+      
       setJobs(res.data);
     } catch (err) {
       console.error('Failed to fetch jobs:', err);
+      setError('Failed to load jobs. Please check your internet connection and try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleAddJob = async () => {
-    if (newJob.role && newJob.status) {
-      const payload = {
-        ...newJob,
-        date: new Date().toLocaleDateString()
-      };
+    if (!newJob.role || !newJob.status) {
+      alert('Please fill in both job role and status');
+      return;
+    }
 
-      try {
-        const res = await api.post('/jobs', payload);
-        setJobs([res.data, ...jobs]);
-        setNewJob({ role: '', status: '' });
-      } catch (err) {
-        console.error('Add failed:', err);
-      }
+    const payload = {
+      ...newJob,
+      date: new Date().toLocaleDateString()
+    };
+
+    try {
+      setAdding(true);
+      console.log('Adding job:', payload);
+      
+      const res = await api.post('/jobs', payload);
+      console.log('Job added successfully:', res.data);
+      
+      setJobs([res.data, ...jobs]);
+      setNewJob({ role: '', status: '' });
+    } catch (err) {
+      console.error('Add failed:', err);
+      alert('Failed to add job. Please try again.');
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -81,6 +107,52 @@ function JobTrackerPage() {
     if (sortBy === 'status') return a.status.localeCompare(b.status);
     return 0;
   });
+
+  // Show loading spinner while fetching initial data
+  if (loading) {
+    return (
+      <div className="job-page">
+        <div className="aurora-layer" />
+        <h1 className="job-title">Job Tracker</h1>
+        <LoadingSpinner message="Loading your job applications..." />
+      </div>
+    );
+  }
+
+  // Show error message if API fails
+  if (error) {
+    return (
+      <div className="job-page">
+        <div className="aurora-layer" />
+        <h1 className="job-title">Job Tracker</h1>
+        <div style={{
+          padding: '2rem',
+          textAlign: 'center',
+          backgroundColor: '#ff6b6b',
+          color: 'white',
+          borderRadius: '8px',
+          margin: '2rem'
+        }}>
+          <h3>⚠️ Error Loading Jobs</h3>
+          <p>{error}</p>
+          <button 
+            onClick={fetchJobs}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: 'white',
+              color: '#ff6b6b',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}
+          >
+            🔄 Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="job-page">
@@ -146,7 +218,13 @@ function JobTrackerPage() {
           <option value="Rejected">Rejected</option>
         </select>
         <div className="job-buttons">
-          <button className="add-btn" onClick={handleAddJob}>Add</button>
+          <button 
+            className="add-btn" 
+            onClick={handleAddJob}
+            disabled={adding}
+          >
+            {adding ? '⏳ Adding...' : 'Add'}
+          </button>
           <button className="clear-btn" onClick={clearJobs}>Clear All</button>
         </div>
       </div>

@@ -8,6 +8,19 @@
   overflow-x: hidden;
 }
 
+/* Responsive padding */
+@media (max-width: 768px) {
+  .fileshare-page {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .fileshare-page {
+    padding: 0.5rem;
+  }
+}
+
 .aurora-layer {
   content: "";
   position: absolute;
@@ -36,6 +49,20 @@
   text-shadow: 0 0 12px #00cfff88;
   position: relative;
   z-index: 1;
+}
+
+/* Responsive title */
+@media (max-width: 768px) {
+  .fileshare-title {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .fileshare-title {
+    font-size: 1.5rem;
+  }
 }
 
 .project-info {
@@ -71,6 +98,23 @@
   font-size: 0.9rem;
   width: 100%;
   max-width: 300px;
+  box-sizing: border-box;
+}
+
+/* Mobile input groups */
+@media (max-width: 768px) {
+  .input-group {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .input-group input {
+    max-width: 100%;
+  }
+  
+  .input-group button {
+    width: 100%;
+  }
 }
 
 .input-group button {
