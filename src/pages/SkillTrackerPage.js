@@ -1,12 +1,14 @@
 // src/pages/SkillTrackerPage.jsx
 import React, { useEffect, useState } from 'react';
-import api from '../api.js';
+import axios from 'axios';
 import './SkillTrackerPage.css';
+
+const API_URL = 'https://controlhub-api.onrender.com/api/skills'; // Replace with your localhost if needed
 
 function SkillTrackerPage() {
   const [skills, setSkills] = useState([]);
   const [newSkill, setNewSkill] = useState('');
-  const [newLevel, setNewLevel] = useState(0); // This is likely 'progress'
+  const [newLevel, setNewLevel] = useState(0);
   const [category, setCategory] = useState('General');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('All');
@@ -18,7 +20,7 @@ function SkillTrackerPage() {
 
   const fetchSkills = async () => {
     try {
-      const res = await api.get('/skills');
+      const res = await axios.get(API_URL);
       setSkills(res.data);
     } catch (err) {
       console.error('Failed to load skills', err);
@@ -26,40 +28,40 @@ function SkillTrackerPage() {
   };
 
   const addSkill = async () => {
-    if (newSkill.trim() === '') return;
+  if (newSkill.trim() === '') return;
 
-    try {
-      const res = await api.post('/skills', {
-        name: newSkill.trim(),
-        progress: newLevel, // Correctly using 'progress' here
-        category
-      });
-      setSkills([...skills, res.data]);
-      setNewSkill('');
-      setNewLevel(0);
-    } catch (err) {
-      console.error('Error adding skill', err);
-    }
-  };
+  try {
+    const res = await axios.post(API_URL, {
+      name: newSkill.trim(),
+      progress: newLevel, // was 'level'
+      category
+    });
+    setSkills([...skills, res.data]);
+    setNewSkill('');
+    setNewLevel(0);
+  } catch (err) {
+    console.error('Error adding skill', err);
+  }
+};
 
 
   const updateLevel = async (index, value) => {
-    const skill = skills[index];
-    try {
-      await api.put(`/skills/${skill._id}`, { progress: value });
-      const updated = [...skills];
-      updated[index].progress = value;
-      setSkills(updated);
-    } catch (err) {
-      console.error('Error updating skill level', err);
-    }
-  };
+  const skill = skills[index];
+  try {
+    await axios.put(`${API_URL}/${skill._id}`, { progress: value }); // changed 'level' to 'progress'
+    const updated = [...skills];
+    updated[index].progress = value; // reflect updated backend value
+    setSkills(updated);
+  } catch (err) {
+    console.error('Error updating skill level', err);
+  }
+};
 
 
   const removeSkill = async (index) => {
     const skill = skills[index];
     try {
-      await api.delete(`/skills/${skill._id}`);
+      await axios.delete(`${API_URL}/${skill._id}`);
       const updated = skills.filter((_, i) => i !== index);
       setSkills(updated);
     } catch (err) {
@@ -67,20 +69,17 @@ function SkillTrackerPage() {
     }
   };
 
-  // --------------------- FIX IS HERE ---------------------
   const getAlert = (progress) => {
-    if (progress < 30) return '🔴 Beginner'; // Changed 'level' to 'progress'
-    if (progress < 70) return '🟡 Intermediate'; // Changed 'level' to 'progress'
-    if (progress < 100) return '🟢 Advanced'; // Changed 'level' to 'progress'
+    if (level < 30) return '🔴 Beginner';
+    if (level < 70) return '🟡 Intermediate';
+    if (level < 100) return '🟢 Advanced';
     return '✅ Mastered';
   };
-  // -------------------------------------------------------
-
 
   const average =
-    skills.length === 0
-      ? 0
-      : Math.round(skills.reduce((sum, s) => sum + s.progress, 0) / skills.length);
+  skills.length === 0
+    ? 0
+    : Math.round(skills.reduce((sum, s) => sum + s.progress, 0) / skills.length);
 
 
   const filteredSortedSkills = () => {
@@ -101,11 +100,9 @@ function SkillTrackerPage() {
     } else if (sortOrder === 'Z-A') {
       filtered.sort((a, b) => b.name.localeCompare(a.name));
     } else if (sortOrder === 'High-Low') {
-      // FIX HERE TOO: If your skills objects have 'progress' not 'level'
-      filtered.sort((a, b) => b.progress - a.progress);
+      filtered.sort((a, b) => b.level - a.level);
     } else if (sortOrder === 'Low-High') {
-      // FIX HERE TOO: If your skills objects have 'progress' not 'level'
-      filtered.sort((a, b) => a.progress - b.progress);
+      filtered.sort((a, b) => a.level - b.level);
     }
 
     return filtered;

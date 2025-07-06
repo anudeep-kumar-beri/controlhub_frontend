@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api.js';
+import axios from 'axios';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import './WeeklyLogsPage.css';
+
+const API_URL = 'https://controlhub-api.onrender.com/api/weeklylogs';
 
 function WeeklyLogsPage() {
   const [logs, setLogs] = useState([]);
@@ -16,7 +18,7 @@ function WeeklyLogsPage() {
 
   const fetchLogs = async () => {
     try {
-      const res = await api.get('/weeklylogs');
+      const res = await axios.get(API_URL);
       setLogs(res.data);
     } catch (err) {
       console.error('Failed to fetch logs:', err);
@@ -53,10 +55,10 @@ function WeeklyLogsPage() {
 
     try {
       if (editingId) {
-        const res = await api.put(`/weeklylogs/${editingId}`, payload);
+        const res = await axios.put(`${API_URL}/${editingId}`, payload);
         setLogs(logs.map(log => (log._id === editingId ? res.data : log)));
       } else {
-        const res = await api.post('/weeklylogs', payload);
+        const res = await axios.post(API_URL, payload);
         setLogs([res.data, ...logs]);
       }
       clearForm();
@@ -67,7 +69,7 @@ function WeeklyLogsPage() {
 
   const removeLog = async (id) => {
     try {
-      await api.delete(`/weeklylogs/${id}`);
+      await axios.delete(`${API_URL}/${id}`);
       setLogs(logs.filter(log => log._id !== id));
     } catch (err) {
       console.error('Delete failed:', err);

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import api from '../api.js';
+import axios from 'axios';
 import jsPDF from 'jspdf';
 import './QuickJournalPage.css';
+
+const API_URL = 'https://controlhub-api.onrender.com/api/journal';
 
 function QuickJournalPage() {
   const [journal, setJournal] = useState('');
@@ -14,7 +16,7 @@ function QuickJournalPage() {
 
   const fetchJournal = async () => {
     try {
-      const res = await api.get('/journal');
+      const res = await axios.get(API_URL);
       if (res.data) {
         setJournal(res.data.text || '');
         setLastUpdated(new Date(res.data.updatedAt).toLocaleString());
@@ -31,7 +33,7 @@ function QuickJournalPage() {
 
   const handleUpdate = async () => {
     try {
-      const res = await api.post('/journal', { text: journal });
+      const res = await axios.post(API_URL, { text: journal });
       setLastUpdated(new Date(res.data.updatedAt).toLocaleString());
       setPending(false);
     } catch (err) {
@@ -41,7 +43,7 @@ function QuickJournalPage() {
 
   const clearJournal = async () => {
     try {
-      await api.delete('/journal');
+      await axios.delete(API_URL);
       setJournal('');
       setLastUpdated('');
       setPending(false);
