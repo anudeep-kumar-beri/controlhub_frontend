@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './FileShareBoardPage.css';
 
-const API_URL = 'https://controlhub-api.onrender.com/api/fileshare';
+const API_URL = 'https://controlhub-backend.onrender.com/api/fileshare';
 
 function FileShareBoardPage() {
   const [board, setBoard] = useState(null);
