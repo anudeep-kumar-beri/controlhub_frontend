@@ -6,6 +6,8 @@ const API_URL = 'https://controlhub-api.onrender.com/api/fileshare';
 
 function FileShareBoardPage() {
   const [board, setBoard] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [newBug, setNewBug] = useState('');
   const [newFeature, setNewFeature] = useState('');
   const [newFeatureLink, setNewFeatureLink] = useState('');
@@ -19,96 +21,106 @@ function FileShareBoardPage() {
   const fetchBoard = async () => {
     try {
       const res = await axios.get(API_URL);
-      setBoard(res.data[0]); // assume one board document
+      setBoard(res.data[0]);
     } catch (err) {
       console.error('Error fetching board:', err);
     }
   };
 
   const updateBoard = async (updated) => {
+    if (!board || !board._id) return;
+    setIsLoading(true);
     try {
       const res = await axios.put(`${API_URL}/${board._id}`, updated);
       setBoard(res.data);
     } catch (err) {
-      console.error('Error updating board:', err);
+      console.error('Error updating board:', err.response?.data || err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const addBug = () => {
-    if (newBug.trim()) {
-      const updated = {
-        ...board,
-        bugs: [...(board.bugs || []), { text: newBug, status: 'Pending' }]
-      };
-      updateBoard(updated);
-      setNewBug('');
-    }
+  const handleAddBug = () => {
+    if (!newBug.trim()) return;
+    const updated = {
+      ...board,
+      bugs: [...(board.bugs || []), { text: newBug, status: 'Pending' }],
+    };
+    updateBoard(updated);
+    setNewBug('');
   };
 
-  const addFeature = () => {
-    if (newFeature.trim()) {
-      const updated = {
-        ...board,
-        features: [
-          ...(board.features || []),
-          { text: newFeature, status: 'Planned', link: newFeatureLink }
-        ]
-      };
-      updateBoard(updated);
-      setNewFeature('');
-      setNewFeatureLink('');
-    }
+  const handleAddFeature = () => {
+    if (!newFeature.trim()) return;
+    const updated = {
+      ...board,
+      features: [
+        ...(board.features || []),
+        { text: newFeature, status: 'Planned', link: newFeatureLink },
+      ],
+    };
+    updateBoard(updated);
+    setNewFeature('');
+    setNewFeatureLink('');
   };
 
-  const updateBugStatus = (index, status) => {
+  const handleAddChangelog = () => {
+    if (!newVersion.trim() || !newSummary.trim()) return;
+    const now = new Date();
+    const date = now.toISOString().split('T')[0];
+    const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    const newLog = {
+      version: newVersion,
+      summary: newSummary,
+      date,
+      time,
+    };
+
+    const updated = {
+      ...board,
+      version: newVersion,
+      changelog: [newLog, ...(board.changelog || [])],
+    };
+    updateBoard(updated);
+    setNewVersion('');
+    setNewSummary('');
+  };
+
+  const handleBugStatusChange = (index, status) => {
     const updatedBugs = [...board.bugs];
     updatedBugs[index].status = status;
     updateBoard({ ...board, bugs: updatedBugs });
   };
 
-  const updateFeatureStatus = (index, status) => {
+  const handleFeatureStatusChange = (index, status) => {
     const updatedFeatures = [...board.features];
     updatedFeatures[index].status = status;
     updateBoard({ ...board, features: updatedFeatures });
   };
 
-  const removeBug = (index) => {
+  const handleRemoveBug = (index) => {
     const updatedBugs = board.bugs.filter((_, i) => i !== index);
     updateBoard({ ...board, bugs: updatedBugs });
   };
 
-  const removeFeature = (index) => {
+  const handleRemoveFeature = (index) => {
     const updatedFeatures = board.features.filter((_, i) => i !== index);
     updateBoard({ ...board, features: updatedFeatures });
   };
 
-  const addChangelog = () => {
-    if (newVersion.trim() && newSummary.trim()) {
-      const now = new Date();
-      const date = now.toISOString().split('T')[0];
-      const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const newLog = {
-        version: newVersion.trim(),
-        summary: newSummary.trim(),
-        date,
-        time
-      };
-      const updated = {
-        ...board,
-        version: newVersion.trim(),
-        changelog: [newLog, ...(board.changelog || [])]
-      };
-      updateBoard(updated);
-      setNewVersion('');
-      setNewSummary('');
-    }
-  };
-
-  if (!board) return <div>Loading...</div>;
+  if (!board) {
+    return (
+      <div className="fileshare-page">
+        <div className="aurora-layer" />
+        <div className="loading-message">Loading project board...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="fileshare-page">
-      <div className="aurora-layer"></div>
+      <div className="aurora-layer" />
       <h1 className="fileshare-title">📦 FileShare Project Board</h1>
 
       <div className="project-info glow-hover">
@@ -127,7 +139,7 @@ function FileShareBoardPage() {
             value={newSummary}
             onChange={(e) => setNewSummary(e.target.value)}
           />
-          <button onClick={addChangelog}>Add Version</button>
+          <button disabled={isLoading} onClick={handleAddChangelog}>Add Version</button>
         </div>
 
         <p><strong>📜 Changelog:</strong></p>
@@ -144,12 +156,15 @@ function FileShareBoardPage() {
           {(board.bugs || []).map((bug, idx) => (
             <li key={idx}>
               {bug.text} — <em>{bug.status}</em>
-              <select value={bug.status} onChange={(e) => updateBugStatus(idx, e.target.value)}>
+              <select
+                value={bug.status}
+                onChange={(e) => handleBugStatusChange(idx, e.target.value)}
+              >
                 <option value="Pending">Pending</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Fixed">Fixed</option>
               </select>
-              <button className="remove-btn" onClick={() => removeBug(idx)}>✕</button>
+              <button className="remove-btn" onClick={() => handleRemoveBug(idx)}>✕</button>
             </li>
           ))}
         </ul>
@@ -161,7 +176,7 @@ function FileShareBoardPage() {
             value={newBug}
             onChange={(e) => setNewBug(e.target.value)}
           />
-          <button onClick={addBug}>Add Bug</button>
+          <button disabled={isLoading} onClick={handleAddBug}>Add Bug</button>
         </div>
 
         <p><strong>🚀 Features ({(board.features || []).length}):</strong></p>
@@ -173,12 +188,15 @@ function FileShareBoardPage() {
               ) : (
                 <span>{f.text}</span>
               )} — <em>{f.status}</em>
-              <select value={f.status} onChange={(e) => updateFeatureStatus(idx, e.target.value)}>
+              <select
+                value={f.status}
+                onChange={(e) => handleFeatureStatusChange(idx, e.target.value)}
+              >
                 <option value="Planned">Planned</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Complete">Complete</option>
               </select>
-              <button className="remove-btn" onClick={() => removeFeature(idx)}>✕</button>
+              <button className="remove-btn" onClick={() => handleRemoveFeature(idx)}>✕</button>
             </li>
           ))}
         </ul>
@@ -196,7 +214,7 @@ function FileShareBoardPage() {
             value={newFeatureLink}
             onChange={(e) => setNewFeatureLink(e.target.value)}
           />
-          <button onClick={addFeature}>Add Feature</button>
+          <button disabled={isLoading} onClick={handleAddFeature}>Add Feature</button>
         </div>
       </div>
     </div>
