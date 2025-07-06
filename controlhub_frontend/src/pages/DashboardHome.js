@@ -4,7 +4,7 @@ import './DashboardHome.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const API_BASE = 'https://controlhub-api.onrender.com/api';
+const API_BASE = 'https://controlhub-backend.onrender.com/api';
 
 function DashboardHome() {
   const navigate = useNavigate();
