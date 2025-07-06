@@ -47,26 +47,34 @@ body {
   100% { transform: translate(0%, 0%) rotate(360deg); }
 }
 
+@font-face {
+  font-family: 'Catchland';
+  src: url('/fonts/Catchland-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .dashboard-title {
-  font-family: 'Catchland', cursive;
+  font-family: 'Catchland', sans-serif; /* Ensure Catchland is first */
   font-size: 3.8rem;
-  font-weight: 600;
+  font-weight: normal; /* OTF fonts like Catchland often don’t use 600/700 */
   color: #e6e6e6;
 
-  /* Liquified matte/glass tone */
-  background: linear-gradient(145deg, #dcdcdc, #1a1a1a);
+  /* Liquid matte text look */
+  background: linear-gradient(145deg, #e4e4e4, #202020);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
-  /* No side shadows, just subtle glow underneath */
+  /* Subtle glow underneath, NOT on the sides */
   text-shadow:
-    0 2px 4px rgba(255, 255, 255, 0.04),
-    0 4px 12px rgba(0, 0, 0, 0.4);
+    0 1px 2px rgba(255, 255, 255, 0.05),
+    0 2px 6px rgba(0, 0, 0, 0.3);
 
-  filter: none; /* removed drop-shadow */
+  filter: none; /* Make sure no extra shadows applied */
   margin-bottom: 2.5rem;
 }
+
 
 
 /* Grid Layout */
