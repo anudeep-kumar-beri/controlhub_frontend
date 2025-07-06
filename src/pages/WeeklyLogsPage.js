@@ -4,7 +4,8 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import './WeeklyLogsPage.css';
 
-const API_URL = 'https://controlhub-api.onrender.com/api/weeklylogs';
+import API_BASE_URL from '../config/api';
+const API_URL = `${API_BASE_URL}/weeklylogs`;
 
 function WeeklyLogsPage() {
   const [logs, setLogs] = useState([]);
