@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './SkillTrackerPage.css';
 
@@ -100,65 +100,95 @@ function SkillTrackerPage() {
   };
 
   return (
-    <div className="skill-tracker-container">
-      <h2>Skill Tracker</h2>
-      <input
-        type="text"
-        placeholder="Skill name"
-        value={newSkill}
-        onChange={e => setNewSkill(e.target.value)}
-      />
-      <input
-        type="number"
-        placeholder="Progress"
-        value={newProgress}
-        onChange={e => setNewProgress(Number(e.target.value))}
-      />
-      <select value={category} onChange={e => setCategory(e.target.value)}>
-        <option value="General">General</option>
-        <option value="Frontend">Frontend</option>
-        <option value="Backend">Backend</option>
-        <option value="Database">Database</option>
-        <option value="DevOps">DevOps</option>
-        <option value="Testing">Testing</option>
-      </select>
-      <button onClick={addSkill}>＋</button>
-      <input
-        type="text"
-        placeholder="Search skills"
-        value={searchTerm}
-        onChange={e => setSearchTerm(e.target.value)}
-      />
-      <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
-        <option value="All">All Categories</option>
-        <option value="Frontend">Frontend</option>
-        <option value="Backend">Backend</option>
-        <option value="Database">Database</option>
-        <option value="DevOps">DevOps</option>
-        <option value="Testing">Testing</option>
-        <option value="General">General</option>
-      </select>
-      <select value={sortOrder} onChange={e => setSortOrder(e.target.value)}>
-        <option value="Default">Sort</option>
-        <option value="A-Z">A → Z</option>
-        <option value="Z-A">Z → A</option>
-        <option value="High-Low">High → Low</option>
-        <option value="Low-High">Low → High</option>
-      </select>
-      <div>📈 Average Skill Level: <b>{average}%</b></div>
-      <ul>
+    <div className="skill-page">
+      <div className="aurora-layer" />
+      <h1>Skill Tracker</h1>
+      <div className="skill-add-form">
+        <input
+          type="text"
+          className="input-dark"
+          placeholder="Skill Name"
+          value={newSkill}
+          onChange={(e) => setNewSkill(e.target.value)}
+        />
+        <input
+          type="number"
+          className="input-dark"
+          placeholder="%"
+          value={newProgress}
+          min="0"
+          max="100"
+          onChange={(e) => setNewProgress(Number(e.target.value))}
+        />
+        <select
+          className="input-dark"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="General">General</option>
+          <option value="Frontend">Frontend</option>
+          <option value="Backend">Backend</option>
+          <option value="Database">Database</option>
+          <option value="DevOps">DevOps</option>
+          <option value="Testing">Testing</option>
+        </select>
+        <button className="neon-add" onClick={addSkill}>＋</button>
+      </div>
+      <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <input
+          type="text"
+          className="input-dark"
+          placeholder="Search skills..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <select className="input-dark" value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
+            <option value="All">All Categories</option>
+            <option value="Frontend">Frontend</option>
+            <option value="Backend">Backend</option>
+            <option value="Database">Database</option>
+            <option value="DevOps">DevOps</option>
+            <option value="Testing">Testing</option>
+            <option value="General">General</option>
+          </select>
+          <select className="input-dark" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+            <option value="Default">Sort</option>
+            <option value="A-Z">A → Z</option>
+            <option value="Z-A">Z → A</option>
+            <option value="High-Low">High → Low</option>
+            <option value="Low-High">Low → High</option>
+          </select>
+        </div>
+        <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#0f0' }}>
+          📈 Average Skill Level: <strong>{average}%</strong>
+        </p>
+      </div>
+      <div className="skill-list">
         {filteredSortedSkills().map((skill, idx) => (
-          <li key={skill._id}>
-            {skill.name} – {skill.progress}% {getAlert(skill.progress)}
-            <button onClick={() => removeSkill(idx)}>✕</button>
+          <div className="skill-item glow-hover" key={idx}>
+            <div className="skill-header">
+              <label>
+                {skill.name} – {skill.progress}% <span className="badge">{getAlert(skill.progress)}</span>
+              </label>
+              <button className="neon-delete" onClick={() => removeSkill(idx)}>✕</button>
+            </div>
             <input
-              type="number"
+              type="range"
+              min="0"
+              max="100"
               value={skill.progress}
-              onChange={e => updateProgress(idx, Number(e.target.value))}
+              onChange={(e) => updateProgress(idx, Number(e.target.value))}
             />
-          </li>
+            <div className="progress-bar">
+              <div
+                className="progress"
+                style={{ width: `${skill.progress}%` }}
+              ></div>
+            </div>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
