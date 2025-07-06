@@ -26,7 +26,7 @@ function FileShareBoardPage() {
 
   return (
     <div className="fileshare-board-container">
-      <h2>File Share Board</h2>
+      <h1>FileShare Board</h1>
       {loading && <p>Loading...</p>}
       {error && <p className="error">{error}</p>}
       {board && (
