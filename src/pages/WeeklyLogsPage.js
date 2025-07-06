@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import './WeeklyLogsPage.css';
+import styles from './WeeklyLogsPage.module.css';
 import API_BASE_URL from '../config/api';
 
 const API_URL = `${API_BASE_URL}/weeklylogs`;
@@ -13,9 +13,7 @@ function WeeklyLogsPage() {
   const [objectives, setObjectives] = useState(['']);
   const [editingId, setEditingId] = useState(null);
 
-  useEffect(() => {
-    fetchLogs();
-  }, []);
+  useEffect(() => { fetchLogs(); }, []);
 
   const fetchLogs = async () => {
     try {
@@ -33,25 +31,13 @@ function WeeklyLogsPage() {
   };
 
   const addObjectiveField = () => setObjectives([...objectives, '']);
-
-  const removeObjectiveField = (index) => {
-    const updated = objectives.filter((_, i) => i !== index);
-    setObjectives(updated);
-  };
-
-  const clearForm = () => {
-    setWeekRange('');
-    setObjectives(['']);
-    setEditingId(null);
-  };
+  const removeObjectiveField = (index) => setObjectives(objectives.filter((_, i) => i !== index));
+  const clearForm = () => { setWeekRange(''); setObjectives(['']); setEditingId(null); };
 
   const addOrUpdateLog = async () => {
     const cleanedObjectives = objectives.filter((obj) => obj.trim() !== '');
     if (!weekRange || cleanedObjectives.length === 0) return;
-    const payload = {
-      weekRange,
-      objectives: cleanedObjectives
-    };
+    const payload = { weekRange, objectives: cleanedObjectives };
     try {
       if (editingId) {
         const res = await axios.put(`${API_URL}/${editingId}`, payload);
@@ -81,82 +67,81 @@ function WeeklyLogsPage() {
     setEditingId(log._id);
   };
 
-const exportToPDF = () => {
-  const doc = new jsPDF();
-  doc.setFontSize(18);
-  doc.setTextColor('#00eaff');
-  doc.text('Weekly Objectives Summary', 14, 20);
-  let y = 30;
-  logs.forEach((log) => {
-    doc.setFontSize(14);
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
     doc.setTextColor('#00eaff');
-    doc.text(`Week: ${log.weekRange}`, 14, y);
-    const rows = log.objectives.map(obj => [`• ${obj.trim()}`]);
-    doc.autoTable({
-      startY: y + 5,
-      head: [['Objectives']],
-      body: rows,
-      styles: {
-        textColor: [0, 234, 255],
-        fillColor: '#181c23',
-        fontSize: 11,
-      },
-      headStyles: {
-        fillColor: '#00eaff',
-        textColor: '#ffffff',
-      },
-      margin: { left: 14, right: 14 },
+    doc.text('Weekly Objectives Summary', 14, 20);
+    let y = 30;
+    logs.forEach((log) => {
+      doc.setFontSize(14);
+      doc.setTextColor('#00eaff');
+      doc.text(`Week: ${log.weekRange}`, 14, y);
+      const rows = log.objectives.map(obj => [`• ${obj.trim()}`]);
+      doc.autoTable({
+        startY: y + 5,
+        head: [['Objectives']],
+        body: rows,
+        styles: {
+          textColor: [0, 234, 255],
+          fillColor: '#181c23',
+          fontSize: 11,
+        },
+        headStyles: {
+          fillColor: '#00eaff',
+          textColor: '#ffffff',
+        },
+        margin: { left: 14, right: 14 },
+      });
+      y = doc.lastAutoTable.finalY + 10;
     });
-    y = doc.lastAutoTable.finalY + 10;
-  });
-  doc.save('weekly_objectives.pdf');
-};
+    doc.save('weekly_objectives.pdf');
+  };
 
   return (
-    <div className="weekly-page">
-      {/* <div className="aurora-layer" /> */}
-      <h1 className="weekly-title">Weekly Objectives</h1>
-      <div className="log-form">
+    <div className={styles.page}>
+      <h1 className={styles.title}>Weekly Objectives</h1>
+      <div className={styles.form}>
         <input
-          className="input-dark"
+          className={styles.input}
           type="text"
           placeholder="Week Range (e.g. Jul 1 – Jul 7, 2025)"
           value={weekRange}
           onChange={(e) => setWeekRange(e.target.value)}
         />
         {objectives.map((obj, idx) => (
-          <div key={idx} className="objective-row">
+          <div key={idx} className={styles.objectiveRow}>
             <input
-              className="input-dark"
+              className={styles.input}
               type="text"
               placeholder={`Objective #${idx + 1}`}
               value={obj}
               onChange={(e) => handleObjectiveChange(e.target.value, idx)}
             />
             {objectives.length > 1 && (
-              <button onClick={() => removeObjectiveField(idx)} className="neon-delete">✕</button>
+              <button onClick={() => removeObjectiveField(idx)} className={styles.button}>✕</button>
             )}
           </div>
         ))}
-        <div className="button-group">
-          <button className="neon-add" onClick={addObjectiveField}>＋ Add Field</button>
-          <button className="neon-save" onClick={addOrUpdateLog}>
+        <div className={styles.buttonGroup}>
+          <button className={styles.button} onClick={addObjectiveField}>＋ Add Field</button>
+          <button className={styles.button} onClick={addOrUpdateLog}>
             {editingId ? 'Update' : 'Save'}
           </button>
         </div>
       </div>
-      <div className="log-list">
+      <div className={styles.list}>
         {logs.length === 0 ? (
-          <p className="empty-message">No objectives added yet. Plan your week!</p>
+          <p className={styles.empty}>No objectives added yet. Plan your week!</p>
         ) : (
           <>
             {logs.map((log) => (
-              <div key={log._id} className="log-card glow-hover">
-                <div className="log-header">
+              <div key={log._id} className={styles.card}>
+                <div className={styles.header}>
                   <h3>{log.weekRange}</h3>
-                  <div className="log-actions">
-                    <button className="neon-edit" onClick={() => editLog(log)}>✎</button>
-                    <button className="neon-delete" onClick={() => removeLog(log._id)}>✕</button>
+                  <div className={styles.actions}>
+                    <button className={styles.button} onClick={() => editLog(log)}>✎</button>
+                    <button className={styles.button} onClick={() => removeLog(log._id)}>✕</button>
                   </div>
                 </div>
                 <ul>
@@ -166,8 +151,8 @@ const exportToPDF = () => {
                 </ul>
               </div>
             ))}
-            <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-              <button className="neon-save" onClick={exportToPDF}>⬇ Export as PDF</button>
+            <div style={{ textAlign: 'center' }}>
+              <button className={styles.exportButton} onClick={exportToPDF}>⬇ Export as PDF</button>
             </div>
           </>
         )}
