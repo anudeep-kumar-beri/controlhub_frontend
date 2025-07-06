@@ -47,26 +47,25 @@ body {
   100% { transform: translate(0%, 0%) rotate(360deg); }
 }
 
-/* Title */
 .dashboard-title {
   font-family: 'Catchland', cursive;
-  font-size: 3.5rem;
-  font-weight: normal;
+  font-size: 3.8rem;
+  font-weight: 600;
   color: #e6e6e6;
 
-  /* liquid matte/gloss look */
-  background: linear-gradient(145deg, #d8d8d8, #1a1a1a);
+  /* Liquified matte/glass tone */
+  background: linear-gradient(145deg, #dcdcdc, #1a1a1a);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 
-  /* smooth glow + depth */
+  /* No side shadows, just subtle glow underneath */
   text-shadow:
-    1px 1px 2px rgba(255, 255, 255, 0.05),
-    -1px -1px 2px rgba(0, 0, 0, 0.5);
+    0 2px 4px rgba(255, 255, 255, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.4);
 
-  filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.08));
-  margin-bottom: 2rem;
+  filter: none; /* removed drop-shadow */
+  margin-bottom: 2.5rem;
 }
 
 
