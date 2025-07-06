@@ -109,14 +109,17 @@ function FileShareBoardPage() {
     updateBoard({ ...board, features: updatedFeatures });
   };
 
-  if (!board) {
-    return (
-      <div className="fileshare-page">
-        <div className="aurora-layer" />
-        <div className="loading-message">Loading project board...</div>
+if (!board) {
+  return (
+    <div className="fileshare-page">
+      <div className="aurora-layer" />
+      <div className="loading-wrapper">
+        <div className="iphone-spinner" aria-label="Loading" />
       </div>
-    );
-  }
+    </div>
+  );
+}
+
 
   return (
     <div className="fileshare-page">
