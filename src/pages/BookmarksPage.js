@@ -42,7 +42,7 @@ function BookmarksPage() {
       }
       handleClear();
     } catch (err) {
-      console.error('Failed to save bookmark:', err);
+      console.error('Failed to save bookmark:', err.response?.data || err.message || err);
     } finally {
       setIsLoading(false);
     }
