@@ -24,32 +24,51 @@ function WeeklyLogsPage() {
     }
   };
 
-  const addOrUpdateLog = async () => {
-  const cleanedObjectives = objectives
-    .map((obj) => obj.trim())
-    .filter((obj) => obj !== '');
-
-  if (!weekRange.trim() || cleanedObjectives.length === 0) return;
-
-  const payload = {
-    weekRange: weekRange.trim(),
-    objectives: cleanedObjectives,
+  const handleObjectiveChange = (value, index) => {
+    const updated = [...objectives];
+    updated[index] = value;
+    setObjectives(updated);
   };
 
-  try {
-    if (editingId) {
-      const res = await axios.put(`${API_URL}/${editingId}`, payload);
-      setLogs(logs.map(log => (log._id === editingId ? res.data : log)));
-    } else {
-      const res = await axios.post(API_URL, payload);
-      setLogs([res.data, ...logs]);
-    }
-    clearForm();
-  } catch (err) {
-    console.error('Save failed:', err);
-  }
-};
+  const addObjectiveField = () => {
+    setObjectives([...objectives, '']);
+  };
 
+  const removeObjectiveField = (index) => {
+    setObjectives(objectives.filter((_, i) => i !== index));
+  };
+
+  const clearForm = () => {
+    setWeekRange('');
+    setObjectives(['']);
+    setEditingId(null);
+  };
+
+  const addOrUpdateLog = async () => {
+    const cleanedObjectives = objectives
+      .map((obj) => obj.trim())
+      .filter((obj) => obj !== '');
+
+    if (!weekRange.trim() || cleanedObjectives.length === 0) return;
+
+    const payload = {
+      weekRange: weekRange.trim(),
+      objectives: cleanedObjectives,
+    };
+
+    try {
+      if (editingId) {
+        const res = await axios.put(`${API_URL}/${editingId}`, payload);
+        setLogs(logs.map(log => (log._id === editingId ? res.data : log)));
+      } else {
+        const res = await axios.post(API_URL, payload);
+        setLogs([res.data, ...logs]);
+      }
+      clearForm();
+    } catch (err) {
+      console.error('Save failed:', err);
+    }
+  };
 
   const removeLog = async (id) => {
     try {
