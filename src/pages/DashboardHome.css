@@ -50,20 +50,19 @@ body {
 
 .dashboard-title {
   font-family: 'Catchland', sans-serif;
-  font-size: 4.2rem;
+  font-size: 4rem;
   font-weight: normal;
   color: #ffffff;
 
-  /* Cartoonish thick matte text effect */
-  background: linear-gradient(145deg, #f0f0f0, #1e1e1e);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  /* Remove liquid matte gradient */
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: unset;
 
-  /* Thicker outline-style stroke */
-  -webkit-text-stroke: 1px #ffffff;
+  /* Thicker appearance using stroke */
+  -webkit-text-stroke: 0.8px #ffffff;
 
-  /* Removed shadow completely */
+  /* Completely remove shadows */
   text-shadow: none;
   filter: none;
 
