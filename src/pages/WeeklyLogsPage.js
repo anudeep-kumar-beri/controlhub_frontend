@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+vimport React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -114,7 +114,7 @@ function WeeklyLogsPage() {
 
   return (
     <div className="weekly-page">
-      <div className="aurora-layer" />
+      {/* <div className="aurora-layer" /> */}
       <h1 className="weekly-title">Weekly Objectives</h1>
       <div className="log-form">
         <input
