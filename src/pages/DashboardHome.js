@@ -39,17 +39,33 @@ function DashboardHome() {
 
   return (
     <div className="dashboard-container">
-    <div id="geometry-layer">
-  <svg className="pulse-shape" viewBox="0 0 100 100">
-    <circle cx="50" cy="50" r="40" />
-  </svg>
-  <svg className="pulse-shape" viewBox="0 0 100 100">
-    <rect x="20" y="20" width="60" height="60" rx="12" />
-  </svg>
-  <svg className="pulse-shape" viewBox="0 0 100 100">
-    <polygon points="50,15 90,85 10,85" />
-  </svg>
-</div>
+      {/* Background grid canvas */}
+      <canvas id="background-grid" style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: -2,
+        pointerEvents: 'none'
+      }}></canvas>
+
+      {/* Optional Geometric SVG Layer */}
+      <div id="geometry-layer" style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: -1,
+        pointerEvents: 'none'
+      }}>
+        <svg className="geometrics" viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
+          {[...Array(30)].map((_, i) => (
+            <circle key={i} cx={Math.random() * 100} cy={Math.random() * 100} r={Math.random() * 1.5 + 0.5} fill="white" opacity="0.05" />
+          ))}
+        </svg>
+      </div>
 
       <div className="title-bar">
         <h1 className="dashboard-title">ControlHub</h1>
