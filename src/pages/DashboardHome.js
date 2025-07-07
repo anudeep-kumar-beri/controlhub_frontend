@@ -1,9 +1,7 @@
-// src/pages/DashboardHome.jsx
 import React, { useEffect, useState } from 'react';
 import './DashboardHome.css';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
-console.log('api:', api);
 
 function DashboardHome() {
   const navigate = useNavigate();
@@ -12,21 +10,24 @@ function DashboardHome() {
   const [bookmarks, setBookmarks] = useState([]);
   const [journal, setJournal] = useState('');
   const [jobs, setJobs] = useState([]);
+  const [weeklyLogs, setWeeklyLogs] = useState([]); // ✅ NEW
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [skillsRes, jobsRes, bookmarksRes, journalRes] = await Promise.all([
+        const [skillsRes, jobsRes, bookmarksRes, journalRes, weeklyLogsRes] = await Promise.all([
           api.get('/skills'),
           api.get('/jobs'),
           api.get('/bookmarks'),
-          api.get('/journal')
+          api.get('/journal'),
+          api.get('/weeklylogs') // ✅ NEW
         ]);
 
         setSkillData(skillsRes.data);
         setJobs(jobsRes.data);
         setBookmarks(bookmarksRes.data);
         setJournal(journalRes.data?.text || '');
+        setWeeklyLogs(weeklyLogsRes.data); // ✅ NEW
 
       } catch (err) {
         console.error('Failed to load dashboard data:', err);
@@ -72,8 +73,13 @@ function DashboardHome() {
         <div className="card fade-in" onClick={() => navigate('/weekly-logs')}>
           <h2>Weekly Logs</h2>
           <ul>
-            <li>Week 1: Setup FileShare</li>
-            <li>Week 2: UI completed</li>
+            {weeklyLogs.length === 0 ? (
+              <li>No logs yet</li>
+            ) : (
+              weeklyLogs.slice(0, 2).map((log, idx) => (
+                <li key={idx}>{log.weekRange} – {log.objectives.length} tasks</li>
+              ))
+            )}
           </ul>
         </div>
 
