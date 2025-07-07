@@ -259,3 +259,71 @@ body {
     font-size: 0.8rem;
   }
 }
+/* 🔹 Grid Glow Canvas */
+#grid-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -3;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  background: transparent;
+}
+
+/* 🔹 Minimal Geometry Shapes (Vercel-style) */
+#geometry-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  pointer-events: none;
+}
+
+#geometry-layer svg {
+  position: absolute;
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 0.4;
+  animation: floaty 20s ease-in-out infinite;
+  transform-origin: center;
+}
+
+#geometry-layer svg:nth-child(1) {
+  top: 10%;
+  left: 10%;
+  width: 60px;
+  height: 60px;
+}
+#geometry-layer svg:nth-child(2) {
+  bottom: 15%;
+  right: 12%;
+  width: 80px;
+  height: 80px;
+}
+#geometry-layer svg:nth-child(3) {
+  top: 45%;
+  right: 20%;
+  width: 50px;
+  height: 50px;
+}
+#geometry-layer svg:nth-child(4) {
+  top: 25%;
+  left: 65%;
+  width: 40px;
+  height: 40px;
+}
+#geometry-layer svg:nth-child(5) {
+  bottom: 10%;
+  left: 30%;
+  width: 30px;
+  height: 30px;
+}
+
+@keyframes floaty {
+  0%   { transform: translateY(0) rotate(0deg); }
+  50%  { transform: translateY(-8px) rotate(180deg); }
+  100% { transform: translateY(0) rotate(360deg); }
+}
