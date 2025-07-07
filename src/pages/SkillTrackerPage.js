@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './SkillTrackerPage.css';
 import ControlHubBackground from "@/components/backgrounds/ControlHubBackground";
+import SkillTrackerAnimation from "@/components/animations/SkillTrackerAnimation";
+import "@/components/animations/skillTrackerAnimation.css";
 
 const API_URL = 'https://controlhub-backend.onrender.com/api/skills';
 
@@ -103,6 +105,7 @@ function SkillTrackerPage() {
   return (
     <div className="skill-page relative min-h-screen bg-black text-white overflow-hidden">
   <ControlHubBackground />
+<SkillTrackerAnimation />
 <main className="relative z-10">
       <h1>Skill Tracker</h1>
       <div className="skill-add-form">
