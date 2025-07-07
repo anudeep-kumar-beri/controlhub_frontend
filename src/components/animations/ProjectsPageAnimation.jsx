@@ -13,34 +13,41 @@ export default function ProjectAnimation() {
     canvas.width = width;
     canvas.height = height;
 
-    // Define static node positions
-    const nodes = [
-      { x: 200, y: 100 },
-      { x: 500, y: 150 },
-      { x: 800, y: 300 },
-      { x: 400, y: 400 },
-      { x: 150, y: 300 },
-      { x: 700, y: 550 },
-    ];
+    // Generate nodes in a grid-like pattern
+    const nodes = [];
+    const spacing = 200;
+    for (let x = spacing / 2; x < width; x += spacing) {
+      for (let y = spacing / 2; y < height; y += spacing) {
+        nodes.push({ x, y });
+      }
+    }
 
-    // Define edges (paths between nodes)
-    const edges = [
-      [0, 1],
-      [1, 2],
-      [2, 3],
-      [3, 4],
-      [4, 0],
-      [3, 5],
-    ];
+    // Connect nearby nodes
+    const edges = [];
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i];
+        const b = nodes[j];
+        const dist = Math.hypot(a.x - b.x, a.y - b.y);
+        if (dist < spacing * 1.1) {
+          edges.push([i, j]);
+        }
+      }
+    }
 
-    // Moving particles (train blips)
-    const particles = edges.map(() => ({ t: Math.random(), speed: 0.002 + Math.random() * 0.003 }));
+    // Multiple particles per edge
+    const particles = [];
+    edges.forEach(([i, j]) => {
+      for (let k = 0; k < 3; k++) {
+        particles.push({ i, j, t: Math.random(), speed: 0.001 + Math.random() * 0.002 });
+      }
+    });
 
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
 
       // Draw edges
-      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
       ctx.lineWidth = 1;
       edges.forEach(([i, j]) => {
         const a = nodes[i];
@@ -52,22 +59,18 @@ export default function ProjectAnimation() {
       });
 
       // Draw nodes as filled squares
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.shadowColor = 'white';
+      ctx.shadowBlur = 4;
       nodes.forEach((node) => {
-        const size = 6;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.shadowColor = 'white';
-        ctx.shadowBlur = 4;
-        ctx.fillRect(node.x - size / 2, node.y - size / 2, size, size);
-        ctx.shadowBlur = 0;
+        ctx.fillRect(node.x - 3, node.y - 3, 6, 6);
       });
+      ctx.shadowBlur = 0;
 
-      // Move and draw particles
-      edges.forEach(([i, j], idx) => {
-        const a = nodes[i];
-        const b = nodes[j];
-        const p = particles[idx];
-
-        // Move t forward
+      // Draw moving "train" particles
+      particles.forEach((p) => {
+        const a = nodes[p.i];
+        const b = nodes[p.j];
         p.t += p.speed;
         if (p.t > 1) p.t = 0;
 
@@ -75,9 +78,11 @@ export default function ProjectAnimation() {
         const y = a.y + (b.y - a.y) * p.t;
 
         ctx.beginPath();
-        ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        ctx.fill();
+        ctx.moveTo(x - 5, y);
+        ctx.lineTo(x + 5, y);
+        ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
       });
 
       requestAnimationFrame(draw);
