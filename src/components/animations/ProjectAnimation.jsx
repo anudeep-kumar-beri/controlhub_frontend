@@ -1,11 +1,12 @@
+// src/components/animations/ProjectPageAnimation.jsx
 import React from 'react';
-import './ProjectAnimation.css';
+import './ProjectPageAnimation.css';
 
-export default function ProjectAnimation() {
+export default function ProjectPageAnimation() {
   return (
-    <div className="project-animation-layer">
-      <div className="data-flow" />
-      <div className="matrix-particles" />
+    <div className="project-page-animation">
+      <div className="white-flow-lines" />
+      <div className="dotted-matrix-bg" />
     </div>
   );
 }
