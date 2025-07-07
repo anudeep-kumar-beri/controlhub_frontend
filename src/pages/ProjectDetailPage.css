@@ -21,88 +21,56 @@
   backdrop-filter: blur(10px);
 }
 
-.project-header {
+.project-detail-container h2 {
   text-align: center;
-  margin-bottom: 2rem;
-}
-
-.project-header h2 {
   font-size: 2rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.project-header p {
-  color: #aaa;
-  font-size: 0.95rem;
-}
-
-.changelog,
-.bug-list,
-.feature-list {
-  margin-top: 2rem;
-}
-
-.section-title {
-  font-weight: bold;
-  font-size: 1.1rem;
+.project-detail-container p {
   margin-bottom: 1rem;
   color: #ccc;
 }
 
-.changelog ul,
-.bug-list ul,
-.feature-list ul {
-  list-style: none;
-  padding-left: 0;
+/* Section Headings */
+.project-detail-container h3 {
+  font-size: 1.2rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #fff;
 }
 
-.changelog li,
-.bug-list li,
-.feature-list li {
+/* List Styles */
+.project-detail-container ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 1rem;
+}
+
+.project-detail-container li {
   background: rgba(255, 255, 255, 0.03);
   padding: 0.75rem 1rem;
   border-radius: 6px;
   margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  color: #eee;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
 }
 
-.changelog li strong {
+.project-detail-container li strong {
   color: #fff;
 }
 
-a.project-link {
-  color: #00bfff;
+.project-detail-container a {
+  color: #00cfff;
   text-decoration: underline;
-  word-break: break-all;
+  word-break: break-word;
 }
 
-.status-label {
-  font-size: 0.8rem;
-  padding: 0.25rem 0.6rem;
-  border-radius: 4px;
-  font-weight: bold;
-  background: #fff;
-  color: #000;
-}
-
-.back-btn {
-  margin-top: 2rem;
-  display: inline-block;
-  background: transparent;
-  border: 1px solid white;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.back-btn:hover {
-  background: white;
-  color: #000;
+.project-detail-container em {
+  color: #aaa;
+  font-size: 0.85rem;
 }
 
 /* Responsive */
@@ -111,7 +79,11 @@ a.project-link {
     padding: 1rem;
   }
 
-  .project-header h2 {
+  .project-detail-container h2 {
     font-size: 1.5rem;
+  }
+
+  .project-detail-container h3 {
+    font-size: 1.05rem;
   }
 }
