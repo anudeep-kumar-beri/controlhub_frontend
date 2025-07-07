@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ControlHubBackground from '../components/backgrounds/ControlHubBackground';
-import ProjectAnimation from '../components/animations/ProjectAnimation';
+import ProjectsPageAnimation from '../components/animations/ProjectsPageAnimation';
 import './ProjectsPage.css';
 
 const API_URL = 'https://controlhub-backend.onrender.com/api/projects';
@@ -44,7 +44,7 @@ function ProjectsPage() {
   return (
     <div className="projects-page">
       <ControlHubBackground />
-      <ProjectAnimation />
+      <ProjectsPageAnimation />
 
       <h1 className="projects-title">📁 Projects Dashboard</h1>
 
