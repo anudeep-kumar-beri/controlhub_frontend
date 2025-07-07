@@ -5,7 +5,7 @@ import './ProjectAnimation.css';
 export default function ProjectAnimation() {
   const canvasRef = useRef(null);
 
-  useEffect(() => {
+   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     let width = window.innerWidth;
