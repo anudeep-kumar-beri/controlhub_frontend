@@ -1,0 +1,101 @@
+.projects-page {
+  background: #000;
+  color: white;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  position: relative;
+  font-family: 'Segoe UI', sans-serif;
+  overflow: hidden;
+}
+
+.projects-title {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  z-index: 1;
+  position: relative;
+}
+
+.add-project-form {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+.add-project-form input {
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-size: 0.95rem;
+  outline: none;
+  min-width: 200px;
+  transition: 0.2s;
+}
+
+.add-project-form input:focus {
+  border-color: white;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.add-project-form button {
+  background: white;
+  color: black;
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.add-project-form button:hover {
+  background: #ddd;
+}
+
+.project-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  z-index: 1;
+  position: relative;
+}
+
+.project-card {
+  padding: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  backdrop-filter: blur(12px);
+}
+
+.project-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.project-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.2rem;
+}
+
+.project-card p {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.project-card small {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.glassy {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+}
