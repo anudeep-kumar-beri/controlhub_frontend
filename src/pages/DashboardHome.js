@@ -84,13 +84,25 @@ function DashboardHome() {
       <canvas id="grid-canvas"></canvas>
 
       {/* Geometry Shapes */}
-      <div id="geometry-layer">
-        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" /></svg>
-        <svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" rx="12" /></svg>
-        <svg viewBox="0 0 100 100"><polygon points="50,15 90,85 10,85" /></svg>
-        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" /></svg>
-        <svg viewBox="0 0 100 100"><rect x="25" y="25" width="50" height="50" rx="8" /></svg>
-      </div>
+      {/* Geometry Shapes */}
+<div id="geometry-layer">
+  <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" /></svg>
+  <svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" rx="12" /></svg>
+  <svg viewBox="0 0 100 100"><polygon points="50,15 90,85 10,85" /></svg>
+  <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" /></svg>
+  <svg viewBox="0 0 100 100"><rect x="25" y="25" width="50" height="50" rx="8" /></svg>
+  <svg viewBox="0 0 100 100"><polygon points="10,10 90,10 50,90" /></svg>
+  <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="35" /></svg>
+  <svg viewBox="0 0 100 100"><rect x="15" y="15" width="70" height="70" rx="10" /></svg>
+  <svg viewBox="0 0 100 100"><polygon points="50,5 95,50 50,95 5,50" /></svg>
+  <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="20" /></svg>
+  <svg viewBox="0 0 100 100"><rect x="30" y="30" width="40" height="40" rx="6" /></svg>
+  <svg viewBox="0 0 100 100"><polygon points="30,20 70,20 90,80 10,80" /></svg>
+  <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="25" /></svg>
+  <svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" rx="14" /></svg>
+  <svg viewBox="0 0 100 100"><polygon points="50,0 100,100 0,100" /></svg>
+</div>
+
 
       <div className="title-bar">
         <h1 className="dashboard-title">ControlHub</h1>
