@@ -37,7 +37,6 @@ function DashboardHome() {
   }, []);
 
   useEffect(() => {
-    // Glowing Grid Setup
     const canvas = document.getElementById('grid-canvas');
     if (!canvas) return;
 
@@ -105,10 +104,7 @@ function DashboardHome() {
               <div className="skill-bar" key={idx}>
                 <span>{skill.name}</span>
                 <div className="bar-bg">
-                  <div
-                    className="bar-fill"
-                    style={{ width: `${skill.progress}%`, backgroundColor: '#ffffff' }}
-                  ></div>
+                  <div className="bar-fill" style={{ width: `${skill.progress}%` }}></div>
                 </div>
               </div>
             ))}
