@@ -1,0 +1,37 @@
+.file-share-animation-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.file-stream {
+  position: absolute;
+  top: 20%;
+  width: 100%;
+  height: 2px;
+  background: repeating-linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0.15) 0px,
+    rgba(255, 255, 255, 0.15) 20px,
+    transparent 20px,
+    transparent 40px
+  );
+  animation: streamMove 10s linear infinite;
+  opacity: 0.4;
+}
+
+.file-stream.reverse {
+  top: 60%;
+  animation-direction: reverse;
+}
+
+@keyframes streamMove {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
