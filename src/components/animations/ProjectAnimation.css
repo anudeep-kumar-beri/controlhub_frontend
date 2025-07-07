@@ -1,63 +1,9 @@
-/* Fullscreen canvas container */
 .project-canvas-animation {
-  position: fixed;           /* Ensure it covers the entire screen */
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 0;
-  pointer-events: none;
-  background: transparent;
-}
-
-/* Optional additional effects — if needed */
-
-.project-page-animation {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  overflow: hidden;
-}
-
-/* Flowing white horizontal lines (representing file transfer) */
-.white-flow-lines::before {
-  content: "";
-  position: absolute;
-  top: 40%;
-  left: 0;
-  width: 200%;
-  height: 1.5px;
-  background: linear-gradient(to right, transparent, white, transparent);
-  animation: whiteFlow 6s linear infinite;
-  opacity: 0.08;
-}
-
-@keyframes whiteFlow {
-  0% {
-    transform: translateX(-50%);
-  }
-  100% {
-    transform: translateX(0%);
-  }
-}
-
-/* Subtle matrix-style white dots */
-.dotted-matrix-bg::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(white 1px, transparent 1px);
-  background-size: 40px 40px;
-  animation: matrixZoom 12s ease-in-out infinite;
-  opacity: 0.015;
-}
-
-@keyframes matrixZoom {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.04);
-  }
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
 }
