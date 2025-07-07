@@ -100,8 +100,9 @@ function SkillTrackerPage() {
   };
 
   return (
-    <div className="skill-page">
-      <div className="aurora-layer" />
+    <div className="skill-page relative min-h-screen bg-black text-white overflow-hidden">
+  <ControlHubBackground />
+<main className="relative z-10">
       <h1>Skill Tracker</h1>
       <div className="skill-add-form">
         <input
@@ -189,6 +190,7 @@ function SkillTrackerPage() {
           </div>
         ))}
       </div>
+          </main>
     </div>
   );
 }
