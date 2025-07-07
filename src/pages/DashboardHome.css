@@ -62,7 +62,7 @@ body {
   fill: none;
   stroke: rgba(255, 255, 255, 0.4); /* outlined only */
   stroke-width: 1;
-  animation: floatShape 25s ease-in-out infinite;
+  animation: floatShape 10s ease-in-out infinite;
   filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.05)); /* soft glow */
 }
 
