@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import ControlHubBackground from '../components/backgrounds/ControlHubBackground';
-import ProjectAnimation from '../components/animations/ProjectAnimation'; // ✅ Corrected
+import ProjectAnimation from '../components/animations/ProjectAnimation';
 import './ProjectDetailPage.css';
 
 const API_URL = 'https://controlhub-backend.onrender.com/api/projects';
@@ -13,14 +13,34 @@ function ProjectDetailPage() {
   const [project, setProject] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [editingVersion, setEditingVersion] = useState(false);
+  const [descInput, setDescInput] = useState('');
+  const [versionInput, setVersionInput] = useState('');
+
   useEffect(() => {
     axios.get(`${API_URL}/${id}`)
       .then(res => {
         setProject(res.data);
+        setDescInput(res.data.description || '');
+        setVersionInput(res.data.version || '');
         setIsLoading(false);
       })
       .catch(() => setIsLoading(false));
   }, [id]);
+
+  const updateField = async (field, value) => {
+    if (!project) return;
+    try {
+      const updated = { ...project, [field]: value };
+      const res = await axios.put(`${API_URL}/${project._id}`, updated);
+      setProject(res.data);
+      if (field === 'description') setEditingDesc(false);
+      if (field === 'version') setEditingVersion(false);
+    } catch (err) {
+      console.error('Error updating field:', err);
+    }
+  };
 
   if (isLoading) return <div className="project-detail-page">Loading...</div>;
   if (!project) return <div className="project-detail-page">Project not found</div>;
@@ -31,8 +51,42 @@ function ProjectDetailPage() {
       <ProjectAnimation />
       <main className="project-detail-container glassy">
         <h2>{project.name}</h2>
-        <p><strong>Version:</strong> {project.version || 'N/A'}</p>
-        <p><strong>Description:</strong> {project.description || 'No description provided.'}</p>
+
+        <p>
+          <strong>Version:</strong>{' '}
+          {editingVersion ? (
+            <>
+              <input
+                value={versionInput}
+                onChange={(e) => setVersionInput(e.target.value)}
+              />{' '}
+              <button onClick={() => updateField('version', versionInput)}>💾</button>
+            </>
+          ) : (
+            <>
+              {project.version || 'N/A'}{' '}
+              <button onClick={() => setEditingVersion(true)}>✏️</button>
+            </>
+          )}
+        </p>
+
+        <p>
+          <strong>Description:</strong>{' '}
+          {editingDesc ? (
+            <>
+              <input
+                value={descInput}
+                onChange={(e) => setDescInput(e.target.value)}
+              />{' '}
+              <button onClick={() => updateField('description', descInput)}>💾</button>
+            </>
+          ) : (
+            <>
+              {project.description || 'No description provided.'}{' '}
+              <button onClick={() => setEditingDesc(true)}>✏️</button>
+            </>
+          )}
+        </p>
 
         <section>
           <h3>📜 Changelog</h3>
@@ -54,7 +108,9 @@ function ProjectDetailPage() {
           <ul>
             {project.bugs?.length ? (
               project.bugs.map((bug, i) => (
-                <li key={i}>{bug.text} — <em>{bug.status}</em></li>
+                <li key={i}>
+                  {bug.text} — <span className={`status-badge ${bug.status.toLowerCase().replace(/\s+/g, '-')}`}>{bug.status}</span>
+                </li>
               ))
             ) : (
               <li>No bugs logged.</li>
@@ -72,7 +128,7 @@ function ProjectDetailPage() {
                     <a href={f.link} target="_blank" rel="noreferrer">{f.text}</a>
                   ) : (
                     f.text
-                  )} — <em>{f.status}</em>
+                  )} — <span className={`status-badge ${f.status.toLowerCase().replace(/\s+/g, '-')}`}>{f.status}</span>
                 </li>
               ))
             ) : (
