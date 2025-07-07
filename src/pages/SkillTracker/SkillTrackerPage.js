@@ -1,6 +1,6 @@
-// SkillTrackerPage.js (Redesigned)
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import ControlHubBackground from "../components/backgrounds/ControlHubBackground";
 import SkillTrackerAnimation from "../components/animations/SkillTrackerAnimation";
 import "../components/animations/skillTrackerAnimation.css";
@@ -15,6 +15,7 @@ function SkillTrackerPage() {
   const [newProgress, setNewProgress] = useState(0);
   const [category, setCategory] = useState('General');
   const [filterCategory, setFilterCategory] = useState('All');
+  const navigate = useNavigate();
 
   useEffect(() => { fetchSkills(); }, []);
 
@@ -114,7 +115,7 @@ function SkillTrackerPage() {
           {filteredSkills.map((skill, idx) => (
             <div className="skill-card" key={idx}>
               <div className="skill-header">
-                <h3>{skill.name}</h3>
+                <h3 onClick={() => navigate(`/skills/${skill._id}`)} style={{ cursor: 'pointer' }}>{skill.name}</h3>
                 <div className="right">
                   <span className="badge">{getAlert(skill.progress)}</span>
                   <button className="delete-btn" onClick={() => removeSkill(idx)}>✕</button>
