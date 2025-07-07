@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import ControlHubBackground from '../components/backgrounds/ControlHubBackground';
-import FileShareAnimation from '../components/animations/FileShareAnimation';
+import ProjectAnimation from '../components/animations/ProjectAnimation';
 import './ProjectsPage.css';
 
 const API_URL = 'https://controlhub-backend.onrender.com/api/projects';
@@ -20,7 +20,7 @@ function ProjectsPage() {
   const fetchProjects = async () => {
     try {
       const res = await axios.get(API_URL);
-      setProjects(res.data);
+      setProjects(res.data || []);
     } catch (err) {
       console.error('Error fetching projects:', err);
     }
@@ -44,7 +44,7 @@ function ProjectsPage() {
   return (
     <div className="projects-page">
       <ControlHubBackground />
-      <FileShareAnimation />
+      <ProjectAnimation />
 
       <h1 className="projects-title">📁 Projects Dashboard</h1>
 
