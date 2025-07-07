@@ -72,6 +72,60 @@
   color: #aaa;
   font-size: 0.85rem;
 }
+.status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-left: 0.5rem;
+}
+
+.status-badge.pending {
+  background-color: #ffcc00;
+  color: #000;
+}
+
+.status-badge.progress {
+  background-color: #00cfff;
+  color: #000;
+}
+
+.status-badge.fixed,
+.status-badge.complete {
+  background-color: #00e676;
+  color: #000;
+}
+.edit-input {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.4rem 0.8rem;
+  color: #fff;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 300px;
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.edit-button,
+.save-button {
+  background-color: #00cfff;
+  color: #000;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.edit-button:hover,
+.save-button:hover {
+  background-color: #66e0ff;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
