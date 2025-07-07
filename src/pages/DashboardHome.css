@@ -17,21 +17,28 @@ body {
   flex-direction: column;
   align-items: center;
   overflow: hidden;
-  z-index: 0;
+  z-index: 1;
 }
 
 /* Grid Canvas Background */
-#grid-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -3;
+#grid-canvas::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  animation: gridMove 60s linear infinite;
+  z-index: -1;
   pointer-events: none;
 }
-
+@keyframes gridMove {
+  from { background-position: 0 0; }
+  to { background-position: 40px 40px; }
+}
 /* Geometric Layer */
+/* Geometry Layer */
 #geometry-layer {
   position: fixed;
   top: 0;
@@ -44,24 +51,50 @@ body {
 
 #geometry-layer svg {
   position: absolute;
-  width: 50px;
-  height: 50px;
-  stroke: none;
-  fill: rgba(255, 255, 255, 0.04);
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.05); /* outlined only */
+  stroke-width: 1;
   animation: floatShape 25s ease-in-out infinite;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.05)); /* soft glow */
 }
 
-#geometry-layer svg:nth-child(1) { top: 10%; left: 20%; animation-delay: 0s; }
-#geometry-layer svg:nth-child(2) { top: 30%; left: 60%; animation-delay: 5s; }
-#geometry-layer svg:nth-child(3) { top: 70%; left: 40%; animation-delay: 10s; }
-#geometry-layer svg:nth-child(4) { top: 50%; left: 10%; animation-delay: 15s; }
-#geometry-layer svg:nth-child(5) { top: 20%; left: 80%; animation-delay: 20s; }
+/* Randomized sizes for variety */
+#geometry-layer svg:nth-child(odd) {
+  width: 40px;
+  height: 40px;
+  stroke-width: 0.8;
+}
 
+#geometry-layer svg:nth-child(even) {
+  width: 60px;
+  height: 60px;
+  stroke-width: 1.2;
+}
+
+/* Floating animation */
 @keyframes floatShape {
   0%   { transform: translateY(0) rotate(0deg); }
   50%  { transform: translateY(-20px) rotate(180deg); }
   100% { transform: translateY(0) rotate(360deg); }
 }
+
+/* Positioning and staggered delays */
+#geometry-layer svg:nth-child(1)  { top: 10%; left: 20%; animation-delay: 0s; }
+#geometry-layer svg:nth-child(2)  { top: 30%; left: 60%; animation-delay: 5s; }
+#geometry-layer svg:nth-child(3)  { top: 70%; left: 40%; animation-delay: 10s; }
+#geometry-layer svg:nth-child(4)  { top: 50%; left: 10%; animation-delay: 15s; }
+#geometry-layer svg:nth-child(5)  { top: 20%; left: 80%; animation-delay: 20s; }
+#geometry-layer svg:nth-child(6)  { top: 65%; left: 75%; animation-delay: 3s; }
+#geometry-layer svg:nth-child(7)  { top: 85%; left: 25%; animation-delay: 6s; }
+#geometry-layer svg:nth-child(8)  { top: 40%; left: 90%; animation-delay: 9s; }
+#geometry-layer svg:nth-child(9)  { top: 15%; left: 50%; animation-delay: 12s; }
+#geometry-layer svg:nth-child(10) { top: 35%; left: 35%; animation-delay: 14s; }
+#geometry-layer svg:nth-child(11) { top: 55%; left: 55%; animation-delay: 17s; }
+#geometry-layer svg:nth-child(12) { top: 75%; left: 15%; animation-delay: 19s; }
+#geometry-layer svg:nth-child(13) { top: 25%; left: 70%; animation-delay: 21s; }
+#geometry-layer svg:nth-child(14) { top: 5%;  left: 90%; animation-delay: 24s; }
+#geometry-layer svg:nth-child(15) { top: 90%; left: 10%; animation-delay: 27s; }
+
 
 /* Title Style */
 .dashboard-title {
