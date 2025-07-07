@@ -36,56 +36,55 @@ function DashboardHome() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    const canvas = document.getElementById('grid-canvas');
-    if (!canvas) return;
+useEffect(() => {
+  const canvas = document.getElementById('grid-canvas');
+  if (!canvas) return;
 
-    const ctx = canvas.getContext('2d');
-    let width = window.innerWidth;
-    let height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
+  const ctx = canvas.getContext('2d');
 
-    const spacing = 80;
-    const points = [];
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  let spacing = 80;
+  const points = [];
+
+  const regeneratePoints = () => {
+    points.length = 0;
     for (let x = 0; x < width; x += spacing) {
       for (let y = 0; y < height; y += spacing) {
         points.push({ x, y, radius: Math.random() * 1.5 + 0.5 });
       }
     }
+  };
 
-    const animate = () => {
-      ctx.clearRect(0, 0, width, height);
-      for (let p of points) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
-        ctx.fill();
-      }
-      requestAnimationFrame(animate);
-    };
+  const animate = () => {
+    ctx.clearRect(0, 0, width, height);
+    for (let p of points) {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.fill();
+    }
+    requestAnimationFrame(animate);
+  };
 
-    animate();
-
-const handleResize = () => {
-  width = window.innerWidth;
-  height = window.innerHeight;
+  // Initial canvas size & grid generation
   canvas.width = width;
   canvas.height = height;
-  regeneratePoints(); // add this line
-};
+  regeneratePoints();
+  animate();
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-const regeneratePoints = () => {
-  points.length = 0;
-  for (let x = 0; x < width; x += spacing) {
-    for (let y = 0; y < height; y += spacing) {
-      points.push({ x, y, radius: Math.random() * 1.5 + 0.5 });
-    }
-  }
-};
+  const handleResize = () => {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+    regeneratePoints(); // Recreate points after resize
+  };
+
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
+
 
   return (
   <div className="dashboard-container">
