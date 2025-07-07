@@ -1,4 +1,4 @@
-.project-animation-layer {
+.project-page-animation {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -6,20 +6,20 @@
   overflow: hidden;
 }
 
-/* Animated flowing horizontal file lines */
-.data-flow::before {
+/* Flowing white horizontal lines (representing file transfer) */
+.white-flow-lines::before {
   content: "";
   position: absolute;
   top: 40%;
   left: 0;
   width: 200%;
-  height: 2px;
-  background: linear-gradient(to right, transparent, #00cfff, transparent);
-  animation: flowMove 6s linear infinite;
-  opacity: 0.2;
+  height: 1.5px;
+  background: linear-gradient(to right, transparent, white, transparent);
+  animation: whiteFlow 6s linear infinite;
+  opacity: 0.08;
 }
 
-@keyframes flowMove {
+@keyframes whiteFlow {
   0% {
     transform: translateX(-50%);
   }
@@ -28,22 +28,22 @@
   }
 }
 
-/* Subtle matrix-like particles */
-.matrix-particles::after {
+/* Subtle matrix-style white dots */
+.dotted-matrix-bg::after {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(#00cfff33 1px, transparent 1px);
+  background-image: radial-gradient(white 1px, transparent 1px);
   background-size: 40px 40px;
-  animation: matrixPulse 14s ease-in-out infinite;
-  opacity: 0.03;
+  animation: matrixZoom 12s ease-in-out infinite;
+  opacity: 0.015;
 }
 
-@keyframes matrixPulse {
+@keyframes matrixZoom {
   0%, 100% {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.03);
+    transform: scale(1.04);
   }
 }
