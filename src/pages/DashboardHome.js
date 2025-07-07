@@ -13,18 +13,22 @@ function DashboardHome() {
   const [journal, setJournal] = useState('');
   const [jobs, setJobs] = useState([]);
   const [weeklyLogs, setWeeklyLogs] = useState([]);
+  const [projects, setProjects] = useState([]);
 
-  // Fetch Data
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [skillsRes, jobsRes, bookmarksRes, journalRes, weeklyLogsRes] = await Promise.all([
-          api.get('/skills'),
-          api.get('/jobs'),
-          api.get('/bookmarks'),
-          api.get('/journal'),
-          api.get('/weeklylogs')
-        ]);
+        const [skillsRes, jobsRes, bookmarksRes, journalRes, weeklyLogsRes, projectsRes] = await Promise.all([
+  api.get('/skills'),
+  api.get('/jobs'),
+  api.get('/bookmarks'),
+  api.get('/journal'),
+  api.get('/weeklylogs'),
+  api.get('/projects')
+]);
+
+setProjects(projectsRes.data);
 
         setSkillData(skillsRes.data);
         setJobs(jobsRes.data);
@@ -35,24 +39,22 @@ function DashboardHome() {
         console.error('Failed to load dashboard data:', err);
       }
     };
-
     fetchData();
   }, []);
 
-  // Canvas dot grid only behind the cards
+  // Canvas animation
   useEffect(() => {
     const canvas = canvasRef.current;
     const wrapper = wrapperRef.current;
     if (!canvas || !wrapper) return;
 
     const ctx = canvas.getContext('2d');
-
     let width = wrapper.offsetWidth;
     let height = wrapper.offsetHeight;
     canvas.width = width;
     canvas.height = height;
 
-    let spacing = 80;
+    const spacing = 80;
     const points = [];
 
     const regeneratePoints = () => {
@@ -92,10 +94,8 @@ function DashboardHome() {
 
   return (
     <div className="dashboard-container">
-      {/* Background Grid (CSS animated) */}
       <div id="css-grid-background"></div>
 
-      {/* Geometric Shapes */}
       <div id="geometry-layer">
         <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" /></svg>
         <svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" rx="12" /></svg>
@@ -114,15 +114,14 @@ function DashboardHome() {
         <svg viewBox="0 0 100 100"><polygon points="50,0 100,100 0,100" /></svg>
       </div>
 
-      {/* Title */}
       <div className="title-bar">
         <h1 className="dashboard-title">ControlHub</h1>
       </div>
 
-      {/* Cards + Scoped Canvas */}
       <div className="tiles-grid-wrapper" ref={wrapperRef}>
         <canvas id="grid-canvas" ref={canvasRef}></canvas>
         <div className="tiles-grid">
+
           <div className="card fade-in" onClick={() => navigate('/skill-tracker')}>
             <h2>Skill Tracker</h2>
             <div className="skill-preview">
@@ -137,11 +136,18 @@ function DashboardHome() {
             </div>
           </div>
 
-          <div className="card wide-card fade-in" onClick={() => navigate('/file-share-board')}>
-            <h2>FileShare Board</h2>
-            <p>Version: <strong>v1.0.0</strong></p>
-            <p>Features: Upload, JWT Auth</p>
-          </div>
+<div className="card wide-card fade-in" onClick={() => navigate('/projects')}>
+  <h2>Projects</h2>
+  {projects.length === 0 ? (
+    <p>No projects</p>
+  ) : (
+    projects.slice(0, 2).map((proj) => (
+      <p key={proj._id}>• {proj.name}</p>
+    ))
+  )}
+  <p><em>Tap to view dashboard →</em></p>
+</div>
+
 
           <div className="card fade-in" onClick={() => navigate('/weekly-logs')}>
             <h2>Weekly Logs</h2>
@@ -186,6 +192,7 @@ function DashboardHome() {
             <h2>Quick Journal</h2>
             <p>{journal || 'No journal entry yet.'}</p>
           </div>
+
         </div>
       </div>
     </div>
