@@ -6,7 +6,6 @@ import SkillTrackerAnimation from "../../components/animations/SkillTrackerAnima
 import "../../components/animations/skillTrackerAnimation.css";
 import "./SkillTrackerPage.css";
 
-
 const API_URL = 'https://controlhub-backend.onrender.com/api/skills';
 const CATEGORIES = ['All', 'Frontend', 'Backend', 'Database', 'DevOps', 'Testing', 'General'];
 
@@ -38,18 +37,6 @@ function SkillTrackerPage() {
       setNewProgress(0);
     } catch (err) {
       console.error('Error adding skill', err);
-    }
-  };
-
-  const updateProgress = async (index, value) => {
-    const skill = skills[index];
-    try {
-      await axios.put(`${API_URL}/${skill._id}`, { progress: value });
-      const updated = [...skills];
-      updated[index].progress = value;
-      setSkills(updated);
-    } catch (err) {
-      console.error('Error updating skill progress', err);
     }
   };
 
@@ -114,21 +101,19 @@ function SkillTrackerPage() {
         <section className="skill-list">
           {filteredSkills.length === 0 && <p className="empty-note">No skills in this category yet.</p>}
           {filteredSkills.map((skill, idx) => (
-            <div className="skill-card" key={idx}>
+            <div
+              className="skill-card"
+              key={idx}
+              onClick={() => navigate(`/skills/${skill._id}`)}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="skill-header">
-                <h3 onClick={() => navigate(`/skills/${skill._id}`)} style={{ cursor: 'pointer' }}>{skill.name}</h3>
+                <h3>{skill.name}</h3>
                 <div className="right">
                   <span className="badge">{getAlert(skill.progress)}</span>
-                  <button className="delete-btn" onClick={() => removeSkill(idx)}>✕</button>
+                  <button className="delete-btn" onClick={(e) => { e.stopPropagation(); removeSkill(idx); }}>✕</button>
                 </div>
               </div>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={skill.progress}
-                onChange={(e) => updateProgress(idx, Number(e.target.value))}
-              />
               <div className="progress-bar">
                 <div className="progress" style={{ width: `${skill.progress}%` }}></div>
               </div>
