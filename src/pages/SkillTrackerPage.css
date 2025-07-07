@@ -1,181 +1,179 @@
+/* SkillTrackerPage.css (Redesigned) */
+
 .skill-page {
-  background-color: #0b0f10;
-  min-height: 100vh;
-  padding: 2rem;
-  color: #00ff99;
+  background-color: #000;
   font-family: 'Segoe UI', sans-serif;
-  position: relative;
-  overflow-x: hidden;
-  z-index: 0;
+  color: white;
+  padding: 2rem 1rem;
 }
 
-/* Responsive padding */
-@media (max-width: 768px) {
-  .skill-page {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .skill-page {
-    padding: 0.5rem;
-  }
-}
-
-.aurora-layer {
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle at 30% 30%, rgba(0, 255, 153, 0.15), transparent 40%),
-              radial-gradient(circle at 70% 70%, rgba(0, 255, 153, 0.05), transparent 40%);
-  animation: floatGlow 12s ease-in-out infinite;
-  filter: blur(80px);
-  z-index: 0;
-}
-
-@keyframes floatGlow {
-  0% { transform: translate(0%, 0%); }
-  50% { transform: translate(10%, 10%); }
-  100% { transform: translate(0%, 0%); }
-}
-
-.skill-page h1 {
-  font-size: 2rem;
-  margin-bottom: 2rem;
+.page-title {
   text-align: center;
-  color: #00ff99;
-  z-index: 1;
-  position: relative;
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+  color: white;
 }
 
-/* Responsive title */
-@media (max-width: 768px) {
-  .skill-page h1 {
-    font-size: 1.8rem;
-    margin-bottom: 1.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .skill-page h1 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-  }
+.glass-section {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
 }
 
 .skill-add-form {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
   flex-wrap: wrap;
-  z-index: 1;
-  position: relative;
+  gap: 1rem;
+  align-items: center;
 }
 
-/* Mobile skill form */
-@media (max-width: 768px) {
-  .skill-add-form {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  
-  .skill-add-form .input-dark,
-  .skill-add-form .neon-add {
-    width: 100%;
-    box-sizing: border-box;
-  }
-}
-
-.input-dark {
-  padding: 0.4rem 0.6rem;
+.skill-add-form input,
+.skill-add-form select,
+.skill-add-form button {
+  padding: 0.5rem 0.75rem;
   border-radius: 6px;
-  border: 1px solid #444;
-  background-color: #1a1a1a;
-  color: #00ff99;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
   font-size: 0.9rem;
   outline: none;
-  transition: border-color 0.3s ease;
+  transition: 0.2s ease;
 }
 
-.input-dark:focus {
-  border-color: #00ff99;
-  outline: none;
-  box-shadow: 0 0 0 2px #00ff99;
+.skill-add-form input:focus,
+.skill-add-form select:focus {
+  border-color: white;
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.input-dark::-webkit-outer-spin-button,
-.input-dark::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.input-dark[type=number] {
-  -moz-appearance: textfield;
-}
-
-.neon-add {
-  background-color: transparent;
-  color: #00ff99;
-  border: 1px solid #00ff99;
-  padding: 0.4rem 0.9rem;
-  border-radius: 6px;
+.skill-add-form button {
+  background: transparent;
+  color: white;
   cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
   font-size: 1.2rem;
+  font-weight: bold;
+  border: 1px solid white;
 }
 
-.neon-add:hover {
-  background-color: #00ff99;
+.skill-add-form button:hover {
+  background: white;
   color: #000;
 }
 
-.neon-add:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px #00ff99;
+.category-tabs {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.tab-btn {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn.active,
+.tab-btn:hover {
+  background: white;
+  color: black;
+  border-color: white;
+}
+
+.average-banner {
+  text-align: center;
+  color: #ccc;
+  margin-bottom: 2rem;
+  font-size: 1rem;
 }
 
 .skill-list {
-  max-width: 600px;
-  margin: 0 auto;
-  z-index: 1;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.skill-item {
-  margin-bottom: 2rem;
-  border: 1px solid #00ff9955;
-  border-radius: 8px;
+.empty-note {
+  text-align: center;
+  color: #777;
+  font-size: 0.95rem;
+  margin-top: 2rem;
+}
+
+.skill-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+  border-radius: 10px;
   padding: 1rem;
-  background-color: #111;
-  transition: 0.3s ease;
+  transition: 0.3s;
 }
 
-.skill-item.glow-hover:hover {
-  box-shadow: 0 0 18px #00ff9988, 0 0 30px #00ff9922;
-  transform: scale(1.02);
+.skill-card:hover {
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
 }
 
 .skill-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 0.5rem;
 }
 
-.skill-header label {
+.skill-header h3 {
+  margin: 0;
+  font-size: 1rem;
   font-weight: 500;
-  color: #00ff99;
+}
+
+.skill-header .right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge {
+  background: white;
+  color: #000;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.delete-btn {
+  background: transparent;
+  color: white;
+  border: 1px solid white;
+  border-radius: 4px;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+  background: white;
+  color: black;
 }
 
 input[type="range"] {
   width: 100%;
-  accent-color: #00ff99;
+  margin-top: 0.5rem;
+  accent-color: white;
 }
 
 .progress-bar {
-  background-color: #1a1a1a;
+  background-color: rgba(255, 255, 255, 0.1);
   border-radius: 5px;
   height: 10px;
   overflow: hidden;
@@ -184,38 +182,18 @@ input[type="range"] {
 
 .progress {
   height: 100%;
-  background-color: #00ff99;
+  background-color: white;
   transition: width 0.3s ease;
 }
 
-.neon-delete {
-  background-color: transparent;
-  color: #00ff99;
-  border: 1px solid #00ff99;
-  padding: 0.2rem 0.6rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 0.95rem;
-  margin-left: 0.5rem;
-  transition: all 0.3s ease;
-}
-
-.neon-delete:hover {
-  background-color: #00ff99;
-  color: #000;
-}
-
-.neon-delete:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px #00ff99;
-}
-
-.badge {
-  background: #00ff99;
-  color: #000;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  margin-left: 0.5rem;
-  font-size: 0.8rem;
+@media (max-width: 768px) {
+  .skill-add-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .skill-add-form input,
+  .skill-add-form select,
+  .skill-add-form button {
+    width: 100%;
+  }
 }
