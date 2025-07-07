@@ -42,19 +42,4 @@
 }
 
 /* Soft geometric orbits */
-.orbital-shapes::after {
-  content: "";
-  position: absolute;
-  width: 150%;
-  height: 150%;
-  top: -25%;
-  left: -25%;
-  background: radial-gradient(circle, rgba(255,255,255,0.03) 20%, transparent 70%);
-  border-radius: 50%;
-  animation: orbitSpin 60s linear infinite;
-}
 
-@keyframes orbitSpin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
