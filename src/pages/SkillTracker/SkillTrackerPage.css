@@ -46,7 +46,7 @@
 
 .skill-add-form input:focus,
 .skill-add-form select {
-  background-color: #000;
+  background: rgba(255, 255, 255, 0.05);  /* matches buttons/inputs */
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
@@ -54,12 +54,12 @@
   font-size: 0.9rem;
   outline: none;
   transition: 0.2s ease;
+  backdrop-filter: blur(4px);  /* optional, if rest of UI uses it */
 }
 
 .skill-add-form select:focus {
   border-color: white;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
-  background-color: #111;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 
