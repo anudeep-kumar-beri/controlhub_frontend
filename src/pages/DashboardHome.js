@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './DashboardHome.css';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
 function DashboardHome() {
   const navigate = useNavigate();
+  const canvasRef = useRef(null);
+  const wrapperRef = useRef(null);
 
   const [skillData, setSkillData] = useState([]);
   const [bookmarks, setBookmarks] = useState([]);
@@ -12,6 +14,7 @@ function DashboardHome() {
   const [jobs, setJobs] = useState([]);
   const [weeklyLogs, setWeeklyLogs] = useState([]);
 
+  // Fetch Data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -36,89 +39,91 @@ function DashboardHome() {
     fetchData();
   }, []);
 
-useEffect(() => {
-  const canvas = document.getElementById('grid-canvas');
-  if (!canvas) return;
+  // Canvas dot grid only behind the cards
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const wrapper = wrapperRef.current;
+    if (!canvas || !wrapper) return;
 
-  const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d');
 
-  let width = window.innerWidth;
-  let height = window.innerHeight;
-  let spacing = 80;
-  const points = [];
-
-  const regeneratePoints = () => {
-    points.length = 0;
-    for (let x = 0; x < width; x += spacing) {
-      for (let y = 0; y < height; y += spacing) {
-        points.push({ x, y, radius: Math.random() * 1.5 + 0.5 });
-      }
-    }
-  };
-
-  const animate = () => {
-    ctx.clearRect(0, 0, width, height);
-    for (let p of points) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
-      ctx.fill();
-    }
-    requestAnimationFrame(animate);
-  };
-
-  // Initial canvas size & grid generation
-  canvas.width = width;
-  canvas.height = height;
-  regeneratePoints();
-  animate();
-
-  const handleResize = () => {
-    width = window.innerWidth;
-    height = window.innerHeight;
+    let width = wrapper.offsetWidth;
+    let height = wrapper.offsetHeight;
     canvas.width = width;
     canvas.height = height;
-    regeneratePoints(); // Recreate points after resize
-  };
 
-  window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
-}, []);
+    let spacing = 80;
+    const points = [];
 
+    const regeneratePoints = () => {
+      points.length = 0;
+      for (let x = 0; x < width; x += spacing) {
+        for (let y = 0; y < height; y += spacing) {
+          points.push({ x, y, radius: Math.random() * 1.5 + 0.5 });
+        }
+      }
+    };
+
+    const animate = () => {
+      ctx.clearRect(0, 0, width, height);
+      for (let p of points) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+        ctx.fill();
+      }
+      requestAnimationFrame(animate);
+    };
+
+    regeneratePoints();
+    animate();
+
+    const handleResize = () => {
+      width = wrapper.offsetWidth;
+      height = wrapper.offsetHeight;
+      canvas.width = width;
+      canvas.height = height;
+      regeneratePoints();
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
-  <div className="dashboard-container">
-    {/* 🔲 CSS-Based Animated Grid Layer */}
-    <div id="css-grid-background"></div>
+    <div className="dashboard-container">
+      {/* Background Grid (CSS animated) */}
+      <div id="css-grid-background"></div>
 
-    {/* 🔘 Canvas-Based Animated Dots */}
-    <canvas id="grid-canvas"></canvas>
+      {/* Geometric Shapes */}
+      <div id="geometry-layer">
+        {/* 15 animated outlined SVGs */}
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" /></svg>
+        <svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" rx="12" /></svg>
+        <svg viewBox="0 0 100 100"><polygon points="50,15 90,85 10,85" /></svg>
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" /></svg>
+        <svg viewBox="0 0 100 100"><rect x="25" y="25" width="50" height="50" rx="8" /></svg>
+        <svg viewBox="0 0 100 100"><polygon points="10,10 90,10 50,90" /></svg>
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="35" /></svg>
+        <svg viewBox="0 0 100 100"><rect x="15" y="15" width="70" height="70" rx="10" /></svg>
+        <svg viewBox="0 0 100 100"><polygon points="50,5 95,50 50,95 5,50" /></svg>
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="20" /></svg>
+        <svg viewBox="0 0 100 100"><rect x="30" y="30" width="40" height="40" rx="6" /></svg>
+        <svg viewBox="0 0 100 100"><polygon points="30,20 70,20 90,80 10,80" /></svg>
+        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="25" /></svg>
+        <svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" rx="14" /></svg>
+        <svg viewBox="0 0 100 100"><polygon points="50,0 100,100 0,100" /></svg>
+      </div>
 
-    {/* 🔺 Floating SVG Geometry */}
-    <div id="geometry-layer">
-      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" /></svg>
-      <svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" rx="12" /></svg>
-      <svg viewBox="0 0 100 100"><polygon points="50,15 90,85 10,85" /></svg>
-      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" /></svg>
-      <svg viewBox="0 0 100 100"><rect x="25" y="25" width="50" height="50" rx="8" /></svg>
-      <svg viewBox="0 0 100 100"><polygon points="10,10 90,10 50,90" /></svg>
-      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="35" /></svg>
-      <svg viewBox="0 0 100 100"><rect x="15" y="15" width="70" height="70" rx="10" /></svg>
-      <svg viewBox="0 0 100 100"><polygon points="50,5 95,50 50,95 5,50" /></svg>
-      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="20" /></svg>
-      <svg viewBox="0 0 100 100"><rect x="30" y="30" width="40" height="40" rx="6" /></svg>
-      <svg viewBox="0 0 100 100"><polygon points="30,20 70,20 90,80 10,80" /></svg>
-      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="25" /></svg>
-      <svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="60" rx="14" /></svg>
-      <svg viewBox="0 0 100 100"><polygon points="50,0 100,100 0,100" /></svg>
-    </div>
-
-
+      {/* Title */}
       <div className="title-bar">
         <h1 className="dashboard-title">ControlHub</h1>
       </div>
 
-      <div className="tiles-grid">
+      {/* Cards + Scoped Canvas */}
+      <div className="tiles-grid-wrapper" ref={wrapperRef}>
+        <canvas id="grid-canvas" ref={canvasRef}></canvas>
+        <div className="tiles-grid">
         <div className="card fade-in" onClick={() => navigate('/skill-tracker')}>
           <h2>Skill Tracker</h2>
           <div className="skill-preview">
