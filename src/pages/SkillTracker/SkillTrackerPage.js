@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import ControlHubBackground from "../components/backgrounds/ControlHubBackground";
-import SkillTrackerAnimation from "../components/animations/SkillTrackerAnimation";
-import "../components/animations/skillTrackerAnimation.css";
+import ControlHubBackground from "../../components/backgrounds/ControlHubBackground";
+import SkillTrackerAnimation from "../../components/animations/SkillTrackerAnimation";
+import "../../components/animations/skillTrackerAnimation.css";
 import "./SkillTrackerPage.css";
+
 
 const API_URL = 'https://controlhub-backend.onrender.com/api/skills';
 const CATEGORIES = ['All', 'Frontend', 'Backend', 'Database', 'DevOps', 'Testing', 'General'];
