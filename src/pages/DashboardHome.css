@@ -21,22 +21,30 @@ body {
 }
 
 /* Grid Canvas Background */
-#grid-canvas::before {
-  content: "";
-  position: absolute;
-  inset: 0;
+#css-grid-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -4;
+  pointer-events: none;
   background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 40px 40px;
   animation: gridMove 60s linear infinite;
-  z-index: -1;
-  pointer-events: none;
 }
+
 @keyframes gridMove {
-  from { background-position: 0 0; }
-  to { background-position: 40px 40px; }
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 40px 40px;
+  }
 }
+
 /* Geometric Layer */
 /* Geometry Layer */
 #geometry-layer {
