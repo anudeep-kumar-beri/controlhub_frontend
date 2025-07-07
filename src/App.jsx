@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ErrorBoundary from './components/ErrorBoundary.js';
 import DashboardHome from './pages/DashboardHome.js';
-import SkillTrackerPage from './pages/SkillTrackerPage.js';
+import SkillTrackerPage from './pages/SkillTracker/SkillTrackerPage';
 import FileShareBoardPage from './pages/FileShareBoardPage.js';
 import WeeklyLogsPage from './pages/WeeklyLogsPage.js';
 import JobTrackerPage from './pages/JobTrackerPage.js';
