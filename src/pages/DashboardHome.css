@@ -1,6 +1,4 @@
-
-
-
+/* Base Setup */
 body {
   background-color: #0d0d0f;
   color: #e6e6e6;
@@ -11,6 +9,7 @@ body {
   overflow-x: hidden;
 }
 
+/* Main Dashboard Container */
 .dashboard-container {
   padding: 2rem;
   min-height: 100vh;
@@ -22,61 +21,22 @@ body {
   overflow: hidden;
 }
 
-/* Brighter animated ambient background */
-.dashboard-container::before {
-  content: '';
-  position: absolute;
-  top: -30%;
-  left: -30%;
-  width: 160%;
-  height: 160%;
-  background: 
-    radial-gradient(circle at 25% 35%, rgba(255, 255, 255, 0.07) 0%, transparent 60%),
-    radial-gradient(circle at 60% 60%, rgba(255, 255, 255, 0.06) 0%, transparent 65%),
-    radial-gradient(circle at 75% 25%, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
-  animation: controlMist 18s ease-in-out infinite;
-  z-index: -1;
-  filter: blur(100px);
-  pointer-events: none;
-  opacity: 0.8;
-}
-
-@keyframes controlMist {
-  0% { transform: translate(0%, 0%) rotate(0deg); }
-  50% { transform: translate(4%, -3%) rotate(180deg); }
-  100% { transform: translate(0%, 0%) rotate(360deg); }
-}
-
-
+/* Dashboard Title */
 .dashboard-title {
   font-family: 'Catchland', sans-serif;
   font-weight: normal;
   font-size: 7rem;
-   color: rgba(255, 255, 255, 0.281); /* translucent fill */
+  color: rgba(255, 255, 255, 0.28);
   letter-spacing: 1px;
-
-  /* Remove liquid matte gradient */
-  background: none;
-  -webkit-background-clip: unset;
-  -webkit-text-fill-color: unset;
-
-  /* Thicker appearance using stroke */
   -webkit-text-stroke: 0.8px #ffffff;
-
-  /* Completely remove shadows */
-  text-shadow:
-    0 0 4px rgba(255, 255, 255, 0.15),
-    0 0 10px rgba(255, 255, 255, 0.1);
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.15), 0 0 10px rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
-
   margin-bottom: 2.5rem;
+  text-align: center;
 }
 
-
-
-
-/* Grid Layout */
+/* Tiles Grid */
 .tiles-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -85,7 +45,7 @@ body {
   max-width: 1200px;
 }
 
-/* Card Base */
+/* Cards */
 .card {
   background: rgba(20, 20, 20, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -129,7 +89,7 @@ body {
   grid-column: span 2;
 }
 
-/* Skill Tracker Bar */
+/* Skill Bars */
 .skill-preview {
   display: flex;
   flex-direction: column;
@@ -157,7 +117,7 @@ body {
   transition: width 0.3s ease;
 }
 
-/* Fade-in Animation */
+/* Fade In Animations */
 .fade-in {
   animation: fadeInUp 0.7s ease forwards;
   opacity: 0;
@@ -174,92 +134,7 @@ body {
   }
 }
 
-/* Add tablet breakpoint */
-@media (max-width: 1024px) and (min-width: 769px) {
-  .tiles-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
-  }
-  
-  .wide-card {
-    grid-column: span 2;
-  }
-  
-  .dashboard-title {
-    font-size: 2rem;
-  }
-}
-
-/* Improve mobile layout */
-@media (max-width: 768px) {
-  .dashboard-container {
-    padding: 1rem;
-  }
-  
-  .tiles-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .wide-card {
-    grid-column: span 1;
-  }
-  
-  .card {
-    padding: 1rem;
-  }
-  
-  .dashboard-title {
-    font-size: 1.8rem;
-    text-align: center;
-  }
-}
-
-/* Small mobile screens */
-@media (max-width: 480px) {
-  .dashboard-container {
-    padding: 0.5rem;
-  }
-
-  .tiles-grid {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-
-  .card {
-    padding: 0.75rem;
-    font-size: 0.9rem;
-  }
-
-  .card h2 {
-    font-size: 1.1rem;
-  }
-
-  .dashboard-title {
-    font-size: 1.5rem;
-  }
-
-  .tall-card {
-    min-height: unset;
-  }
-}
-
-/* Very small screens */
-@media (max-width: 320px) {
-  .dashboard-title {
-    font-size: 1.3rem;
-  }
-  
-  .card h2 {
-    font-size: 1rem;
-  }
-  
-  .card {
-    padding: 0.5rem;
-    font-size: 0.8rem;
-  }
-}
-/* 🔹 Grid Glow Canvas */
+/* 🔹 Grid Glow Canvas Layer */
 #grid-canvas {
   position: fixed;
   top: 0;
@@ -271,7 +146,7 @@ body {
   background: transparent;
 }
 
-/* 🔹 Minimal Geometry Shapes (Vercel-style) */
+/* 🔹 Minimal Geometric Shapes */
 #geometry-layer {
   position: fixed;
   top: 0;
@@ -326,4 +201,83 @@ body {
   0%   { transform: translateY(0) rotate(0deg); }
   50%  { transform: translateY(-8px) rotate(180deg); }
   100% { transform: translateY(0) rotate(360deg); }
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .tiles-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  
+  .wide-card {
+    grid-column: span 2;
+  }
+  
+  .dashboard-title {
+    font-size: 4rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+  
+  .tiles-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .wide-card {
+    grid-column: span 1;
+  }
+
+  .dashboard-title {
+    font-size: 2.5rem;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 0.5rem;
+  }
+
+  .tiles-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .card {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .card h2 {
+    font-size: 1.1rem;
+  }
+
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+
+  .tall-card {
+    min-height: unset;
+  }
+}
+
+@media (max-width: 320px) {
+  .dashboard-title {
+    font-size: 1.3rem;
+  }
+  
+  .card h2 {
+    font-size: 1rem;
+  }
+  
+  .card {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
 }
