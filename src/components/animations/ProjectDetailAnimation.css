@@ -1,0 +1,49 @@
+.project-detail-animation {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Soft pulsing horizontal wave behind version section */
+.version-wave::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -50%;
+  width: 200%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, white, transparent);
+  animation: waveSlide 10s linear infinite;
+  opacity: 0.05;
+}
+
+@keyframes waveSlide {
+  0% {
+    transform: translateX(-25%);
+  }
+  100% {
+    transform: translateX(25%);
+  }
+}
+
+/* Gentle feature pulse nodes in background */
+.feature-pulse-nodes::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(white 0.8px, transparent 0.8px);
+  background-size: 60px 60px;
+  opacity: 0.015;
+  animation: pulseFloat 18s ease-in-out infinite;
+}
+
+@keyframes pulseFloat {
+  0%, 100% {
+    transform: scale(1) translate(0, 0);
+  }
+  50% {
+    transform: scale(1.02) translate(-3px, -3px);
+  }
+}
