@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './SkillTrackerPage.css';
+import ControlHubBackground from "@/components/backgrounds/ControlHubBackground";
 
 const API_URL = 'https://controlhub-backend.onrender.com/api/skills';
 
