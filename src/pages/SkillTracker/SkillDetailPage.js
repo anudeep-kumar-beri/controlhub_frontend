@@ -11,17 +11,14 @@ function SkillDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [skill, setSkill] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     axios.get(`${API_URL}/${id}`)
       .then((res) => {
         setSkill(res.data);
-        setLoading(false);
       })
-      .catch(() => {
-        setLoading(false);
+      .catch((err) => {
+        console.error('Failed to fetch skill', err);
       });
   }, [id]);
 
@@ -40,7 +37,6 @@ function SkillDetailPage() {
       .catch((err) => console.error('Failed to update skill', err));
   };
 
-  if (loading) return <div className="skill-detail loading">Loading...</div>;
   if (!skill) return <div className="skill-detail error">Skill not found</div>;
 
   return (
