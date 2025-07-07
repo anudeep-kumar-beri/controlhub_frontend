@@ -10,8 +10,8 @@ import BookmarksPage from './pages/BookmarksPage.js';
 import QuickJournalPage from './pages/QuickJournalPage.js';
 import NotFoundPage from './pages/NotFoundPage.js';
 
-import ProjectsPage from './pages/ProjectsPage';
-import ProjectDetailPage from './pages/ProjectDetailPage';
+import ProjectsPage from './pages/ProjectsPage.js';
+import ProjectDetailPage from './pages/ProjectDetailPage.js';
 
 function App() {
   return (
