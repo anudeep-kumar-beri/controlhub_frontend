@@ -51,12 +51,14 @@ export default function ProjectAnimation() {
         ctx.stroke();
       });
 
-      // Draw nodes
-      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      // Draw nodes as filled squares
       nodes.forEach((node) => {
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, 4, 0, Math.PI * 2);
-        ctx.fill();
+        const size = 6;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.shadowColor = 'white';
+        ctx.shadowBlur = 4;
+        ctx.fillRect(node.x - size / 2, node.y - size / 2, size, size);
+        ctx.shadowBlur = 0;
       });
 
       // Move and draw particles
