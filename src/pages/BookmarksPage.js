@@ -10,6 +10,7 @@ const initialBookmarkState = { title: '', link: '', category: '' };
 function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState([]);
   const [search, setSearch] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
   const [newBookmark, setNewBookmark] = useState(initialBookmarkState);
   const [editingId, setEditingId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -75,13 +76,14 @@ function BookmarksPage() {
     }
   };
 
+  const uniqueCategories = [...new Set(bookmarks.map(bm => bm.category).filter(Boolean))];
+
   const filtered = bookmarks.filter(
     (bm) =>
       bm &&
       bm.title &&
       bm.category &&
-      (bm.title.toLowerCase().includes(search.toLowerCase()) ||
-        bm.category.toLowerCase().includes(search.toLowerCase()))
+      (filterCategory === '' || bm.category === filterCategory)
   );
 
   return (
@@ -90,13 +92,18 @@ function BookmarksPage() {
 
       <h1 className="bookmark-title">Bookmarks</h1>
 
-      <input
-        type="text"
-        placeholder="Search by title or category"
-        className="input-field bookmark-search"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <div className="bookmark-filter">
+        <select
+          className="input-field bookmark-dropdown"
+          value={filterCategory}
+          onChange={(e) => setFilterCategory(e.target.value)}
+        >
+          <option value="">All Categories</option>
+          {uniqueCategories.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
+      </div>
 
       <div className="bookmark-input">
         <input
@@ -140,7 +147,7 @@ function BookmarksPage() {
           filtered.map((bm) => (
             <a
               key={bm._id}
-              href={bm.link}
+              href={bm.link.startsWith('http') ? bm.link : `https://${bm.link}`}
               target="_blank"
               rel="noopener noreferrer"
               className="bookmark-item"
