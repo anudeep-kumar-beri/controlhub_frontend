@@ -1,4 +1,3 @@
-// src/pages/BookmarksPage.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
@@ -88,10 +87,12 @@ function BookmarksPage() {
   return (
     <div className="bookmark-page">
       <BookmarkAnimation />
-      <h1 className="bookmark-title">🔖 Bookmarks</h1>
+
+      <h1 className="bookmark-title">Bookmarks</h1>
+
       <input
         type="text"
-        placeholder="🔍 Search by title or category"
+        placeholder="Search by title or category"
         className="input-field bookmark-search"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -100,21 +101,21 @@ function BookmarksPage() {
       <div className="bookmark-input">
         <input
           type="text"
-          placeholder="📌 Title"
+          placeholder="Title"
           className="input-field"
           value={newBookmark.title}
           onChange={(e) => setNewBookmark({ ...newBookmark, title: e.target.value })}
         />
         <input
           type="text"
-          placeholder="🏷️ Category"
+          placeholder="Category"
           className="input-field"
           value={newBookmark.category}
           onChange={(e) => setNewBookmark({ ...newBookmark, category: e.target.value })}
         />
         <input
           type="text"
-          placeholder="🔗 Link"
+          placeholder="Link"
           className="input-field"
           value={newBookmark.link}
           onChange={(e) => setNewBookmark({ ...newBookmark, link: e.target.value })}
@@ -122,7 +123,7 @@ function BookmarksPage() {
 
         <div className="bookmark-buttons">
           <button className="button neon-add" onClick={handleAddOrUpdate} disabled={isLoading}>
-            {editingId ? '✎ Update' : '＋ Add'}
+            {editingId ? 'Update' : 'Add'}
           </button>
           {editingId && (
             <button className="button neon-delete" onClick={handleClear}>
@@ -137,20 +138,25 @@ function BookmarksPage() {
           <p className="empty-message">No bookmarks found.</p>
         ) : (
           filtered.map((bm) => (
-            <div key={bm._id} className="bookmark-item">
+            <a
+              key={bm._id}
+              href={bm.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bookmark-item"
+            >
               <div className="bookmark-header">
                 <div className="bookmark-content">
-                  <a href={bm.link} target="_blank" rel="noopener noreferrer">
-                    {bm.title}
-                  </a>
+                  <div className="bookmark-title-text">{bm.title}</div>
                   {bm.category && <span className="bookmark-tag">#{bm.category}</span>}
+                  <div className="bookmark-link">{bm.link}</div>
                 </div>
-                <div className="bookmark-actions">
+                <div className="bookmark-actions" onClick={(e) => e.preventDefault()}>
                   <button onClick={() => handleEdit(bm)}>✎</button>
                   <button onClick={() => handleDelete(bm._id)}>✕</button>
                 </div>
               </div>
-            </div>
+            </a>
           ))
         )}
       </div>
