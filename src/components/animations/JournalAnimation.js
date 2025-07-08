@@ -3,17 +3,15 @@ import React, { useEffect, useRef } from 'react';
 import './JournalAnimation.css';
 
 const words = [
-  // Reflective Keywords
-  'breathe', 'focus', 'clarity', 'present', 'stillness',
-  'ponder', 'remember', 'learn', 'observe', 'recall',
-  'imagine', 'create', 'explore', 'express', 'sketch',
-  'truth', 'growth', 'self', 'feeling', 'insight',
+  // Reflective Words
+  'breathe', 'clarity', 'stillness', 'observe', 'recall',
+  'imagine', 'create', 'growth', 'express', 'truth',
+  'feeling', 'learn', 'focus', 'present', 'ponder',
 
-  // Gibberish & Symbols
-  '⾡', 'Ϟαε', '⊰⋄⊱', '✀ጀ3', '∞', '✎',
-  '⧉', '𝒿', 'ᗏ', '෴', 'ᓚᗏᖢ',
-  'flōrē', 'myria', 'eclæ', '~sylne', 'Ȗhëəra', 'niivə', 'ruvencë',
-  '༄', '☾', '✶', '༚', '𝤔', '𓆃'
+  // Gibberish / Magical
+  '⾡', 'Ϟαε', '⊰⋄⊱', '✀ጀ3', '∞', '✎', '⧉',
+  '𝒿', 'ᗏ', '෴', 'flōrē', 'eclæ', '~sylne', 'Ȗhëəra', 'niivə',
+  'ruvencë', '༄', '☾', '✶', '༚', '𓆃'
 ];
 
 function JournalAnimation() {
@@ -29,16 +27,13 @@ function JournalAnimation() {
 
       const x = Math.random() * 100;
       const y = Math.random() * 100;
-      const duration = 6 + Math.random() * 6;
+      const duration = 6 + Math.random() * 4;
 
       word.style.left = `${x}vw`;
       word.style.top = `${y}vh`;
       word.style.animationDuration = `${duration}s`;
-      word.style.fontSize = `${Math.random() * 1.2 + 0.8}rem`;
-      word.style.transform = `rotate(${Math.random() * 10 - 5}deg)`;
-      word.style.fontFamily = `'Dancing Script', cursive`;
-      word.style.color = 'rgba(255,255,255,0.08)';
-      word.style.textShadow = '0 0 6px rgba(255,255,255,0.06)';
+      word.style.fontSize = `${Math.random() * 1.3 + 0.7}rem`;
+      word.style.transform = `rotate(${Math.random() * 12 - 6}deg)`;
 
       container.appendChild(word);
 
@@ -47,7 +42,7 @@ function JournalAnimation() {
       }, duration * 1000);
     }
 
-    const interval = setInterval(spawnFloatingWord, 900);
+    const interval = setInterval(spawnFloatingWord, 850);
     return () => clearInterval(interval);
   }, []);
 
