@@ -156,3 +156,30 @@
   color: #777;
   margin-top: 2rem;
 }
+.bookmark-item {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background-color: var(--item-bg);
+  border: 1px solid var(--item-border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.bookmark-title-text {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 0.3rem;
+}
+
+.bookmark-link {
+  font-size: 0.85rem;
+  color: #888;
+  word-break: break-word;
+  margin-top: 4px;
+}
