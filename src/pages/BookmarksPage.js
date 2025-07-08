@@ -1,4 +1,4 @@
-// ✅ BookmarksPage.js — with animation layer
+// src/pages/BookmarksPage.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
@@ -44,7 +44,7 @@ function BookmarksPage() {
       }
       handleClear();
     } catch (err) {
-      console.error('Failed to save bookmark:', err.response?.data || err.message || err);
+      console.error('Failed to save bookmark:', err);
     } finally {
       setIsLoading(false);
     }
@@ -91,7 +91,6 @@ function BookmarksPage() {
       <h1 className="bookmark-title">🔖 Bookmarks</h1>
       <input
         type="text"
-        aria-label="Search bookmarks"
         placeholder="🔍 Search by title or category"
         className="input-field bookmark-search"
         value={search}
@@ -105,7 +104,6 @@ function BookmarksPage() {
           className="input-field"
           value={newBookmark.title}
           onChange={(e) => setNewBookmark({ ...newBookmark, title: e.target.value })}
-          required
         />
         <input
           type="text"
@@ -120,15 +118,10 @@ function BookmarksPage() {
           className="input-field"
           value={newBookmark.link}
           onChange={(e) => setNewBookmark({ ...newBookmark, link: e.target.value })}
-          required
         />
 
         <div className="bookmark-buttons">
-          <button
-            className="button neon-add"
-            onClick={handleAddOrUpdate}
-            disabled={isLoading}
-          >
+          <button className="button neon-add" onClick={handleAddOrUpdate} disabled={isLoading}>
             {editingId ? '✎ Update' : '＋ Add'}
           </button>
           {editingId && (
@@ -139,12 +132,12 @@ function BookmarksPage() {
         </div>
       </div>
 
-      <div className="bookmark-list" role="list">
+      <div className="bookmark-list">
         {filtered.length === 0 ? (
           <p className="empty-message">No bookmarks found.</p>
         ) : (
           filtered.map((bm) => (
-            <div key={bm._id} className="bookmark-item" role="listitem">
+            <div key={bm._id} className="bookmark-item">
               <div className="bookmark-header">
                 <div className="bookmark-content">
                   <a href={bm.link} target="_blank" rel="noopener noreferrer">
@@ -153,20 +146,8 @@ function BookmarksPage() {
                   {bm.category && <span className="bookmark-tag">#{bm.category}</span>}
                 </div>
                 <div className="bookmark-actions">
-                  <button
-                    className="bookmark-edit"
-                    onClick={() => handleEdit(bm)}
-                    aria-label={`Edit bookmark: ${bm.title}`}
-                  >
-                    ✎
-                  </button>
-                  <button
-                    className="bookmark-delete"
-                    onClick={() => handleDelete(bm._id)}
-                    aria-label={`Delete bookmark: ${bm.title}`}
-                  >
-                    ✕
-                  </button>
+                  <button onClick={() => handleEdit(bm)}>✎</button>
+                  <button onClick={() => handleDelete(bm._id)}>✕</button>
                 </div>
               </div>
             </div>
