@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import './QuickJournalPage.css';
+import JournalAnimation from '../components/animations/JournalAnimation';
 
 const API_URL = 'https://controlhub-backend.onrender.com/api/journal';
 
@@ -9,9 +10,11 @@ function QuickJournalPage() {
   const [journal, setJournal] = useState('');
   const [lastUpdated, setLastUpdated] = useState('');
   const [pending, setPending] = useState(false);
+  const debounceTimer = useRef(null);
 
   useEffect(() => {
     fetchJournal();
+    return () => clearTimeout(debounceTimer.current);
   }, []);
 
   const fetchJournal = async () => {
@@ -26,19 +29,21 @@ function QuickJournalPage() {
     }
   };
 
-  const handleChange = (e) => {
-    setJournal(e.target.value);
-    setPending(true);
-  };
-
-  const handleUpdate = async () => {
-    try {
-      const res = await axios.post(API_URL, { text: journal });
+  const autoSave = () => {
+    if (!pending) return;
+    axios.post(API_URL, { text: journal }).then((res) => {
       setLastUpdated(new Date(res.data.updatedAt).toLocaleString());
       setPending(false);
-    } catch (err) {
-      console.error('Failed to save journal:', err);
-    }
+    }).catch(err => console.error('Autosave failed:', err));
+  };
+
+  const handleChange = (e) => {
+    const value = e.target.value;
+    setJournal(value);
+    setPending(true);
+
+    clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(autoSave, 2000);
   };
 
   const clearJournal = async () => {
@@ -56,7 +61,7 @@ function QuickJournalPage() {
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.setTextColor('#cc66ff');
-    doc.text('📝 Quick Journal Entry', 14, 20);
+    doc.text('Quick Journal Entry', 14, 20);
 
     doc.setFontSize(12);
     doc.setTextColor('#000000');
@@ -74,8 +79,8 @@ function QuickJournalPage() {
 
   return (
     <div className="journal-page">
-      <div className="aurora-layer" />
-      <h1 className="journal-title">📝 Quick Journal</h1>
+      <JournalAnimation />
+      <h1 className="journal-title">Quick Journal</h1>
       <textarea
         className="journal-input"
         value={journal}
@@ -88,11 +93,8 @@ function QuickJournalPage() {
           {lastUpdated && `Last updated: ${lastUpdated}`}
         </span>
         <div className="button-group">
-          <button className="neon-save" onClick={handleUpdate} disabled={!pending}>
-            {pending ? '💾 Update' : '✅ Up to Date'}
-          </button>
-          <button className="neon-delete" onClick={clearJournal}>🗑 Clear</button>
-          <button className="neon-export" onClick={exportToPDF}>⬇ Export PDF</button>
+          <button className="neon-delete" onClick={clearJournal}>Clear</button>
+          <button className="neon-export" onClick={exportToPDF}>Export PDF</button>
         </div>
       </div>
     </div>
