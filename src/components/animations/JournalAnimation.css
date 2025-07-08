@@ -1,43 +1,34 @@
-/* JournalAnimation.css */
+/* components/animations/JournalAnimation.css */
+
 .journal-animation-layer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
-  z-index: 0;
   pointer-events: none;
+  z-index: 0;
 }
 
 .floating-word {
   position: absolute;
-  opacity: 0;
-  font-family: 'Dancing Script', 'Great Vibes', cursive;
-  color: rgba(255, 255, 255, 0.06);
-  animation: floatFade 6s ease-in-out forwards;
   white-space: nowrap;
-  user-select: none;
-  letter-spacing: 1px;
+  opacity: 0;
+  animation: writeFade 6s ease-in-out forwards;
 }
 
-@keyframes floatFade {
+@keyframes writeFade {
   0% {
     opacity: 0;
-    transform: translateY(0px) scale(0.95);
+    clip-path: inset(0 100% 0 0);
   }
-  25% {
-    opacity: 0.2;
+  30% {
+    opacity: 0.5;
+    clip-path: inset(0 0 0 0);
   }
-  50% {
-    opacity: 0.35;
-    transform: translateY(-10px) scale(1);
-  }
-  75% {
-    opacity: 0.2;
+  60% {
+    opacity: 0.9;
   }
   100% {
     opacity: 0;
-    transform: translateY(-20px) scale(1.05);
+    clip-path: inset(0 0 0 100%);
   }
 }
