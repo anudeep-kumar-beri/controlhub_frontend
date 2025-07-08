@@ -7,3 +7,23 @@
   height: 100vh;
   background: transparent;
 }
+
+/* Optional: fallback subtle pulse */
+.project-canvas-animation::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(white 1px, transparent 1px);
+  background-size: 60px 60px;
+  opacity: 0.01;
+  animation: matrixPulse 14s ease-in-out infinite;
+}
+
+@keyframes matrixPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
