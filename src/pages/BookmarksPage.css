@@ -1,11 +1,11 @@
 .bookmark-page {
   --bg-color: #121212;
   --text-color: #E0E0E0;
-  --accent-color: #E0E0E0; /* No blue for glow */
+  --accent-color: #E0E0E0;
   --input-bg: #1E1E1E;
   --input-text: #E0E0E0;
   --input-border: #333;
-  --item-bg: #1E1E1E;
+  --item-bg: #222;
   --item-border: #444;
   --button-bg: #2A2A2A;
   --button-text: #FFFFFF;
@@ -54,7 +54,7 @@
 .select-field:focus {
   outline: none;
   border-color: #888;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
 }
 
 .select-field {
@@ -103,13 +103,13 @@
 
 .button:hover {
   border-color: #999;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
 }
 
 .button:focus {
   outline: none;
   border-color: #aaa;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
 .neon-delete {
@@ -124,27 +124,42 @@
   box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.2);
 }
 
+.bookmark-list {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
 .bookmark-item {
   background-color: var(--item-bg);
   border: 1px solid var(--item-border);
   border-radius: 10px;
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  position: relative;
-  z-index: 1;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.03); /* light aura */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  word-break: break-word;
 }
 
 .bookmark-item:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.08);
 }
 
 .bookmark-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+.bookmark-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-width: 100%;
 }
 
 .bookmark-content a {
@@ -152,17 +167,23 @@
   text-decoration: none;
   font-size: 1.1rem;
   font-weight: 500;
+  word-break: break-word;
 }
 
 .bookmark-content a:hover {
-  color: #f0f0f0;
+  color: #fff;
   text-decoration: underline;
 }
 
 .bookmark-tag {
-  margin-left: 0.75rem;
   font-size: 0.85rem;
   color: #aaa;
+}
+
+.bookmark-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
 }
 
 .bookmark-edit,
@@ -172,7 +193,6 @@
   color: var(--text-color);
   font-size: 1.1rem;
   cursor: pointer;
-  margin-left: 0.5rem;
   opacity: 0.75;
   transition: color 0.2s ease;
 }
