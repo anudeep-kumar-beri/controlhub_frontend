@@ -1,204 +1,78 @@
-.bookmark-page {
-  --bg-color: #121212;
-  --text-color: #E0E0E0;
-  --accent-color: #2196F3;
-  --input-bg: #1E1E1E;
-  --input-text: #E0E0E0;
-  --input-border: #333;
-  --item-bg: #1E1E1E;
-  --item-border: #444;
-  --button-bg: #2196F3;
-  --button-text: #FFFFFF;
-  --delete-hover-bg: #D32F2F;
-  --delete-hover-text: #FFFFFF;
+// src/components/animations/BookmarkAnimation.js
+import React, { useEffect, useRef } from 'react';
+import './BookmarkAnimation.css';
 
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  min-height: 100vh;
-  padding: 2rem;
-  font-family: 'Inter', sans-serif;
-  position: relative;
-  overflow-x: hidden;
-}
+export default function BookmarkAnimation() {
+  const canvasRef = useRef();
 
-/* Safe Aurora Overlay */
-.aurora-layer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(33, 150, 243, 0.05); /* Match page theme */
-  pointer-events: none;
-}
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
 
-.bookmark-title {
-  text-align: center;
-  font-size: 2.25rem;
-  margin-bottom: 2rem;
-  color: var(--accent-color);
-  z-index: 1;
-  position: relative;
-}
+    const nodes = Array.from({ length: 40 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      radius: Math.random() * 2 + 1,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3
+    }));
 
-.input-field {
-  display: block;
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 0.75rem 1rem;
-  background-color: var(--input-bg);
-  color: var(--input-text);
-  border: 1px solid var(--input-border);
-  border-radius: 8px;
-  font-size: 1rem;
-  font-family: inherit;
-  transition: border 0.2s ease, box-shadow 0.2s ease;
-}
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
 
-.input-field::placeholder {
-  color: #999;
-}
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i];
 
-.input-field:focus {
-  outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.4);
-}
+        // draw node
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, a.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.fill();
 
-.bookmark-search {
-  margin-bottom: 2rem;
-}
+        // draw lines
+        for (let j = i + 1; j < nodes.length; j++) {
+          const b = nodes[j];
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.strokeStyle = `rgba(255,255,255,${1 - dist / 150})`;
+            ctx.lineWidth = 0.4;
+            ctx.stroke();
+          }
+        }
 
-.bookmark-input {
-  max-width: 700px;
-  margin: 0 auto 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  z-index: 1;
-  position: relative;
-}
+        // update position
+        a.x += a.vx;
+        a.y += a.vy;
 
-.bookmark-buttons {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-start;
-}
+        // bounce
+        if (a.x < 0 || a.x > width) a.vx *= -1;
+        if (a.y < 0 || a.y > height) a.vy *= -1;
+      }
 
-.button {
-  display: inline-block;
-  width: 100%;
-  max-width: 200px;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  font-family: inherit;
-  font-weight: 500;
-  border-radius: 8px;
-  border: 1px solid var(--input-border);
-  background-color: var(--input-bg);
-  color: var(--input-text);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-  text-align: center;
-  cursor: pointer;
-}
+      requestAnimationFrame(draw);
+    };
 
-.button:hover {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
-}
+    draw();
 
-.button:focus {
-  outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
-}
+    const handleResize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    };
 
-.neon-add {
-  /* same as .button — no extra styles needed */
-}
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-.neon-delete {
-  border: 1px solid var(--delete-hover-bg);
-  color: var(--delete-hover-bg);
-  background-color: transparent;
-}
-
-.neon-delete:hover {
-  background-color: var(--delete-hover-bg);
-  color: var(--delete-hover-text);
-  box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.2);
-}
-
-.neon-delete:hover {
-  background-color: var(--delete-hover-bg);
-  color: var(--delete-hover-text);
-}
-
-.bookmark-item {
-  background-color: var(--item-bg);
-  border: 1px solid var(--item-border);
-  border-radius: 8px;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  position: relative;
-  z-index: 1;
-}
-
-.bookmark-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.bookmark-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.bookmark-content a {
-  color: var(--text-color);
-  text-decoration: none;
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-
-.bookmark-content a:hover {
-  color: var(--accent-color);
-}
-
-.bookmark-tag {
-  margin-left: 0.75rem;
-  font-size: 0.85rem;
-  color: #bbb;
-}
-
-.bookmark-edit,
-.bookmark-delete {
-  background: none;
-  border: none;
-  color: var(--text-color);
-  font-size: 1.1rem;
-  cursor: pointer;
-  margin-left: 0.5rem;
-  opacity: 0.75;
-  transition: color 0.2s ease;
-}
-
-.bookmark-edit:hover,
-.bookmark-delete:hover {
-  opacity: 1;
-}
-
-.bookmark-delete:hover {
-  color: var(--delete-hover-bg);
-}
-
-.empty-message {
-  text-align: center;
-  color: #999;
-  font-style: italic;
-  margin-top: 2rem;
+  return <canvas ref={canvasRef} className="bookmark-canvas-bg" />;
 }
