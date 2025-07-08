@@ -1,34 +1,49 @@
 /* components/animations/JournalAnimation.css */
 
 .journal-animation-layer {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  overflow: hidden;
-  pointer-events: none;
   z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
 }
 
 .floating-word {
   position: absolute;
   white-space: nowrap;
+  font-family: 'Dancing Script', 'Segoe UI', cursive;
+  color: rgba(255, 255, 255, 0.7);
   opacity: 0;
-  animation: writeFade 6s ease-in-out forwards;
+  font-weight: 400;
+  text-shadow: 0 0 4px rgba(255, 255, 255, 0.08);
+  animation: wordReveal ease-in-out forwards;
+  mask-image: linear-gradient(to right, transparent 0%, white 20%, white 80%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, white 20%, white 80%, transparent 100%);
+  mask-size: 200% 100%;
+  -webkit-mask-size: 200% 100%;
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-position: 0% 0%;
+  -webkit-mask-position: 0% 0%;
 }
 
-@keyframes writeFade {
+@keyframes wordReveal {
   0% {
     opacity: 0;
-    clip-path: inset(0 100% 0 0);
+    mask-position: 0% 0%;
+    -webkit-mask-position: 0% 0%;
   }
-  30% {
-    opacity: 0.5;
-    clip-path: inset(0 0 0 0);
+  10% {
+    opacity: 1;
   }
-  60% {
-    opacity: 0.9;
+  50% {
+    mask-position: 100% 0%;
+    -webkit-mask-position: 100% 0%;
+  }
+  90% {
+    opacity: 0.8;
   }
   100% {
     opacity: 0;
-    clip-path: inset(0 0 0 100%);
   }
 }
