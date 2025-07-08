@@ -79,6 +79,7 @@ function QuickJournalPage() {
 
   return (
     <div className="journal-page">
+      <div className="animation-wrapper">
       <JournalAnimation />
       <h1 className="journal-title">Quick Journal</h1>
       <textarea
@@ -97,6 +98,8 @@ function QuickJournalPage() {
           <button className="neon-export" onClick={exportToPDF}>Export PDF</button>
         </div>
       </div>
+          </div>
+
     </div>
   );
 }
