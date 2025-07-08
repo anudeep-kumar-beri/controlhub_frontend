@@ -1,7 +1,9 @@
+// ✅ BookmarksPage.js — with animation layer
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
 import './BookmarksPage.css';
+import BookmarkAnimation from '../components/animations/BookmarkAnimation';
 
 const API_URL = `${API_BASE_URL}/bookmarks`;
 const initialBookmarkState = { title: '', link: '', category: '' };
@@ -85,7 +87,7 @@ function BookmarksPage() {
 
   return (
     <div className="bookmark-page">
-      <div className="aurora-layer" />
+      <BookmarkAnimation />
       <h1 className="bookmark-title">🔖 Bookmarks</h1>
       <input
         type="text"
