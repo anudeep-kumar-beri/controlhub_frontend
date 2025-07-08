@@ -36,6 +36,9 @@ function JournalAnimation() {
       word.style.animationDuration = `${duration}s`;
       word.style.fontSize = `${Math.random() * 1.2 + 0.8}rem`;
       word.style.transform = `rotate(${Math.random() * 10 - 5}deg)`;
+      word.style.fontFamily = `'Dancing Script', cursive`;
+      word.style.color = 'rgba(255,255,255,0.08)';
+      word.style.textShadow = '0 0 6px rgba(255,255,255,0.06)';
 
       container.appendChild(word);
 
