@@ -13,93 +13,83 @@ export default function ProjectAnimation() {
     canvas.width = width;
     canvas.height = height;
 
-    // Define nodes (stations)
+    // Define realistic station layout
     const nodes = [
-      { x: 100, y: 120 },
-      { x: 300, y: 100 },
-      { x: 600, y: 180 },
-      { x: 850, y: 300 },
-      { x: 400, y: 400 },
-      { x: 180, y: 350 },
-      { x: 700, y: 500 },
-      { x: 1200, y: 200 },
+      { x: width * 0.2, y: height * 0.2, hub: true },
+      { x: width * 0.5, y: height * 0.15 },
+      { x: width * 0.8, y: height * 0.2, hub: true },
+      { x: width * 0.25, y: height * 0.5 },
+      { x: width * 0.5, y: height * 0.5 },
+      { x: width * 0.75, y: height * 0.5 },
+      { x: width * 0.2, y: height * 0.8 },
+      { x: width * 0.5, y: height * 0.85 },
+      { x: width * 0.8, y: height * 0.8, hub: true },
+      { x: width * 0.5, y: height * 0.65 }
     ];
 
-    // Define connections (route curves)
-    const paths = [
-      [0, 1],
-      [1, 2],
-      [2, 3],
-      [3, 4],
-      [4, 5],
-      [5, 0],
-      [4, 6],
-      [6, 7]
+    const edges = [
+      [0, 1], [1, 2],
+      [0, 3], [3, 4], [4, 5], [5, 2],
+      [3, 6], [6, 7], [7, 8],
+      [4, 9], [9, 7]
     ];
 
-    // Train particles: one per path
-    const trains = paths.map(() => ({
-      t: Math.random(), // progress along path
-      speed: 0.001 + Math.random() * 0.002
+    const trains = edges.map(() => ({
+      t: Math.random(),
+      speed: 0.002 + Math.random() * 0.0015,
+      delay: Math.random() * 1000
     }));
-
-    function getControlPoint(a, b) {
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
-      const mx = (a.x + b.x) / 2;
-      const my = (a.y + b.y) / 2;
-      const offset = 0.2;
-      return {
-        x: mx - dy * offset,
-        y: my + dx * offset
-      };
-    }
 
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Edges (curves)
-      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      // Draw edges
+      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
       ctx.lineWidth = 1;
-      paths.forEach(([i, j]) => {
+      edges.forEach(([i, j]) => {
         const a = nodes[i];
         const b = nodes[j];
-        const cp = getControlPoint(a, b);
-
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
-        ctx.quadraticCurveTo(cp.x, cp.y, b.x, b.y);
+        ctx.lineTo(b.x, b.y);
         ctx.stroke();
       });
 
-      // Stations (nodes)
-      nodes.forEach((node, index) => {
-        const size = index % 2 === 0 ? 8 : 5; // hubs bigger
-        ctx.fillStyle = 'rgba(255,255,255,0.9)';
-        ctx.shadowColor = 'white';
-        ctx.shadowBlur = 4;
-        ctx.fillRect(node.x - size / 2, node.y - size / 2, size, size);
-        ctx.shadowBlur = 0;
+      // Draw nodes
+      nodes.forEach((node) => {
+        if (node.hub) {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+          ctx.shadowColor = 'white';
+          ctx.shadowBlur = 8;
+          ctx.fillRect(node.x - 5, node.y - 5, 10, 10);
+          ctx.shadowBlur = 0;
+        } else {
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+          ctx.fillRect(node.x - 3, node.y - 3, 6, 6);
+        }
       });
 
-      // Trains
-      paths.forEach(([i, j], idx) => {
-        const a = nodes[i];
-        const b = nodes[j];
-        const cp = getControlPoint(a, b);
+      // Draw trains
+      edges.forEach(([i, j], idx) => {
         const train = trains[idx];
-
         train.t += train.speed;
         if (train.t > 1) train.t = 0;
 
-        const t = train.t;
-        const x = (1 - t) ** 2 * a.x + 2 * (1 - t) * t * cp.x + t ** 2 * b.x;
-        const y = (1 - t) ** 2 * a.y + 2 * (1 - t) * t * cp.y + t ** 2 * b.y;
+        const a = nodes[i];
+        const b = nodes[j];
+        const trailLength = 3;
 
-        ctx.beginPath();
-        ctx.arc(x, y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = 'white';
-        ctx.fill();
+        for (let k = 0; k < trailLength; k++) {
+          const t = train.t - k * 0.02;
+          if (t < 0 || t > 1) continue;
+          const x = a.x + (b.x - a.x) * t;
+          const y = a.y + (b.y - a.y) * t;
+
+          ctx.beginPath();
+          ctx.arc(x, y, 2.5 - k * 0.5, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${0.5 - k * 0.15})`;
+          ctx.fill();
+        }
       });
 
       requestAnimationFrame(draw);
@@ -113,6 +103,7 @@ export default function ProjectAnimation() {
       canvas.width = width;
       canvas.height = height;
     };
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
