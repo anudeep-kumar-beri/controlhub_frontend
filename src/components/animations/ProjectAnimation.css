@@ -1,3 +1,5 @@
+/* src/components/animations/ProjectAnimation.css */
+
 .project-canvas-animation {
   position: fixed;
   inset: 0;
@@ -8,18 +10,18 @@
   background: transparent;
 }
 
-/* Optional: fallback subtle pulse */
-.project-canvas-animation::after {
+/* Optional subtle pulse background */
+.project-canvas-animation::before {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(white 1px, transparent 1px);
+  background-image: radial-gradient(white 0.8px, transparent 0.8px);
   background-size: 60px 60px;
   opacity: 0.01;
-  animation: matrixPulse 14s ease-in-out infinite;
+  animation: zoomPulse 12s ease-in-out infinite;
 }
 
-@keyframes matrixPulse {
+@keyframes zoomPulse {
   0%, 100% {
     transform: scale(1);
   }
