@@ -1,11 +1,11 @@
 .job-canvas {
   position: absolute;
-  top: 50%;
+  bottom: 0;
   left: 0;
   width: 100vw;
   height: 50vh;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.25;
-  filter: blur(0.5px);
+  opacity: 0.8;
+  filter: none;
 }
