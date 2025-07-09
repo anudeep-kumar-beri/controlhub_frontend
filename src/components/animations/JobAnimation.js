@@ -1,81 +1,95 @@
-// components/animations/JobAnimation.js
+// components/animations/JobTrackerAnimation.js
 import React, { useEffect, useRef } from 'react';
-import './JobAnimation.css';
+import './JobTrackerAnimation.css';
 
-function JobAnimation() {
+function JobTrackerAnimation() {
   const canvasRef = useRef();
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
 
-    const paths = 8;
-    const spacing = width / paths;
-    const beams = [];
+    const trackCount = 7;
+    const trackSpacing = width / (trackCount + 1);
+    const tracks = Array.from({ length: trackCount }, (_, i) => ({
+      x: (i + 1) * trackSpacing,
+      connections: [],
+    }));
 
-    for (let i = 0; i < 15; i++) {
-      const path = Math.floor(Math.random() * paths);
-      beams.push({
-        path,
-        x: spacing * path + spacing / 2,
-        y: height + Math.random() * height,
-        speed: 1 + Math.random() * 1.2,
-        redirectChance: Math.random() * 0.03
-      });
+    // Generate rail-style diagonal connections
+    for (let i = 0; i < tracks.length - 1; i++) {
+      const connectY = Math.random() * height * 0.8;
+      tracks[i].connections.push({ to: i + 1, y: connectY });
+      tracks[i + 1].connections.push({ to: i, y: connectY + 20 });
     }
 
-    function draw() {
+    const lifts = Array.from({ length: 12 }, () => ({
+      track: Math.floor(Math.random() * trackCount),
+      y: Math.random() * height,
+      speed: 0.6 + Math.random() * 0.5,
+    }));
+
+    const draw = () => {
       ctx.clearRect(0, 0, width, height);
 
-      // Draw elevator tracks
-      for (let i = 0; i < paths; i++) {
-        const x = spacing * i + spacing / 2;
-        const gradient = ctx.createLinearGradient(x, height / 2, x, height);
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.08)');
-        gradient.addColorStop(1, 'rgba(255, 255, 255, 0.15)');
-
+      // Draw tracks
+      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+      ctx.lineWidth = 1;
+      tracks.forEach(track => {
         ctx.beginPath();
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 1;
-        ctx.moveTo(x, height / 2);
-        ctx.lineTo(x, height);
+        ctx.moveTo(track.x, 0);
+        ctx.lineTo(track.x, height);
         ctx.stroke();
-      }
+      });
+
+      // Draw visible diagonal intersections
+      ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+      tracks.forEach((track, i) => {
+        track.connections.forEach(conn => {
+          const fromX = track.x;
+          const toX = tracks[conn.to].x;
+          const y = conn.y;
+          ctx.beginPath();
+          ctx.moveTo(fromX, y);
+          ctx.lineTo(toX, y + 20);
+          ctx.stroke();
+        });
+      });
 
       // Draw lifts
-      beams.forEach(beam => {
-        const x = spacing * beam.path + spacing / 2;
-        const y = beam.y;
-        const length = 60;
+      lifts.forEach(lift => {
+        const currentTrack = tracks[lift.track];
+        const x = currentTrack.x;
 
-        const gradient = ctx.createLinearGradient(x, y, x, y - length);
-        gradient.addColorStop(0, 'rgba(255,255,255,0.9)');
-        gradient.addColorStop(0.8, 'rgba(255,255,255,0.1)');
+        // glowing pulse
+        const gradient = ctx.createRadialGradient(x, lift.y, 0, x, lift.y, 12);
+        gradient.addColorStop(0, 'rgba(255,255,255,0.2)');
         gradient.addColorStop(1, 'rgba(255,255,255,0)');
-
         ctx.fillStyle = gradient;
-        ctx.fillRect(x - 2, y - length, 4, length);
+        ctx.beginPath();
+        ctx.arc(x, lift.y, 8, 0, Math.PI * 2);
+        ctx.fill();
 
-        beam.y -= beam.speed;
+        lift.y -= lift.speed;
 
-        // Reroute beam at intersections
-        if (Math.random() < beam.redirectChance) {
-          const direction = Math.random() < 0.5 ? -1 : 1;
-          beam.path += direction;
-          if (beam.path < 0) beam.path = 0;
-          if (beam.path >= paths) beam.path = paths - 1;
+        // route switch if at connector
+        const possibleConnections = currentTrack.connections.filter(c =>
+          Math.abs(c.y - lift.y) < 1.5
+        );
+        if (possibleConnections.length && Math.random() < 0.2) {
+          lift.track = possibleConnections[0].to;
         }
 
-        if (beam.y < height / 2 - 100) {
-          beam.y = height + Math.random() * 100;
+        if (lift.y < -10) {
+          lift.y = height + 10;
+          lift.track = Math.floor(Math.random() * trackCount);
         }
       });
 
       requestAnimationFrame(draw);
-    }
+    };
 
     draw();
 
@@ -87,7 +101,7 @@ function JobAnimation() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  return <canvas ref={canvasRef} className="job-canvas" />;
+  return <canvas ref={canvasRef} className="job-tracker-canvas" />;
 }
 
-export default JobAnimation;
+export default JobTrackerAnimation;
