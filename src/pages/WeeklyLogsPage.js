@@ -1,4 +1,3 @@
-// pages/WeeklyLogsPage.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
@@ -86,12 +85,12 @@ function WeeklyLogsPage() {
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(18);
-    doc.setTextColor('#00eaff');
+    doc.setTextColor('#ffffff');
     doc.text('Weekly Objectives Summary', 14, 20);
     let y = 30;
     logs.forEach((log) => {
       doc.setFontSize(14);
-      doc.setTextColor('#00eaff');
+      doc.setTextColor('#ffffff');
       doc.text(`Week: ${log.weekRange}`, 14, y);
       const rows = log.objectives.map(obj => [`• ${obj.trim()}`]);
       doc.autoTable({
@@ -99,12 +98,12 @@ function WeeklyLogsPage() {
         head: [['Objectives']],
         body: rows,
         styles: {
-          textColor: [0, 234, 255],
-          fillColor: '#181c23',
+          textColor: [255, 255, 255],
+          fillColor: '#0e0e0e',
           fontSize: 11,
         },
         headStyles: {
-          fillColor: '#00eaff',
+          fillColor: '#333333',
           textColor: '#ffffff',
         },
         margin: { left: 14, right: 14 },
@@ -167,7 +166,7 @@ function WeeklyLogsPage() {
                 </div>
                 <ul>
                   {log.objectives.map((obj, i) => (
-                    <li key={i}>🔹 {obj}</li>
+                    <li key={i}>• {obj}</li>
                   ))}
                 </ul>
               </div>
