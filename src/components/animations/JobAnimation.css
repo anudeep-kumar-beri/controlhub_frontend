@@ -1,11 +1,11 @@
-.job-canvas {
+/* components/animations/JobTrackerAnimation.css */
+.job-tracker-canvas {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
-  width: 100vw;
-  height: 50vh;
-  pointer-events: none;
   z-index: 0;
-  opacity: 0.8;
-  filter: none;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  pointer-events: none;
 }
