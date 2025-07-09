@@ -1,6 +1,6 @@
 // components/animations/JobTrackerAnimation.js
 import React, { useEffect, useRef } from 'react';
-import './JobTrackerAnimation.css';
+import './JobAnimation.css';
 
 function JobTrackerAnimation() {
   const canvasRef = useRef();
