@@ -1,4 +1,3 @@
-// components/animations/WeeklyLogsAnimation.js
 import React, { useEffect, useRef } from 'react';
 import './WeeklyLogsAnimation.css';
 
@@ -16,17 +15,15 @@ function WeeklyLogsAnimation() {
 
     function draw() {
       ctx.clearRect(0, 0, width, height);
-      ctx.strokeStyle = 'rgba(0, 234, 255, 0.15)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
       ctx.lineWidth = 2;
 
-      // Base horizontal glowing line
       const baseY = height * 0.75;
       ctx.beginPath();
       ctx.moveTo(0, baseY);
       ctx.lineTo(width, baseY);
       ctx.stroke();
 
-      // Moving ticks
       for (let i = 0; i < width; i += tickGap) {
         const offset = (t * 100) % tickGap;
         ctx.beginPath();
