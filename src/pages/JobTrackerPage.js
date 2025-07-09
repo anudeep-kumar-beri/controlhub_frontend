@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './JobTrackerPage.css';
+import JobAnimation from '../components/animations/JobAnimation';
 
 const API_URL = 'https://controlhub-backend.onrender.com/api/jobs';
 
@@ -9,9 +10,7 @@ function JobTrackerPage() {
   const [newJob, setNewJob] = useState({ role: '', status: '' });
   const [sortBy, setSortBy] = useState('date-desc');
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
+  useEffect(() => { fetchJobs(); }, []);
 
   const fetchJobs = async () => {
     try {
@@ -24,11 +23,7 @@ function JobTrackerPage() {
 
   const handleAddJob = async () => {
     if (newJob.role && newJob.status) {
-      const payload = {
-        ...newJob,
-        date: new Date().toLocaleDateString()
-      };
-
+      const payload = { ...newJob, date: new Date().toLocaleDateString() };
       try {
         const res = await axios.post(API_URL, payload);
         setJobs([res.data, ...jobs]);
@@ -51,7 +46,6 @@ function JobTrackerPage() {
   const handleStatusChange = async (id, newStatus) => {
     const jobToUpdate = jobs.find(job => job._id === id);
     if (!jobToUpdate) return;
-
     try {
       const res = await axios.put(`${API_URL}/${id}`, {
         ...jobToUpdate,
@@ -66,10 +60,8 @@ function JobTrackerPage() {
   const clearJobs = async () => {
     const confirm = window.confirm("Are you sure you want to delete all jobs?");
     if (!confirm) return;
-
     try {
-      const deletions = jobs.map(job => axios.delete(`${API_URL}/${job._id}`));
-      await Promise.all(deletions);
+      await Promise.all(jobs.map(job => axios.delete(`${API_URL}/${job._id}`)));
       setJobs([]);
     } catch (err) {
       console.error('Bulk delete failed:', err);
@@ -86,7 +78,7 @@ function JobTrackerPage() {
 
   return (
     <div className="job-page">
-      <div className="aurora-layer" />
+      <JobAnimation />
       <h1 className="job-title">Job Tracker</h1>
 
       <div className="sort-controls">
@@ -109,7 +101,7 @@ function JobTrackerPage() {
           <p className="empty-message">No jobs tracked yet.</p>
         ) : (
           sortedJobs.map((job) => (
-            <div key={job._id} className="job-entry glow-hover">
+            <div key={job._id} className="job-entry">
               <strong>{job.role}</strong>
               <select
                 className="status-input"
@@ -122,9 +114,7 @@ function JobTrackerPage() {
                 <option value="Rejected">Rejected</option>
               </select>
               <span className="meta">{job.date}</span>
-              <button className="delete-btn" onClick={() => handleDelete(job._id)}>
-                ✕
-              </button>
+              <button className="delete-btn" onClick={() => handleDelete(job._id)}>✕</button>
             </div>
           ))
         )}
