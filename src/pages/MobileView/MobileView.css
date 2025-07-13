@@ -1,5 +1,4 @@
-
-/* src/pages/MobileView/MobileView.css */
+/* MobileView Ultimate Styles */
 
 .mobile-container {
   background-color: #000000;
@@ -7,111 +6,106 @@
   font-family: 'Segoe UI', sans-serif;
   padding: 1rem;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  overflow-x: hidden;
 }
 
 .mobile-header {
   text-align: center;
-  font-size: 1.8rem;
+  font-size: 2rem;
   margin-bottom: 1rem;
-  font-weight: bold;
+  font-weight: 600;
   letter-spacing: 1px;
-  text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
 }
 
-.mobile-section {
-  margin-bottom: 2rem;
+.grid-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
-.skill-card {
-  background-color: #1a1a1a;
-  padding: 0.8rem;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
+.glass-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
 }
 
-.progress-bar {
+.glass-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.2);
+}
+
+.progress-track {
   width: 100%;
-  height: 10px;
-  background-color: #333;
-  border-radius: 5px;
+  height: 8px;
+  background: #222;
+  border-radius: 4px;
+  margin: 0.5rem 0;
   overflow: hidden;
-  margin: 5px 0;
 }
 
 .progress-fill {
   height: 100%;
-  background-color: #f5f5f5;
+  background: #f5f5f5;
   transition: width 0.5s ease-in-out;
 }
 
-.progress-percent {
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-.log-list {
-  list-style: none;
-  padding: 0;
-}
-
-.log-item {
-  background-color: #1a1a1a;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  border-radius: 6px;
-  box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
-}
-
-.project-item {
-  background-color: #1a1a1a;
-  padding: 0.6rem;
-  margin-bottom: 0.8rem;
-  border-radius: 6px;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.15);
-}
-
-.bookmark-list a {
-  display: block;
-  color: #f5f5f5;
-  text-decoration: none;
-  margin-bottom: 0.6rem;
-  padding: 0.6rem;
-  background-color: #1a1a1a;
-  border-radius: 6px;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.2);
-}
-
-.bookmark-list a:hover {
-  text-decoration: underline;
-  background-color: #222;
-}
-
-.mobile-nav {
+/* Fullscreen detail view */
+.fullscreen-card {
   position: fixed;
-  bottom: 0;
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(6px);
-  display: flex;
-  justify-content: space-around;
-  padding: 0.6rem 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.mobile-nav button {
-  background: none;
-  border: none;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(12px);
+  z-index: 1000;
+  padding: 2rem;
   color: #f5f5f5;
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
-  transition: background 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  animation: fadeIn 0.3s ease forwards;
 }
 
-.mobile-nav button:hover {
-  background: rgba(255, 255, 255, 0.1);
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.fullscreen-card h2 {
+  font-size: 1.6rem;
+  margin-bottom: 1rem;
+}
+
+.detail-body p,
+.detail-body a,
+.detail-body progress {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.detail-body a {
+  color: #f5f5f5;
+  text-decoration: underline;
+}
+
+.close-btn {
+  align-self: flex-end;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #f5f5f5;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+  color: rgba(255, 255, 255, 0.7);
 }
