@@ -4,41 +4,36 @@ import './SkillCard.css';
 import SkillDetail from '../modals/SkillDetail';
 
 export default function SkillCard({ skill }) {
-  const [flipped, setFlipped] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
 
-  const handleFlip = () => setFlipped(prev => !prev);
   const openDetail = (e) => {
-    e.stopPropagation(); // prevent triggering flip
+    e.stopPropagation();
     setShowDetail(true);
   };
   const closeDetail = () => setShowDetail(false);
 
   return (
     <>
-      <div className={`skill-card ${flipped ? 'flipped' : ''}`} onClick={handleFlip}>
-        <div className="card-inner">
-          <div className="card-front">
+      <div className="skill-card">
+        <div className="skill-card-content">
+          <div className="skill-card-header">
             <h3>{skill.name}</h3>
-            <div className="progress-bar">
-              <div className="progress-fill" style={{ width: `${skill.progress}%` }}></div>
-            </div>
-            <p>{skill.progress}%</p>
+            <span>{skill.progress}%</span>
           </div>
 
-          <div className="card-back">
-            <p>Goal: {skill.goal || 'N/A'}</p>
-            <p>Last Updated: {skill.updatedAt?.slice(0, 10)}</p>
-            <button onClick={openDetail}>Edit / View</button>
+          <div className="progress-bar">
+            <div className="progress-fill" style={{ width: `${skill.progress}%` }}></div>
+          </div>
+
+          <div className="skill-card-footer">
+            <p>🎯 Goal: {skill.goal || 'N/A'}</p>
+            <button className="edit-btn" onClick={openDetail}>Edit / View</button>
           </div>
         </div>
       </div>
 
       {showDetail && (
-        <SkillDetail
-          skill={skill}
-          onClose={closeDetail}
-        />
+        <SkillDetail skill={skill} onClose={closeDetail} />
       )}
     </>
   );
