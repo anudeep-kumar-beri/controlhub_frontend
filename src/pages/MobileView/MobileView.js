@@ -1,8 +1,7 @@
-
 // src/pages/MobileView/MobileView.js
 import React, { useEffect, useState } from 'react';
 import './MobileView.css';
-import { fetchSkills, fetchLogs, fetchProjects, fetchBookmarks } from '../../api';
+import api from '../../api'; // correct Axios import
 
 export default function MobileView() {
   const [skills, setSkills] = useState([]);
@@ -11,10 +10,25 @@ export default function MobileView() {
   const [bookmarks, setBookmarks] = useState([]);
 
   useEffect(() => {
-    fetchSkills().then(setSkills);
-    fetchLogs().then(setLogs);
-    fetchProjects().then(setProjects);
-    fetchBookmarks().then(setBookmarks);
+    async function loadData() {
+      try {
+        const [skillsRes, logsRes, projectsRes, bookmarksRes] = await Promise.all([
+          api.get('/skills'),
+          api.get('/weeklylogs'),
+          api.get('/projects'),
+          api.get('/bookmarks'),
+        ]);
+
+        setSkills(skillsRes.data);
+        setLogs(logsRes.data);
+        setProjects(projectsRes.data);
+        setBookmarks(bookmarksRes.data);
+      } catch (error) {
+        console.error('Error loading mobile view data:', error);
+      }
+    }
+
+    loadData();
   }, []);
 
   return (
@@ -43,7 +57,9 @@ export default function MobileView() {
         <h2>Weekly Logs</h2>
         <ul className="log-list">
           {logs.map(log => (
-            <li className="log-item" key={log._id}>{log.week}: {log.entry}</li>
+            <li className="log-item" key={log._id}>
+              {log.week}: {log.entry}
+            </li>
           ))}
         </ul>
       </section>
