@@ -38,7 +38,16 @@ export default function BookmarkCard({ bookmarks }) {
                 <img src={getFavicon(link.url)} alt="favicon" className="favicon" />
                 <div className="bookmark-info">
                   <a href={link.url} target="_blank" rel="noreferrer">{link.title || link.url}</a>
-                  <small>{new URL(link.url).hostname}</small>
+                  <small>
+  {(() => {
+    try {
+      return new URL(link.url).hostname;
+    } catch {
+      return 'Invalid URL';
+    }
+  })()}
+</small>
+
                 </div>
                 <button className="edit-btn" onClick={(e) => openDetail(e, link)}>Edit</button>
               </div>
