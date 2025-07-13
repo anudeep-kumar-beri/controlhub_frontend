@@ -113,3 +113,8 @@
 .close-btn:hover {
   color: rgba(255, 255, 255, 0.7);
 }
+/* 🔧 Remove tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
