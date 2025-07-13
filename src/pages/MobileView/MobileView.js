@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import './MobileView.css';
 import api from '../../api';
-import SkillCard from './components/SkillCard'; // ✅ import SkillCard
+import SkillCard from './components/SkillCard'; // ✅ Import updated SkillCard
 
 export default function MobileView() {
   const [skills, setSkills] = useState([]);
@@ -37,12 +37,10 @@ export default function MobileView() {
 
       <section className="grid-section">
 
-        {/* ✅ NEW: Vision-style skill cards */}
-        {skills.map(skill => (
-          <SkillCard key={skill._id} skill={skill} />
-        ))}
+        {/* ✅ Show a single flipping card containing all skills */}
+        {skills.length > 0 && <SkillCard skills={skills} />}
 
-        {/* 🔁 Logs: keep old structure for now */}
+        {/* 🔁 Logs */}
         {logs.map(log => (
           <div
             className="glass-card"
@@ -54,7 +52,7 @@ export default function MobileView() {
           </div>
         ))}
 
-        {/* 🧱 Projects: temporary static card */}
+        {/* 🧱 Projects */}
         {projects.map(project => (
           <div
             className="glass-card"
@@ -66,7 +64,7 @@ export default function MobileView() {
           </div>
         ))}
 
-        {/* 🔗 Bookmarks: temporary static card */}
+        {/* 🔗 Bookmarks */}
         {bookmarks.map(link => (
           <div
             className="glass-card"
