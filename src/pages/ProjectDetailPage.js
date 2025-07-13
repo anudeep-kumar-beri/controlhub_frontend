@@ -1,6 +1,6 @@
 // src/pages/ProjectDetailPage.jsx
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom'; // ⬅️ Add useNavigate
 import axios from 'axios';
 import ControlHubBackground from '../components/backgrounds/ControlHubBackground';
 import ProjectDetailAnimation from '../components/animations/ProjectDetailAnimation';
@@ -10,6 +10,7 @@ const API_URL = 'https://controlhub-backend.onrender.com/api/projects';
 
 function ProjectDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate(); // ⬅️ New
   const [project, setProject] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -39,6 +40,17 @@ function ProjectDetailPage() {
       if (field === 'version') setEditingVersion(false);
     } catch (err) {
       console.error('Error updating field:', err);
+    }
+  };
+
+  const deleteProject = async () => {
+    if (!window.confirm('Are you sure you want to delete this project?')) return;
+    try {
+      await axios.delete(`${API_URL}/${project._id}`);
+      navigate('/projects'); // ⬅️ Redirect after deletion
+    } catch (err) {
+      console.error('Error deleting project:', err);
+      alert('Failed to delete project.');
     }
   };
 
@@ -136,6 +148,23 @@ function ProjectDetailPage() {
             )}
           </ul>
         </section>
+
+        {/* 🗑️ Delete Project Button */}
+        <div style={{ marginTop: '2rem' }}>
+          <button
+            style={{
+              padding: '0.6rem 1.2rem',
+              background: '#ff4444',
+              border: 'none',
+              borderRadius: '8px',
+              color: '#fff',
+              cursor: 'pointer',
+            }}
+            onClick={deleteProject}
+          >
+            🗑️ Delete Project
+          </button>
+        </div>
       </main>
     </div>
   );
