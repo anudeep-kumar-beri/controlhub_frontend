@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react';
 import './MobileView.css';
 import api from '../../api';
 
-import SkillCard from './components/SkillCard';      // ✅ Unified flip card
-import ProjectCard from './components/ProjectCard';  // ✅ Accordion-style project module
+import SkillCard from './components/SkillCard';       // ✅ Flip card for skills
+import ProjectCard from './components/ProjectCard';   // ✅ Accordion-style projects
+import BookmarkCard from './components/BookmarkCard'; // ✅ Vision-style bookmarks
 
 export default function MobileView() {
   const [skills, setSkills] = useState([]);
@@ -38,34 +39,22 @@ export default function MobileView() {
       <header className="mobile-header">ControlHub</header>
 
       <section className="grid-section">
-
-        {/* ✅ One flip card: skills overview and editor */}
+        {/* ✅ Flip card: Skill overview + back-edit */}
         {skills.length > 0 && <SkillCard skills={skills} />}
 
-        {/* 🧱 Projects: now upgraded to interactive accordion */}
+        {/* 🧱 Accordion Project catalog */}
         {projects.length > 0 && <ProjectCard projects={projects} />}
 
+        {/* 🔗 Bookmark list with favicon and edit */}
+        {bookmarks.length > 0 && <BookmarkCard bookmarks={bookmarks} />}
 
-        {/* 🔁 Logs (will be upgraded to swipeable cards later) */}
+        {/* 🔁 Logs (pending upgrade to swipe + modal) */}
         {logs.map(log => (
           <div className="glass-card" key={log._id}>
             <h3>{log.week}</h3>
             <p>{log.entry.slice(0, 30)}...</p>
           </div>
         ))}
-
-        {/* 🔗 Bookmarks (basic for now, upgrade soon) */}
-        {bookmarks.map(link => (
-          <div
-            className="glass-card"
-            key={link._id}
-            onClick={() => window.open(link.url, '_blank')}
-          >
-            <h3>{link.title || link.url}</h3>
-            <p>Tap to open</p>
-          </div>
-        ))}
-
       </section>
     </div>
   );
