@@ -1,0 +1,51 @@
+/* src/pages/MobileView/components/ProjectCard.css */
+.project-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.07);
+  color: #f5f5f5;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.short-desc {
+  font-size: 0.9rem;
+  margin-top: 0.4rem;
+  color: #ccc;
+}
+
+.project-body {
+  margin-top: 0.8rem;
+  font-size: 0.9rem;
+  line-height: 1.4rem;
+  animation: slideDown 0.3s ease;
+}
+
+.detail-btn {
+  margin-top: 0.6rem;
+  padding: 0.4rem 0.8rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 6px;
+  color: #f5f5f5;
+  cursor: pointer;
+}
+
+.detail-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: scaleY(0.9); }
+  to { opacity: 1; transform: scaleY(1); }
+}
