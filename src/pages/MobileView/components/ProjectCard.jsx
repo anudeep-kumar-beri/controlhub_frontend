@@ -3,39 +3,44 @@ import React, { useState } from 'react';
 import './ProjectCard.css';
 import ProjectDetail from '../modals/ProjectDetail';
 
-export default function ProjectCard({ project }) {
+export default function ProjectCard({ projects }) {
   const [expanded, setExpanded] = useState(false);
-  const [showDetail, setShowDetail] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
 
-  const toggleExpand = () => setExpanded(!expanded);
-  const openDetail = (e) => {
+  const toggleExpand = () => setExpanded(prev => !prev);
+  const openDetail = (e, project) => {
     e.stopPropagation();
-    setShowDetail(true);
+    setSelectedProject(project);
   };
-
-  const closeDetail = () => setShowDetail(false);
+  const closeDetail = () => setSelectedProject(null);
 
   return (
     <>
-      <div className={`project-card ${expanded ? 'expanded' : ''}`} onClick={toggleExpand}>
-        <div className="project-header">
-          <h3>{project.name}</h3>
-          <span>{expanded ? '▲' : '▼'}</span>
+      <div className={`project-card-wrapper ${expanded ? 'expanded' : ''}`} onClick={toggleExpand}>
+        <div className="project-card-header">
+          <h2>Projects</h2>
+          <span className="toggle-icon">{expanded ? '▲' : '▼'}</span>
         </div>
-        <p className="short-desc">{project.description.slice(0, 50)}...</p>
 
         {expanded && (
-          <div className="project-body">
-            <p><strong>Type:</strong> {project.type || 'N/A'}</p>
-            <p><strong>Status:</strong> {project.status || 'In Progress'}</p>
-            <p><strong>Stack:</strong> {project.tech?.join(', ') || '—'}</p>
-            <button className="detail-btn" onClick={openDetail}>Edit / View</button>
+          <div className="project-list">
+            {projects.map((project) => (
+              <div className="project-item" key={project._id}>
+                <div>
+                  <h3>{project.name}</h3>
+                  <p>{project.description?.slice(0, 50)}...</p>
+                  <p><strong>Status:</strong> {project.status || 'In Progress'}</p>
+                  <p><strong>Stack:</strong> {project.tech?.join(', ') || '—'}</p>
+                </div>
+                <button className="edit-btn" onClick={(e) => openDetail(e, project)}>Edit / View</button>
+              </div>
+            ))}
           </div>
         )}
       </div>
 
-      {showDetail && (
-        <ProjectDetail project={project} onClose={closeDetail} />
+      {selectedProject && (
+        <ProjectDetail project={selectedProject} onClose={closeDetail} />
       )}
     </>
   );
