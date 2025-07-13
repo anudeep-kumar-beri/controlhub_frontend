@@ -1,19 +1,51 @@
 /* src/pages/MobileView/components/SkillCard.css */
 .skill-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1.2rem;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.06);
-  color: #f5f5f5;
+  width: 100%;
+  perspective: 1000px;
+  margin-bottom: 2rem;
+  cursor: pointer;
 }
 
-.skill-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.card-inner {
+  width: 100%;
+  position: relative;
+  transition: transform 0.6s ease;
+  transform-style: preserve-3d;
+}
+
+.skill-card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+  position: absolute;
+  width: 100%;
+  padding: 1.5rem;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f5f5f5;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.04);
+}
+
+.card-front {
+  transform: rotateY(0deg);
+}
+
+.card-back {
+  transform: rotateY(180deg);
+}
+
+.skill-bar-row {
+  margin-bottom: 1rem;
+}
+
+.skill-bar-row span {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 0.2rem;
 }
 
 .progress-bar {
@@ -21,7 +53,6 @@
   height: 10px;
   background-color: #222;
   border-radius: 5px;
-  margin: 0.7rem 0;
   overflow: hidden;
 }
 
@@ -31,24 +62,24 @@
   transition: width 0.4s ease;
 }
 
-.skill-card-footer {
+.skill-detail-row {
+  margin-bottom: 1rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
-  margin-top: 0.5rem;
 }
 
-.edit-btn {
+.skill-detail-row button {
   padding: 0.4rem 0.8rem;
   background: rgba(255, 255, 255, 0.1);
   border: none;
   border-radius: 6px;
   color: #f5f5f5;
+  font-size: 0.85rem;
   cursor: pointer;
-  font-size: 0.9rem;
 }
 
-.edit-btn:hover {
+.skill-detail-row button:hover {
   background: rgba(255, 255, 255, 0.2);
 }
