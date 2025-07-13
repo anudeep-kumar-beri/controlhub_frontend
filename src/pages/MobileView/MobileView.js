@@ -43,9 +43,8 @@ export default function MobileView() {
         {skills.length > 0 && <SkillCard skills={skills} />}
 
         {/* 🧱 Projects: now upgraded to interactive accordion */}
-        {projects.map(project => (
-          <ProjectCard key={project._id} project={project} />
-        ))}
+        {projects.length > 0 && <ProjectCard projects={projects} />}
+
 
         {/* 🔁 Logs (will be upgraded to swipeable cards later) */}
         {logs.map(log => (
