@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import './MobileView.css';
 import api from '../../api';
-import SkillCard from './components/SkillCard'; // ✅ Import updated SkillCard
+
+import SkillCard from './components/SkillCard';      // ✅ Unified flip card
+import ProjectCard from './components/ProjectCard';  // ✅ Accordion-style project module
 
 export default function MobileView() {
   const [skills, setSkills] = useState([]);
@@ -37,34 +39,23 @@ export default function MobileView() {
 
       <section className="grid-section">
 
-        {/* ✅ Show a single flipping card containing all skills */}
+        {/* ✅ One flip card: skills overview and editor */}
         {skills.length > 0 && <SkillCard skills={skills} />}
 
-        {/* 🔁 Logs */}
+        {/* 🧱 Projects: now upgraded to interactive accordion */}
+        {projects.map(project => (
+          <ProjectCard key={project._id} project={project} />
+        ))}
+
+        {/* 🔁 Logs (will be upgraded to swipeable cards later) */}
         {logs.map(log => (
-          <div
-            className="glass-card"
-            key={log._id}
-            onClick={() => console.log('Tapped log:', log)}
-          >
+          <div className="glass-card" key={log._id}>
             <h3>{log.week}</h3>
             <p>{log.entry.slice(0, 30)}...</p>
           </div>
         ))}
 
-        {/* 🧱 Projects */}
-        {projects.map(project => (
-          <div
-            className="glass-card"
-            key={project._id}
-            onClick={() => console.log('Tapped project:', project)}
-          >
-            <h3>{project.name}</h3>
-            <p>{project.description.slice(0, 30)}...</p>
-          </div>
-        ))}
-
-        {/* 🔗 Bookmarks */}
+        {/* 🔗 Bookmarks (basic for now, upgrade soon) */}
         {bookmarks.map(link => (
           <div
             className="glass-card"
@@ -75,6 +66,7 @@ export default function MobileView() {
             <p>Tap to open</p>
           </div>
         ))}
+
       </section>
     </div>
   );
