@@ -8,7 +8,6 @@ export default function SkillDetail({ skill, onClose }) {
   const [note, setNote] = useState('');
 
   const handleSave = () => {
-    // TODO: PATCH to API if needed
     console.log('Saved:', { progress, goal, note });
     onClose();
   };
