@@ -1,0 +1,72 @@
+/* src/pages/MobileView/components/BookmarkCard.css */
+.bookmark-card-wrapper {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.06);
+  color: #f5f5f5;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.bookmark-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bookmark-list {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.bookmark-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.favicon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+.bookmark-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.bookmark-info a {
+  color: #f5f5f5;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.bookmark-info small {
+  font-size: 0.75rem;
+  color: #ccc;
+}
+
+.edit-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #f5f5f5;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.edit-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
