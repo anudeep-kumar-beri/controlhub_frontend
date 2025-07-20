@@ -11,7 +11,6 @@ import QuickJournalPage from './pages/QuickJournalPage.js';
 import NotFoundPage from './pages/NotFoundPage.js';
 import ProjectsPage from './pages/ProjectsPage.js';
 import ProjectDetailPage from './pages/ProjectDetailPage.js';
-import MobileView from './pages/MobileView/MobileView.js';
 
 function App() {
   const isMobile = window.innerWidth <= 768;
