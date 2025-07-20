@@ -17,9 +17,7 @@ function App() {
 
   return (
     <ErrorBoundary>
-      {isMobile ? (
-        <MobileView />
-      ) : (
+       
         <Routes>
           <Route path="/" element={<DashboardHome />} />
           <Route path="/skill-tracker" element={<SkillTrackerPage />} />
@@ -32,7 +30,7 @@ function App() {
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      )}
+   
     </ErrorBoundary>
   );
 }
