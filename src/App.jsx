@@ -13,7 +13,6 @@ import ProjectsPage from './pages/ProjectsPage.js';
 import ProjectDetailPage from './pages/ProjectDetailPage.js';
 
 function App() {
-  const isMobile = window.innerWidth <= 768;
 
   return (
     <ErrorBoundary>
