@@ -15,6 +15,7 @@ import CustomNode from './CustomNode';
 import './FlowCanvas.css';
 import WorkspaceModal from './sidebar/WorkspaceModal';
 import ContextMenu from './ContextMenu';
+import api from '../../api'; // <-- Add API import
 
 // Define custom node types
 const nodeTypes = { custom: CustomNode };
@@ -82,8 +83,12 @@ function FlowCanvasInner({
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, nodeId: null });
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingNode, setEditingNode] = useState(null);
+  // Ensure all edges are animated
   const currentNodes = workspaceData[currentWorkspace]?.nodes || [];
-  const currentEdges = workspaceData[currentWorkspace]?.edges || [];
+  const currentEdges = (workspaceData[currentWorkspace]?.edges || []).map(edge => ({
+    ...edge,
+    animated: true,
+  }));
 
   const onNodesChange = useCallback(
     (changes) => {
@@ -205,6 +210,48 @@ function FlowCanvasInner({
     },
     [currentWorkspace, setWorkspaceData, setIdCounter, project, wrapperRef]
   );
+
+  // --- Backend Sync: Fetch workspace data on workspace change ---
+  useEffect(() => {
+    async function fetchFlow() {
+      try {
+        const res = await api.get(`/flow/${encodeURIComponent(currentWorkspace)}`);
+        setWorkspaceData(prev => ({
+          ...prev,
+          [currentWorkspace]: {
+            nodes: res.data.nodes || [],
+            edges: res.data.edges || [],
+          }
+        }));
+      } catch (err) {
+        // If not found, initialize empty
+        setWorkspaceData(prev => ({
+          ...prev,
+          [currentWorkspace]: { nodes: [], edges: [] }
+        }));
+      }
+    }
+    fetchFlow();
+    // eslint-disable-next-line
+  }, [currentWorkspace]);
+
+  // --- Backend Sync: Save workspace data on nodes/edges change ---
+  useEffect(() => {
+    async function saveFlow() {
+      const data = workspaceData[currentWorkspace];
+      if (!data) return;
+      try {
+        await api.post(`/flow/${encodeURIComponent(currentWorkspace)}`, {
+          nodes: data.nodes,
+          edges: data.edges,
+        });
+      } catch (err) {
+        // Optionally handle save error
+      }
+    }
+    saveFlow();
+    // eslint-disable-next-line
+  }, [workspaceData, currentWorkspace]);
 
   useEffect(() => {
     const handleClick = () => {
