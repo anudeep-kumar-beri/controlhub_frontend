@@ -1,0 +1,101 @@
+.node-library {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(20, 20, 20, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+}
+
+.node-library h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.75rem;
+  color: #ffffffcc;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  padding-bottom: 4px;
+}
+
+.library-section {
+  margin-bottom: 1rem;
+}
+
+.library-category {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #aaa;
+  cursor: pointer;
+  padding: 6px 0;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: color 0.2s ease;
+}
+
+.library-category:hover {
+  color: #ffffff;
+}
+
+.category-nodes {
+  margin-top: 8px;
+}
+
+.node-preview-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 8px;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  cursor: grab;
+  backdrop-filter: blur(6px);
+}
+
+.node-preview-card:hover {
+  transform: scale(1.02);
+  background-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+.node-preview-card strong {
+  display: block;
+  font-size: 0.85rem;
+  margin-bottom: 4px;
+  color: #ffffff;
+}
+
+.node-preview-card p {
+  font-size: 0.75rem;
+  color: #bbbbbb;
+  margin: 0;
+}
+
+.node-tag {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 10px;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ddd;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Custom Flow Node Style */
+.custom-node {
+  background-color: #111;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  font-family: 'Inter', sans-serif;
+  transition: box-shadow 0.3s ease;
+}
+
+.custom-node:hover {
+  box-shadow: 0 0 12px 4px rgba(0, 255, 255, 0.2);
+}
