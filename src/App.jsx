@@ -11,21 +11,17 @@ import QuickJournalPage from './pages/QuickJournalPage.js';
 import NotFoundPage from './pages/NotFoundPage.js';
 import ProjectsPage from './pages/ProjectsPage.js';
 import ProjectDetailPage from './pages/ProjectDetailPage.js';
-import MobileView from './pages/MobileView/MobileView.js';
+
 
 function App() {
-  const isMobile = window.innerWidth <= 768;
-
+ 
   return (
     <ErrorBoundary>
-      {isMobile ? (
-        <MobileView />
-      ) : (
-        <Routes>
-          <Route path="/" element={<DashboardHome />} />
-          <Route path="/skill-tracker" element={<SkillTrackerPage />} />
-          <Route path="/skills/:id" element={<SkillDetailPage />} />
-          <Route path="/weekly-logs" element={<WeeklyLogsPage />} />
+      <Routes>
+        <Route path="/" element={<DashboardHome />} />
+        <Route path="/skill-tracker" element={<SkillTrackerPage />} />
+        <Route path="/skills/:id" element={<SkillDetailPage />} />
+        <Route path="/weekly-logs" element={<WeeklyLogsPage />} />
           <Route path="/job-tracker" element={<JobTrackerPage />} />
           <Route path="/bookmarks" element={<BookmarksPage />} />
           <Route path="/quick-journal" element={<QuickJournalPage />} />
@@ -34,8 +30,7 @@ function App() {
           <Route path="/flow-workspace" element={<FlowWorkspacePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      )}
-    </ErrorBoundary>
+      </ErrorBoundary>
   );
 }
 
