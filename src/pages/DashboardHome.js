@@ -3,6 +3,7 @@ import './DashboardHome.css';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
+
 function DashboardHome() {
   const navigate = useNavigate();
   const canvasRef = useRef(null);

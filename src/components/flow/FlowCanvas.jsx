@@ -117,7 +117,7 @@ function FlowCanvasInner({
         ...prev,
         [currentWorkspace]: {
           ...prev[currentWorkspace],
-          edges: addEdge({ ...connection, animated: true }, prev[currentWorkspace]?.edges || []),
+          edges: addEdge(connection, prev[currentWorkspace]?.edges || []),
         },
       }));
     },
