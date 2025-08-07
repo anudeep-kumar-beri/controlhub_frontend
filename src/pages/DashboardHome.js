@@ -193,6 +193,12 @@ setProjects(projectsRes.data);
             <p>{journal || 'No journal entry yet.'}</p>
           </div>
 
+          <div className="card fade-in" onClick={() => navigate('/flow-workspace')}>
+  <h3>Flow Workspace</h3>
+  <p>Visualize and manage project hierarchies with node-based flow.</p>
+</div>
+
+
         </div>
       </div>
     </div>

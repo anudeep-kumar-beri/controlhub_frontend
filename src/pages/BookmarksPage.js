@@ -9,7 +9,6 @@ const initialBookmarkState = { title: '', link: '', category: '' };
 
 function BookmarksPage() {
   const [bookmarks, setBookmarks] = useState([]);
-  const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
   const [newBookmark, setNewBookmark] = useState(initialBookmarkState);
   const [editingId, setEditingId] = useState(null);

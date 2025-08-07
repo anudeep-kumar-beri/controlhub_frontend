@@ -46,7 +46,7 @@ function ProjectsPage() {
       <ControlHubBackground />
       <ProjectsPageAnimation />
 
-      <h1 className="projects-title">📁 Projects Dashboard</h1>
+      <h1 className="projects-title">Projects Dashboard</h1>
 
       <div className="add-project-form glassy">
         <input
