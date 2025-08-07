@@ -12,7 +12,6 @@ import NotFoundPage from './pages/NotFoundPage.js';
 import ProjectsPage from './pages/ProjectsPage.js';
 import ProjectDetailPage from './pages/ProjectDetailPage.js';
 import FlowWorkspacePage from './pages/FlowWorkspacePage.jsx';
-import './App.css'; // Import global styles
 
 function App() {
  
