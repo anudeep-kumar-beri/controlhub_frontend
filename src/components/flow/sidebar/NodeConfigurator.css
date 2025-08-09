@@ -1,0 +1,85 @@
+.node-configurator {
+  width: 320px;
+  background: rgba(10, 10, 10, 0.9);
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: -2px 0 12px rgba(0, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  padding: 20px;
+  overflow-y: auto;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  z-index: 20;
+}
+
+.node-configurator h3 {
+  font-size: 1.1rem;
+  margin-bottom: 12px;
+  color: #ffffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 4px;
+}
+
+.node-configurator label {
+  display: block;
+  font-size: 0.85rem;
+  margin-top: 12px;
+  color: #ccc;
+}
+
+.node-configurator input,
+.node-configurator select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  transition: border 0.2s ease;
+}
+
+.node-configurator input:focus,
+.node-configurator select:focus {
+  border: 1px solid #ffffff;
+  outline: none;
+}
+
+.node-configurator input[type="color"] {
+  padding: 0;
+  border: none;
+  width: 100%;
+  height: 30px;
+  background: none;
+  cursor: pointer;
+}
+
+.handle-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.add-handle-btn,
+.remove-handle-btn,
+.save-button {
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+  margin-top: 10px;
+}
+
+.add-handle-btn:hover,
+.remove-handle-btn:hover,
+.save-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+}

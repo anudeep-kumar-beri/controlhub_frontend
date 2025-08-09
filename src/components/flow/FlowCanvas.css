@@ -1,0 +1,218 @@
+.canvasWrapper {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+.canvasArea {
+  flex-grow: 1;
+  height: 100%;
+  position: relative;
+  background-color: #000000;
+}
+
+/* + Node button positioning */
+.addNodeButtonContainer {
+  position: absolute;
+  top: 10px;
+  left: 10px; /* Adjust depending on sidebar width */
+  z-index: 20;
+}
+
+.addNodeButton {
+  padding: 6px 12px;
+  background-color: #111;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.addNodeButton:hover {
+  background-color: #222;
+}
+@keyframes edgeGlow {
+  0% { stroke: #0ff; stroke-width: 1; }
+  50% { stroke: #0ff; stroke-width: 2; }
+  100% { stroke: #0ff; stroke-width: 1; }
+}
+
+.glow-edge path {
+  stroke: #0ff;
+  stroke-width: 1.5;
+  animation: edgeGlow 1.2s infinite ease-in-out;
+}
+
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.3);
+  border: none;
+}
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 16px;
+  width: 400px;
+  max-width: 90%;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.modalContent:hover {
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
+}
+
+.modalContent h2 {
+  margin: 0 0 16px;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.modalContent form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modalContent label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.modalContent input,
+.modalContent textarea {
+  padding: 8px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.3s ease;
+}
+
+.modalContent input:focus,
+.modalContent textarea:focus {
+  border-color: rgba(102, 153, 255, 0.6);
+  outline: none;
+}
+
+.modalContent textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.modalActions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.modalActions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modalActions button[type="submit"] {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.modalActions button[type="submit"]:hover {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 8px rgba(102, 153, 255, 0.4);
+}
+
+.modalActions button[type="button"] {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #444;
+  color: #aaa;
+}
+
+.modalActions button[type="button"]:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* MiniMap styling */
+.react-flow__minimap {
+  background: rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+transition: all 0.2s ease-in-out;
+}
+
+/* Optional: minimize node preview dots */
+.react-flow__minimap-node {
+  stroke: #888;
+  fill: #111;
+  rx: 2;
+  ry: 2;
+}
+
+/* Active node */
+.react-flow__minimap-node.selected {
+  stroke: #ffffff;
+  stroke-width: 1.5;
+}
+
+
+.react-flow__controls {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background: rgba(0, 0, 0, 0.3);
+  color: #00ffff;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.2s ease;
+}
+.react-flow__controls-button svg {
+  fill: white !important;
+  stroke: white !important;
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none;
+}
+
+.react-flow__controls-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}

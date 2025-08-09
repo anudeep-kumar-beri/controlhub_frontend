@@ -11,26 +11,26 @@ import QuickJournalPage from './pages/QuickJournalPage.js';
 import NotFoundPage from './pages/NotFoundPage.js';
 import ProjectsPage from './pages/ProjectsPage.js';
 import ProjectDetailPage from './pages/ProjectDetailPage.js';
+import FlowWorkspacePage from './pages/FlowWorkspacePage.jsx';
 
 function App() {
-
+ 
   return (
     <ErrorBoundary>
-       
-        <Routes>
-          <Route path="/" element={<DashboardHome />} />
-          <Route path="/skill-tracker" element={<SkillTrackerPage />} />
-          <Route path="/skills/:id" element={<SkillDetailPage />} />
-          <Route path="/weekly-logs" element={<WeeklyLogsPage />} />
+      <Routes>
+        <Route path="/" element={<DashboardHome />} />
+        <Route path="/skill-tracker" element={<SkillTrackerPage />} />
+        <Route path="/skills/:id" element={<SkillDetailPage />} />
+        <Route path="/weekly-logs" element={<WeeklyLogsPage />} />
           <Route path="/job-tracker" element={<JobTrackerPage />} />
           <Route path="/bookmarks" element={<BookmarksPage />} />
           <Route path="/quick-journal" element={<QuickJournalPage />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
+          <Route path="/flow-workspace" element={<FlowWorkspacePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-   
-    </ErrorBoundary>
+      </ErrorBoundary>
   );
 }
 

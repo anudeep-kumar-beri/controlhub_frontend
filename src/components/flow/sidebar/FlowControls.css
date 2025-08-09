@@ -1,0 +1,119 @@
+.flow-controls {
+  background: rgba(255, 255, 255, 0.03); /* softer, consistent with others */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 11px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.07); /* slightly brighter glow */
+  transition: all 0.3s ease;
+  overflow: hidden;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+/* When panel is open, apply bottom border on header */
+.flow-controls.open .panel-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+/* Remove border when collapsed */
+.flow-controls .panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  padding-bottom: 0;   /* no bottom padding */
+  margin-bottom: 0;    /* no margin */
+  border-bottom: none; /* no line */
+}
+
+.flow-controls h4 {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffffcc;
+}
+
+/* Toggle container style */
+.flow-controls .toggle-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Toggle button wrapper */
+.flow-controls .toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #ddd;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.flow-controls .toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Hidden checkbox */
+.flow-controls input[type="checkbox"] {
+  display: none;
+}
+
+/* Custom switch */
+.flow-controls .switch {
+  position: relative;
+  width: 36px;
+  height: 18px;
+  background-color: #444;
+  border-radius: 999px;
+  transition: background-color 0.2s ease;
+}
+
+.flow-controls .switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background-color: #000000;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+/* When checked */
+.flow-controls input[type="checkbox"]:checked + .switch {
+  background-color: #eeeeee; /* Use OLED theme color */
+}
+
+.flow-controls input[type="checkbox"]:checked + .switch::after {
+  transform: translateX(18px);
+}
+
+.glass-card {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+/* Arrow animation */
+.arrow {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.arrow.open {
+  transform: rotate(180deg);
+}

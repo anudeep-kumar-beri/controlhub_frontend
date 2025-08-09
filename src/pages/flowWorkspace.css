@@ -1,0 +1,18 @@
+.flow-workspace-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.react-flow__node-default {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 10px;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}

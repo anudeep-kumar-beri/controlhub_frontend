@@ -1,0 +1,64 @@
+.custom-node {
+  padding: 16px;
+  min-width: 200px;
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  color: white;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.custom-node:hover {
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+}
+
+/* Node Type Variants */
+/* Common node base */
+.custom-node {
+  background-color: #111;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid #333;
+  color: white;
+  font-family: sans-serif;
+  transition: box-shadow 0.3s ease;
+}
+
+
+/* Optional subtle hover pulse */
+.custom-node:hover {
+  box-shadow: 0 0 12px 4px rgba(255, 255, 255, 0.2);
+}
+.react-flow__handle {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #000000;
+  box-shadow: 0 0 8px 3px rgba(102, 153, 255, 0.6);
+  border: none;
+  transition: box-shadow 0.3s ease;
+}
+.node-description {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.node-meta {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.node-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid #444;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: #aaa;
+}

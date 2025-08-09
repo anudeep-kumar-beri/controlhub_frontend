@@ -1,0 +1,57 @@
+.flow-sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  height: 100vh;              /* Full viewport height */
+  overflow-y: auto;           /* Enables scroll */
+  padding: 1rem;
+  background: rgba(10, 10, 10, 0.9);
+  backdrop-filter: blur(10px);
+  box-shadow: 2px 0 10px rgba(0, 255, 255, 0.05);
+  scroll-behavior: smooth;
+}
+
+
+.sidebar {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+  box-sizing: border-box;
+}
+
+
+.sidebar-section {
+  padding: 0.5rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #333;
+}
+
+.flow-sidebar {
+  overflow-y: auto;
+  max-height: 100vh; /* Make sure it can scroll when expanded */
+}
+
+/* Webkit-based scrollbars (Chrome, Edge, Safari) */
+.flow-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.flow-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.flow-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 255, 0.2); /* Neon cyan */
+  border-radius: 10px;
+  border: 2px solid rgba(0, 0, 0, 0.5);
+}
+
+.flow-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 255, 0.4);
+}
+
+/* Firefox support */
+.flow-sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(236, 236, 236, 0.3) transparent;
+}

@@ -110,14 +110,14 @@ body {
   font-size: 7rem;
   font-weight: normal;
   text-align: center;
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 252, 252, 0.973);
   -webkit-text-stroke: 0.8px #fff;
   letter-spacing: 1px;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   margin-bottom: 2.5rem;
   text-shadow:
-    0 0 4px rgba(255, 255, 255, 0.15),
+    0 0 4px rgba(255, 255, 255, 0.925),
     0 0 10px rgba(255, 255, 255, 0.1);
 }
 

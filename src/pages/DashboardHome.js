@@ -3,6 +3,7 @@ import './DashboardHome.css';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 
+
 function DashboardHome() {
   const navigate = useNavigate();
   const canvasRef = useRef(null);
@@ -192,6 +193,12 @@ setProjects(projectsRes.data);
             <h2>Quick Journal</h2>
             <p>{journal || 'No journal entry yet.'}</p>
           </div>
+
+          <div className="card fade-in" onClick={() => navigate('/flow-workspace')}>
+  <h3>Flow Workspace</h3>
+  <p>Visualize and manage project hierarchies with node-based flow.</p>
+</div>
+
 
         </div>
       </div>
