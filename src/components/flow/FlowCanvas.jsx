@@ -224,11 +224,15 @@ function FlowCanvasInner({
           }
         }));
       } catch (err) {
-        // If not found, initialize empty
-        setWorkspaceData(prev => ({
-          ...prev,
-          [currentWorkspace]: { nodes: [], edges: [] }
-        }));
+        // Log error for debugging
+        console.error('Error fetching flow:', err?.response?.status, err?.response?.data || err.message);
+        // If not found (404), initialize empty, otherwise leave as is
+        if (err?.response?.status === 404) {
+          setWorkspaceData(prev => ({
+            ...prev,
+            [currentWorkspace]: { nodes: [], edges: [] }
+          }));
+        }
       }
     }
     fetchFlow();
@@ -246,7 +250,8 @@ function FlowCanvasInner({
           edges: data.edges,
         });
       } catch (err) {
-        // Optionally handle save error
+        // Log error for debugging
+        console.error('Error saving flow:', err?.response?.status, err?.response?.data || err.message);
       }
     }
     saveFlow();
