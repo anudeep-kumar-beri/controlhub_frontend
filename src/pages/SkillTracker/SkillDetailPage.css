@@ -1,0 +1,85 @@
+.skill-detail-page {
+  min-height: 100vh;
+  color: #ffffff;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #0b0f10;
+  position: relative;
+  overflow: hidden;
+  background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.skill-detail-container {
+  position: relative;
+  z-index: 1;
+  max-width: 600px;
+  margin: 5vh auto;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+}
+
+.skill-detail-container h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #ffffff;
+}
+
+.skill-detail-container label {
+  display: block;
+  margin-top: 1.2rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.95rem;
+  color: #ccc;
+}
+
+.skill-detail-container input[type="text"],
+.skill-detail-container select,
+.skill-detail-container textarea {
+  width: 100%;
+  padding: 0.5rem;
+  background: #181a1b;
+  color: #e0f7fa;
+  border: 1px solid #444;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.skill-detail-container textarea {
+  min-height: 100px;
+  resize: vertical;
+  background: #181a1b;
+}
+
+.skill-detail-container input[type="range"] {
+  width: 100%;
+  margin-top: 0.5rem;
+  accent-color: #e0f7fa;
+}
+
+.skill-detail-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.skill-detail-actions button {
+  background: transparent;
+  border: 1px solid #e0f7fa;
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #e0f7fa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.skill-detail-actions button:hover {
+  background: #e0f7fa;
+  color: #000;
+}

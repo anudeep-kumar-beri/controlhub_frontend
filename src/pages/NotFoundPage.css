@@ -1,0 +1,36 @@
+.notfound-page {
+  min-height: 100vh;
+  background-color: #0d0d0f;
+  color: #ff4c4c;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', sans-serif;
+  text-align: center;
+  padding: 2rem;
+}
+
+.notfound-page h1 {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+  text-shadow: 0 0 15px #ff4c4c88;
+}
+
+.notfound-page p {
+  font-size: 1.25rem;
+  color: #ccc;
+  margin-bottom: 2rem;
+}
+
+.back-home {
+  color: #ff4c4c;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 1.1rem;
+  transition: color 0.3s ease;
+}
+
+.back-home:hover {
+  color: #ff9999;
+}

@@ -1,0 +1,143 @@
+.project-detail-page {
+  position: relative;
+  min-height: 100vh;
+  background-color: #000;
+  font-family: 'Segoe UI', sans-serif;
+  color: #fff;
+  padding: 2rem 1rem;
+  overflow: hidden;
+}
+
+.project-detail-container {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin: auto;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.project-detail-container h2 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.project-detail-container p {
+  margin-bottom: 1rem;
+  color: #ccc;
+}
+
+/* Section Headings */
+.project-detail-container h3 {
+  font-size: 1.2rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+/* List Styles */
+.project-detail-container ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 1rem;
+}
+
+.project-detail-container li {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  color: #eee;
+  display: flex;
+  flex-direction: column;
+}
+
+.project-detail-container li strong {
+  color: #fff;
+}
+
+.project-detail-container a {
+  color: #00cfff;
+  text-decoration: underline;
+  word-break: break-word;
+}
+
+.project-detail-container em {
+  color: #aaa;
+  font-size: 0.85rem;
+}
+.status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-left: 0.5rem;
+}
+
+.status-badge.pending {
+  background-color: #ffcc00;
+  color: #000;
+}
+
+.status-badge.progress {
+  background-color: #00cfff;
+  color: #000;
+}
+
+.status-badge.fixed,
+.status-badge.complete {
+  background-color: #00e676;
+  color: #000;
+}
+.edit-input {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.4rem 0.8rem;
+  color: #fff;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 300px;
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.edit-button,
+.save-button {
+  background-color: #00cfff;
+  color: #000;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.edit-button:hover,
+.save-button:hover {
+  background-color: #66e0ff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .project-detail-container {
+    padding: 1rem;
+  }
+
+  .project-detail-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .project-detail-container h3 {
+    font-size: 1.05rem;
+  }
+}

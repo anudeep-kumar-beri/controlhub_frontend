@@ -1,0 +1,31 @@
+/* src/components/animations/ProjectAnimation.css */
+
+.project-canvas-animation {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+}
+
+/* Optional subtle pulse background */
+.project-canvas-animation::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(white 0.8px, transparent 0.8px);
+  background-size: 60px 60px;
+  opacity: 0.01;
+  animation: zoomPulse 12s ease-in-out infinite;
+}
+
+@keyframes zoomPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
