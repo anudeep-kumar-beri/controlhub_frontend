@@ -15,7 +15,7 @@ import CustomNode from './CustomNode';
 import './FlowCanvas.css';
 import WorkspaceModal from './sidebar/WorkspaceModal';
 import ContextMenu from './ContextMenu';
-import api from '../../api';
+import api from '../../api'; // <-- Add API import
 
 // Define custom node types
 const nodeTypes = { custom: CustomNode };
@@ -64,6 +64,9 @@ function NodeEditModal({ isOpen, onClose, onSubmit, node }) {
 }
 
 // ------------------------- Flow Canvas Inner -------------------------
+// ... (all other imports and components remain the same)
+
+// ------------------------- Flow Canvas Inner -------------------------
 function FlowCanvasInner({
   wrapperRef,
   showGrid,
@@ -80,6 +83,7 @@ function FlowCanvasInner({
   const [contextMenu, setContextMenu] = useState({ visible: false, x: 0, y: 0, nodeId: null });
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingNode, setEditingNode] = useState(null);
+  // Ensure all edges are animated
   const currentNodes = workspaceData[currentWorkspace]?.nodes || [];
   const currentEdges = (workspaceData[currentWorkspace]?.edges || []).map(edge => ({
     ...edge,
@@ -207,11 +211,11 @@ function FlowCanvasInner({
     [currentWorkspace, setWorkspaceData, setIdCounter, project, wrapperRef]
   );
 
-  // --- Corrected Backend Sync: Fetch workspace data on workspace change ---
+  // --- Backend Sync: Fetch workspace data on workspace change ---
   useEffect(() => {
     async function fetchFlow() {
       try {
-        const res = await api.get(`/flow/by-name/${encodeURIComponent(currentWorkspace)}`);
+        const res = await api.get(`/flow/${encodeURIComponent(currentWorkspace)}`);
         setWorkspaceData(prev => ({
           ...prev,
           [currentWorkspace]: {
@@ -220,38 +224,32 @@ function FlowCanvasInner({
           }
         }));
       } catch (err) {
-        console.error('Error fetching flow:', err?.response?.status, err?.response?.data || err.message);
-        if (err?.response?.status === 404) {
-          setWorkspaceData(prev => ({
-            ...prev,
-            [currentWorkspace]: { nodes: [], edges: [] }
-          }));
-        }
+        // If not found, initialize empty
+        setWorkspaceData(prev => ({
+          ...prev,
+          [currentWorkspace]: { nodes: [], edges: [] }
+        }));
       }
     }
     fetchFlow();
     // eslint-disable-next-line
   }, [currentWorkspace]);
 
-  // --- Corrected Backend Sync: Save workspace data on nodes/edges change ---
+  // --- Backend Sync: Save workspace data on nodes/edges change ---
   useEffect(() => {
     async function saveFlow() {
       const data = workspaceData[currentWorkspace];
       if (!data) return;
       try {
-        await api.put(`/flow/by-name/${encodeURIComponent(currentWorkspace)}`, {
+        await api.post(`/flow/${encodeURIComponent(currentWorkspace)}`, {
           nodes: data.nodes,
           edges: data.edges,
         });
       } catch (err) {
-        console.error('Error saving flow:', err?.response?.status, err?.response?.data || err.message);
+        // Optionally handle save error
       }
     }
-    // Only save if data exists and is not empty
-    if (workspaceData[currentWorkspace] && (workspaceData[currentWorkspace].nodes.length > 0 || workspaceData[currentWorkspace].edges.length > 0)) {
-        const timeoutId = setTimeout(saveFlow, 1000); // Debounce saves
-        return () => clearTimeout(timeoutId);
-    }
+    saveFlow();
     // eslint-disable-next-line
   }, [workspaceData, currentWorkspace]);
 
@@ -345,6 +343,7 @@ function FlowCanvasInner({
         onNodeContextMenu={handleNodeContextMenu}
         proOptions={{ hideAttribution: true }}
         onMove={() => setContextMenu({ visible: false, x: 0, y: 0, nodeId: null })}
+        
       >
         <defs>
           <filter id="glow">
@@ -389,8 +388,11 @@ export default function FlowCanvas() {
   const [showGrid, setShowGrid] = useState(true);
   const [snapToGrid, setSnapToGrid] = useState(false);
   const [showMinimap, setShowMinimap] = useState(false);
+
+  // State to store selected node for the sidebar configurator
   const [selectedNode, setSelectedNode] = useState(null);
 
+  // Function to apply changes from the sidebar NodeConfigurator
   const updateNodeData = (nodeId, newData) => {
     setWorkspaceData(prev => ({
       ...prev,
@@ -403,18 +405,12 @@ export default function FlowCanvas() {
     }));
   };
 
-  const handleModalSubmit = async (name) => {
+  const handleModalSubmit = (name) => {
     if (modalMode === 'create') {
-      try {
-        await api.post('/flow', { workspaceName: name, nodes: [], edges: [] });
-        setWorkspaces((prev) => [...prev, name]);
-        setWorkspaceData((prev) => ({ ...prev, [name]: { nodes: [], edges: [] } }));
-        setCurrentWorkspace(name);
-      } catch (error) {
-        console.error('Failed to create workspace:', error);
-      }
+      setWorkspaces((prev) => [...prev, name]);
+      setWorkspaceData((prev) => ({ ...prev, [name]: { nodes: [], edges: [] } }));
+      setCurrentWorkspace(name);
     } else if (modalMode === 'rename') {
-      // NOTE: This will require a new PUT route to rename by old name
       const updated = {
         ...workspaceData,
         [name]: workspaceData[currentWorkspace],

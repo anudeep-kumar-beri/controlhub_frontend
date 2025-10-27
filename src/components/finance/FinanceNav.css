@@ -1,0 +1,4 @@
+.finance-nav { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.finance-link { color: #cfd3dc; text-decoration: none; padding: 6px 10px; border-radius: 6px; border: 1px solid transparent; }
+.finance-link:hover { border-color: rgba(255,255,255,0.15); color: #fff; }
+.finance-link.active { background: rgba(0, 255, 200, 0.08); color: #e7fff8; border-color: rgba(0, 255, 200, 0.25); }
