@@ -199,6 +199,16 @@ setProjects(projectsRes.data);
   <p>Visualize and manage project hierarchies with node-based flow.</p>
 </div>
 
+          <div className="card wide-card fade-in" onClick={() => navigate('/finance')}>
+            <h2>FinanceFlow</h2>
+            <ul>
+              <li>Master Plus/Minus Sheet</li>
+              <li>Investments, Income, Expenses, Loans</li>
+              <li>Export to XLSX/PDF</li>
+            </ul>
+            <p><em>Tap to open Finance dashboard →</em></p>
+          </div>
+
 
         </div>
       </div>
