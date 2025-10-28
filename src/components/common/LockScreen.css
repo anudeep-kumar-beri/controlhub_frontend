@@ -1,0 +1,18 @@
+.lockscreen { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; overflow: hidden; }
+.lockscreen-bg { position: absolute; inset: 0; background: radial-gradient(1200px 800px at 80% -20%, rgba(255,255,255,0.05), transparent 60%), linear-gradient(180deg, #0b0f14, #0b0f14 40%, #0e1117); filter: blur(0px); }
+.lockscreen-center { position: relative; text-align: center; color: #e5e7eb; user-select: none; }
+.lockscreen-time { font-size: clamp(48px, 12vw, 140px); line-height: 0.9; font-weight: 600; letter-spacing: -0.02em; }
+.lockscreen-date { margin-top: 6px; font-size: clamp(14px, 2.4vw, 24px); color: #9aa3b2; }
+.lockscreen-hint { margin-top: 18px; font-size: 13px; color: #9aa3b2; opacity: 0.9; }
+
+.lockscreen-panel { position: relative; display: grid; gap: 12px; width: min(360px, 92vw); padding: 18px; border-radius: 16px; background: rgba(0,0,0,0.55); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(12px); color: #e5e7eb; }
+.lockscreen-avatar { width: 64px; height: 64px; display:grid; place-items:center; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); font-size: 28px; margin: 0 auto; }
+.lockscreen-title { text-align: center; font-weight: 600; }
+.lockscreen-form { display: flex; gap: 8px; }
+.lockscreen-form input { flex: 1; background: rgba(0,0,0,0.5); color: #e5e7eb; border: 1px solid rgba(255,255,255,0.22); border-radius: 10px; padding: 10px 12px; outline: none; }
+.lockscreen-form input:focus { border-color: rgba(255,255,255,0.35); }
+.lockscreen-error { color: #ff8888; font-size: 12px; text-align: center; }
+
+@media (max-width: 560px) {
+  .lockscreen-time { font-weight: 700; }
+}

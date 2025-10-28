@@ -1,6 +1,7 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import ErrorBoundary from './components/common/ErrorBoundary.js';
+import LockScreen from './components/common/LockScreen.jsx';
 import DashboardHome from './pages/DashboardHome.js';
 import SkillTrackerPage from './pages/SkillTracker/SkillTrackerPage.js';
 import SkillDetailPage from './pages/SkillTracker/SkillDetailPage.js';
@@ -22,9 +23,24 @@ import Audit from './pages/FinanceFlow/Audit.jsx';
 import Settings from './pages/FinanceFlow/Settings.jsx';
 
 function App() {
- 
+  const location = useLocation();
+  const [showLock, setShowLock] = useState(false);
+
+  useEffect(() => {
+    const onHome = location.pathname === '/';
+    const unlocked = sessionStorage.getItem('ch_unlocked') === '1';
+    // show lock screen only on home, once per session
+    setShowLock(onHome && !unlocked);
+  }, [location.pathname]);
+
+  function handleUnlock() {
+    sessionStorage.setItem('ch_unlocked', '1');
+    setShowLock(false);
+  }
+
   return (
     <ErrorBoundary>
+      {showLock && <LockScreen onUnlock={handleUnlock} />}
       <Routes>
         <Route path="/" element={<DashboardHome />} />
         <Route path="/skill-tracker" element={<SkillTrackerPage />} />
