@@ -13,9 +13,10 @@ export default function LockScreen({ onUnlock }) {
   const [clock, setClock] = useState(nowParts());
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
+  const [storedPin, setStoredPin] = useState(() => (typeof localStorage !== 'undefined' ? (localStorage.getItem('ch_lock_pin') || '') : ''));
+  const [newPin, setNewPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState('');
   const inputRef = useRef(null);
-
-  const storedPin = (typeof localStorage !== 'undefined' ? localStorage.getItem('ch_lock_pin') : '') || '';
 
   useEffect(() => {
     const t = setInterval(() => setClock(nowParts()), 1000);
@@ -35,14 +36,27 @@ export default function LockScreen({ onUnlock }) {
   function tryUnlock(e) {
     e?.preventDefault();
     setError('');
-    if (!storedPin) {
-      onUnlock?.();
-      return;
-    }
+    // Require passcode when a stored PIN exists
     if (pin === storedPin) {
       onUnlock?.();
     } else {
       setError('Incorrect passcode');
+    }
+  }
+
+  function setPasscodeAndUnlock(e) {
+    e?.preventDefault();
+    setError('');
+    const a = String(newPin || '').trim();
+    const b = String(confirmPin || '').trim();
+    if (a.length < 4 || a.length > 12) { setError('Passcode must be 4–12 characters'); return; }
+    if (a !== b) { setError('Passcodes do not match'); return; }
+    try {
+      localStorage.setItem('ch_lock_pin', a);
+      setStoredPin(a);
+      onUnlock?.();
+    } catch (err) {
+      setError('Failed to save passcode');
     }
   }
 
@@ -73,7 +87,26 @@ export default function LockScreen({ onUnlock }) {
               <button type="submit" className="btn primary">Unlock</button>
             </form>
           ) : (
-            <button className="btn primary" onClick={tryUnlock}>Unlock</button>
+            <form className="lockscreen-form" onSubmit={setPasscodeAndUnlock}>
+              <input
+                ref={inputRef}
+                type="password"
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="Set new passcode"
+                value={newPin}
+                onChange={(e) => setNewPin(e.target.value)}
+              />
+              <input
+                type="password"
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="Confirm passcode"
+                value={confirmPin}
+                onChange={(e) => setConfirmPin(e.target.value)}
+              />
+              <button type="submit" className="btn primary">Set & Unlock</button>
+            </form>
           )}
           {error ? <div className="lockscreen-error" role="alert">{error}</div> : null}
         </div>
