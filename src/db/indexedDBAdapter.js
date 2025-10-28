@@ -2,8 +2,8 @@
 // For personal projects, keep schema simple; upgrade paths can be added later.
 
 const DB_NAME = 'financeflow-db';
-const DB_VERSION = 1;
-const STORES = ['investments', 'income', 'expenses', 'loans', 'audit', 'overrides'];
+const DB_VERSION = 2;
+const STORES = ['investments', 'income', 'expenses', 'loans', 'loan_payments', 'audit', 'overrides'];
 
 export function openDB() {
   return new Promise((resolve, reject) => {
@@ -37,6 +37,16 @@ export async function getAll(store) {
     const tx = db.transaction(store, 'readonly');
     const req = tx.objectStore(store).getAll();
     req.onsuccess = () => resolve(req.result || []);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+export async function get(store, id) {
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(store, 'readonly');
+    const req = tx.objectStore(store).get(id);
+    req.onsuccess = () => resolve(req.result || null);
     req.onerror = () => reject(req.error);
   });
 }

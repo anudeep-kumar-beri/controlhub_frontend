@@ -1,8 +1,8 @@
 // financeStore.js — thin layer over IndexedDB adapter
-import { getAll, get, put, del } from './indexedDBAdapter';
-import { todayISO } from '../utils/format';
-import { calculateFD } from '../utils/finance/financeCalc';
-import { calculatePaymentBreakdown, calculateAccruedInterest } from '../utils/finance/loanCalculations';
+import { getAll, get, put, del } from '../indexedDBAdapter';
+import { todayISO } from '../../utils/format';
+import { calculateFD } from '../../utils/finance/financeCalc';
+import { calculatePaymentBreakdown, calculateAccruedInterest } from '../../utils/finance/loanCalculations';
 
 export async function seedIfEmpty() {
   // Seed a couple of sample entries for demo; skip if data exists
@@ -69,11 +69,24 @@ export async function deleteExpense(id){ return del('expenses', id); }
 export async function deleteLoan(id){ return del('loans', id); }
 
 export async function saveLoanPayment(payment) { return saveRecord('loan_payments', payment); }
+export async function deleteLoanPayment(id) { return del('loan_payments', id); }
 
 export async function deleteWithAudit(store, id) {
   const before = await get(store, id);
   await del(store, id);
   await auditLog({ action: 'delete', store, before, after: null });
+}
+
+// List audit entries since a given ISO timestamp (inclusive)
+export async function listAuditsSince(sinceIso = '') {
+  const all = await getAll('audit');
+  if (!sinceIso) return all || [];
+  const since = new Date(sinceIso);
+  if (isNaN(since)) return all || [];
+  return (all || []).filter(a => {
+    const t = new Date(a.timestamp || a.createdAt || 0);
+    return !isNaN(t) && t >= since;
+  });
 }
 
 function addMonths(dateStr, months) {

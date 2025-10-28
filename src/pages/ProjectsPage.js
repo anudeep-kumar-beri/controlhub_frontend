@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api.js';
 import { useNavigate } from 'react-router-dom';
 import ControlHubBackground from '../components/backgrounds/ControlHubBackground';
 import ProjectsPageAnimation from '../components/animations/ProjectsPageAnimation';
 import './ProjectsPage.css';
 
-const API_URL = 'https://controlhub-backend.onrender.com/api/projects';
+const API_URL = `${API_BASE_URL}/projects`;
 
 function ProjectsPage() {
   const [projects, setProjects] = useState([]);

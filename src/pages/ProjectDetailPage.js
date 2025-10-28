@@ -2,11 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'; // ⬅️ Add useNavigate
 import axios from 'axios';
+import API_BASE_URL from '../config/api.js';
 import ControlHubBackground from '../components/backgrounds/ControlHubBackground';
 import ProjectDetailAnimation from '../components/animations/ProjectDetailAnimation';
 import './ProjectDetailPage.css';
 
-const API_URL = 'https://controlhub-backend.onrender.com/api/projects';
+const API_URL = `${API_BASE_URL}/projects`;
 
 function ProjectDetailPage() {
   const { id } = useParams();
@@ -33,11 +34,18 @@ function ProjectDetailPage() {
   const updateField = async (field, value) => {
     if (!project) return;
     try {
-      const updated = { ...project, [field]: value };
-      const res = await axios.put(`${API_URL}/${project._id}`, updated);
+      let res;
+      if (field === 'description') {
+        res = await axios.patch(`${API_URL}/${project._id}/description`, { description: value });
+        setEditingDesc(false);
+      } else if (field === 'version') {
+        res = await axios.patch(`${API_URL}/${project._id}/version`, { version: value });
+        setEditingVersion(false);
+      } else {
+        // fallback: update entire doc if unknown field
+        res = await axios.put(`${API_URL}/${project._id}`, { ...project, [field]: value });
+      }
       setProject(res.data);
-      if (field === 'description') setEditingDesc(false);
-      if (field === 'version') setEditingVersion(false);
     } catch (err) {
       console.error('Error updating field:', err);
     }

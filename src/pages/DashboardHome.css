@@ -144,11 +144,6 @@ body {
   overflow: hidden;
 }
 
-.card:hover {
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.3),
-              0 0 20px rgba(255, 255, 255, 0.15);
-  transform: scale(1.015);
-}
 
 .card h2 {
   font-size: 1.25rem;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import ErrorBoundary from './components/ErrorBoundary.js';
+import ErrorBoundary from './components/common/ErrorBoundary.js';
 import DashboardHome from './pages/DashboardHome.js';
 import SkillTrackerPage from './pages/SkillTracker/SkillTrackerPage.js';
 import SkillDetailPage from './pages/SkillTracker/SkillDetailPage.js';
