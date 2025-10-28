@@ -241,7 +241,8 @@ function FlowCanvasInner({
       const data = workspaceData[currentWorkspace];
       if (!data) return;
       try {
-        await api.post(`/flow/${encodeURIComponent(currentWorkspace)}`, {
+        await api.post('/flow/save', {
+          workspaceName: currentWorkspace,
           nodes: data.nodes,
           edges: data.edges,
         });
