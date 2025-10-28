@@ -20,7 +20,7 @@ function QuickJournalPage() {
   const fetchJournal = async () => {
     try {
       const res = await axios.get(API_URL);
-      if (res.data) {
+      if (res && res.data) {
         setJournal(res.data.text || '');
         setLastUpdated(new Date(res.data.updatedAt).toLocaleString());
       }
@@ -79,27 +79,29 @@ function QuickJournalPage() {
 
   return (
     <div className="journal-page">
-      <div className="animation-wrapper">
+      {/* Background animation layer (non-interactive) */}
       <JournalAnimation />
-      <h1 className="journal-title">Quick Journal</h1>
-      <textarea
-        className="journal-input"
-        value={journal}
-        onChange={handleChange}
-        placeholder="Write something reflective or important..."
-        rows={10}
-      />
-      <div className="journal-actions">
-        <span className="timestamp">
-          {lastUpdated && `Last updated: ${lastUpdated}`}
-        </span>
-        <div className="button-group">
-          <button className="neon-delete" onClick={clearJournal}>Clear</button>
-          <button className="neon-export" onClick={exportToPDF}>Export PDF</button>
+
+      {/* Foreground content */}
+      <div className="journal-content">
+        <h1 className="journal-title">Quick Journal</h1>
+        <textarea
+          className="journal-input"
+          value={journal}
+          onChange={handleChange}
+          placeholder="Write something reflective or important..."
+          rows={10}
+        />
+        <div className="journal-actions">
+          <span className="timestamp">
+            {lastUpdated && `Last updated: ${lastUpdated}`}
+          </span>
+          <div className="button-group">
+            <button className="neon-delete" onClick={clearJournal}>Clear</button>
+            <button className="neon-export" onClick={exportToPDF}>Export PDF</button>
+          </div>
         </div>
       </div>
-          </div>
-
     </div>
   );
 }
