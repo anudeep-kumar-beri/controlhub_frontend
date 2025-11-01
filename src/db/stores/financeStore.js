@@ -279,9 +279,9 @@ export async function getMasterTransactions({ fromDate = null, toDate = null, ac
     }
   }
 
-  // sort by timestamp asc (fallback to date, then category)
-  tx.sort((a,b)=> (String(a.ts||'').localeCompare(String(b.ts||''))
-    || (a.date||'').localeCompare(b.date||'')
+  // sort by timestamp desc (newest first) - fallback to date, then category
+  tx.sort((a,b)=> (String(b.ts||'').localeCompare(String(a.ts||''))
+    || (b.date||'').localeCompare(a.date||'')
     || (a.category||'').localeCompare(b.category||'')));
   // add computed net on the fly
   return tx.map(r => ({ ...r, net: (Number(r.inflow)||0) - (Number(r.outflow)||0) }));
