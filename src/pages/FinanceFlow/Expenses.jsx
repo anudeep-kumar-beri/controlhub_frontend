@@ -27,8 +27,9 @@ export default function Expenses() {
     let arr = items.slice();
     if (filter.q) arr = arr.filter(i => ((i.title||i.label||'')+(i.tags?' '+i.tags:'' )).toLowerCase().includes(filter.q.toLowerCase()));
     if (filter.category) arr = arr.filter(i => (i.category||'') === filter.category);
-    if (filter.from) arr = arr.filter(i => (i.date||'') >= filter.from);
-    if (filter.to) arr = arr.filter(i => (i.date||'') <= filter.to);
+    // Normalize dates to YYYY-MM-DD format for comparison
+    if (filter.from) arr = arr.filter(i => String(i.date||'').slice(0,10) >= filter.from);
+    if (filter.to) arr = arr.filter(i => String(i.date||'').slice(0,10) <= filter.to);
     const amt = (x)=> Number((x.amount ?? x.outflow) || 0);
     if (filter.sort === 'amount_desc') arr.sort((a,b)=> (amt(b) - amt(a)));
     else if (filter.sort === 'amount_asc') arr.sort((a,b)=> (amt(a) - amt(b)));
