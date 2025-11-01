@@ -431,24 +431,43 @@ export async function getAccountBalance(accountId) {
     }
   }
   
-  // Investments (outflow on creation, inflow on maturity/cashout)
+  // Investments (outflow on creation, inflow on maturity/cashout + monthly interest)
+  const today = todayISO();
   for (const r of investments || []) {
     if (r.account_id === accountId) {
       const amount = Number(r.amount ?? 0) || 0;
+      const rate = Number(r.interest_rate || r.rate || 0);
+      const tenure = Number(r.tenure_months || r.tenure || 0);
+      
+      // Initial investment is an outflow from account
       outflows += amount;
       count++;
       
-      // FD maturity or cashout
+      // FD: Add monthly interest accruals that have occurred
       const invType = (r.type || '').toUpperCase();
-      if (invType === 'FD' && r.maturity_date) {
-        const { maturity_value } = calculateFD({ 
-          amount, 
-          interest_rate: Number(r.interest_rate || 0), 
-          tenure_months: Number(r.tenure_months || 0) 
-        });
-        inflows += maturity_value;
-      } else if (r.cashout_amount) {
-        inflows += Number(r.cashout_amount || 0);
+      if (invType === 'FD' && rate > 0 && tenure > 0) {
+        const start = (r.start_date || r.date || today).slice(0, 10);
+        const monthlyInterest = (amount * (rate / 100)) / 12;
+        
+        // Count interest for months that have passed
+        for (let month = 1; month <= tenure; month++) {
+          const interestDate = addMonths(start, month);
+          if (interestDate <= today) {
+            inflows += monthlyInterest;
+          }
+        }
+        
+        // Add maturity principal return only if maturity date has passed
+        const maturity = (r.maturity_date && String(r.maturity_date).slice(0, 10)) || addMonths(start, tenure);
+        if (maturity <= today) {
+          inflows += amount; // Return of principal
+        }
+      } else if (r.cashout_amount && r.cashout_date) {
+        // Non-FD investments: only count cashout if it has occurred
+        const cashDate = String(r.cashout_date).slice(0, 10);
+        if (cashDate <= today) {
+          inflows += Number(r.cashout_amount || 0);
+        }
       }
     }
   }
