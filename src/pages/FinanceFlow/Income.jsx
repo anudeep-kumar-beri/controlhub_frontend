@@ -3,11 +3,12 @@ import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
 import { listIncome, saveIncome, deleteWithAudit } from '../../db/stores/financeStore';
 import SimpleModal from '../../components/common/SimpleModal';
 import { useCurrencyFormatter, todayISO } from '../../utils/format';
+import AccountSelector from '../../components/finance/AccountSelector.jsx';
 
 export default function Income() {
   const [items, setItems] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ source:'', category:'General', amount:0, date: todayISO(), recurrence:'one-time', tags:'', notes:'' });
+  const [form, setForm] = useState({ source:'', category:'General', amount:0, date: todayISO(), recurrence:'one-time', tags:'', notes:'', account_id: null });
   const [edit, setEdit] = useState(null);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState({ q:'', category:'', from:'', to:'', sort:'date_desc' });
@@ -16,7 +17,7 @@ export default function Income() {
   async function load(){ setItems(await listIncome()); }
   useEffect(()=>{ load(); }, []);
 
-  async function add(){ if(!form.source || Number(form.amount)<=0){ setError('Source and positive amount required'); return;} await saveIncome({ ...form, inflow: form.amount, label: form.source }); setShowForm(false); setForm({ source:'', category:'General', amount:0, date: todayISO(), recurrence:'one-time', tags:'', notes:'' }); setError(''); await load(); }
+  async function add(){ if(!form.source || Number(form.amount)<=0){ setError('Source and positive amount required'); return;} await saveIncome({ ...form, inflow: form.amount, label: form.source }); setShowForm(false); setForm({ source:'', category:'General', amount:0, date: todayISO(), recurrence:'one-time', tags:'', notes:'', account_id: null }); setError(''); await load(); }
   async function saveEdit(){ if((!edit.source && !edit.label) || Number((edit.amount ?? edit.inflow) || 0)<=0){ setError('Source and positive amount required'); return;} const toSave = { ...edit, amount: Number((edit.amount ?? edit.inflow) || 0), inflow: Number((edit.amount ?? edit.inflow) || 0), label: edit.source || edit.label }; await saveIncome(toSave); setEdit(null); setError(''); await load(); }
   async function remove(id){ if(!window.confirm('Delete this income?')) return; await deleteWithAudit('income', id); await load(); }
 
@@ -62,6 +63,7 @@ export default function Income() {
             <label>Category: <input value={form.category} onChange={(e)=>setForm({...form,category:e.target.value})} /></label>
             <label>Amount: <input type="number" value={form.amount} onChange={(e)=>setForm({...form,amount:Number(e.target.value)})} /></label>
             <label>Date: <input type="date" value={form.date} onChange={(e)=>setForm({...form,date:e.target.value})} /></label>
+            <label>Account: <AccountSelector value={form.account_id} onChange={(val)=>setForm({...form,account_id:val})} /></label>
             <label>Recurrence:
               <select value={form.recurrence} onChange={(e)=>setForm({...form,recurrence:e.target.value})}>
                 <option value="one-time">One-time</option>

@@ -2,8 +2,8 @@
 // For personal projects, keep schema simple; upgrade paths can be added later.
 
 const DB_NAME = 'financeflow-db';
-const DB_VERSION = 2;
-const STORES = ['investments', 'income', 'expenses', 'loans', 'loan_payments', 'audit', 'overrides'];
+const DB_VERSION = 3;
+const STORES = ['investments', 'income', 'expenses', 'loans', 'loan_payments', 'audit', 'overrides', 'accounts'];
 
 export function openDB() {
   return new Promise((resolve, reject) => {

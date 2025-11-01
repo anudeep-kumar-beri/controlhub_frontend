@@ -5,6 +5,7 @@ import './FinanceNav.css';
 export default function FinanceNav() {
   const links = [
     { to: '/finance', label: 'Dashboard' },
+    { to: '/finance/accounts', label: 'Accounts' },
     { to: '/finance/investments', label: 'Investments' },
     { to: '/finance/income', label: 'Income' },
     { to: '/finance/expenses', label: 'Expenses' },

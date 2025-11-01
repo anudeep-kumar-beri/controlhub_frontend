@@ -3,11 +3,12 @@ import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
 import { listExpenses, saveExpense, deleteWithAudit } from '../../db/stores/financeStore';
 import SimpleModal from '../../components/common/SimpleModal';
 import { useCurrencyFormatter, todayISO } from '../../utils/format';
+import AccountSelector from '../../components/finance/AccountSelector.jsx';
 
 export default function Expenses() {
   const [items, setItems] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title:'', category:'General', amount:0, date: todayISO(), recurrence:'one-time', tags:'', notes:'' });
+  const [form, setForm] = useState({ title:'', category:'General', amount:0, date: todayISO(), recurrence:'one-time', tags:'', notes:'', account_id: null });
   const [quick, setQuick] = useState({ title:'', amount:'' });
   const [edit, setEdit] = useState(null);
   const [error, setError] = useState('');
@@ -17,7 +18,7 @@ export default function Expenses() {
   async function load(){ setItems(await listExpenses()); }
   useEffect(()=>{ load(); }, []);
 
-  async function add(){ if(!form.title || Number(form.amount)<=0){ setError('Title and positive amount required'); return;} await saveExpense({ ...form, outflow: form.amount, label: form.title }); setShowForm(false); setForm({ title:'', category:'General', amount:0, date: todayISO(), recurrence:'one-time', tags:'', notes:'' }); setError(''); await load(); }
+  async function add(){ if(!form.title || Number(form.amount)<=0){ setError('Title and positive amount required'); return;} await saveExpense({ ...form, outflow: form.amount, label: form.title }); setShowForm(false); setForm({ title:'', category:'General', amount:0, date: todayISO(), recurrence:'one-time', tags:'', notes:'', account_id: null }); setError(''); await load(); }
   async function saveEdit(){ if((!edit.title && !edit.label) || Number((edit.amount ?? edit.outflow) || 0)<=0){ setError('Title and positive amount required'); return;} const toSave = { ...edit, amount: Number((edit.amount ?? edit.outflow) || 0), outflow: Number((edit.amount ?? edit.outflow) || 0), label: edit.title || edit.label }; await saveExpense(toSave); setEdit(null); setError(''); await load(); }
   async function remove(id){ if(!window.confirm('Delete this expense?')) return; await deleteWithAudit('expenses', id); await load(); }
   async function quickAdd(){ if(!quick.title || !quick.amount) return; const amt = Number(quick.amount); if(isNaN(amt) || amt<=0) return; await saveExpense({ title: quick.title, label: quick.title, amount: amt, outflow: amt, date: todayISO(), category:'Quick', recurrence:'one-time' }); setQuick({ title:'', amount:''}); await load(); }
@@ -69,6 +70,7 @@ export default function Expenses() {
             <label>Category: <input value={form.category} onChange={(e)=>setForm({...form,category:e.target.value})} /></label>
             <label>Amount: <input type="number" value={form.amount} onChange={(e)=>setForm({...form,amount:Number(e.target.value)})} /></label>
             <label>Date: <input type="date" value={form.date} onChange={(e)=>setForm({...form,date:e.target.value})} /></label>
+            <label>Account: <AccountSelector value={form.account_id} onChange={(val)=>setForm({...form,account_id:val})} /></label>
             <label>Recurrence:
               <select value={form.recurrence} onChange={(e)=>setForm({...form,recurrence:e.target.value})}>
                 <option value="one-time">One-time</option>

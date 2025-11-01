@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
-import { getMasterTransactions, updateNotesForRecord } from '../../db/stores/financeStore';
+import { getMasterTransactions, updateNotesForRecord, listAccounts } from '../../db/stores/financeStore';
 import { useCurrencyFormatter, todayISO } from '../../utils/format';
+import AccountSelector from '../../components/finance/AccountSelector.jsx';
 
 function monthRangeOf(date = new Date()) {
   const y = date.getFullYear();
@@ -18,6 +19,7 @@ export default function MasterSheetPage() {
   const [density, setDensity] = useState('comfortable');
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
+  const [filterAccount, setFilterAccount] = useState(null);
   const fmt = useCurrencyFormatter();
 
   useEffect(() => { 
@@ -35,10 +37,10 @@ export default function MasterSheetPage() {
         fromDate = range.from || null; 
         toDate = range.to || null; 
       }
-      const tx = await getMasterTransactions({ fromDate, toDate });
+      const tx = await getMasterTransactions({ fromDate, toDate, accountId: filterAccount });
       setRows(tx);
     })();
-  }, [period, range.from, range.to]);
+  }, [period, range.from, range.to, filterAccount]);
 
   const totals = useMemo(()=>{
     const inflow = rows.reduce((s,r)=> s + (Number(r.inflow)||0), 0);
@@ -92,6 +94,9 @@ export default function MasterSheetPage() {
             </label>
           </>
         )}
+        <label style={{color:'var(--finance-text)'}}>Account: 
+          <AccountSelector value={filterAccount} onChange={setFilterAccount} allowUnassigned={true} />
+        </label>
         <button className="btn" onClick={()=>{ setPeriod('this_month'); setRange(monthRangeOf(new Date())); }}>
           Current
         </button>
@@ -118,6 +123,7 @@ export default function MasterSheetPage() {
               <tr>
                 <th style={{width: '120px'}}>Date</th>
                 <th>Category</th>
+                <th style={{width: '150px'}}>Account</th>
                 <th className="right" style={{width: '140px'}}>Inflow</th>
                 <th className="right" style={{width: '140px'}}>Outflow</th>
                 <th className="right" style={{width: '140px'}}>Net</th>
@@ -129,6 +135,7 @@ export default function MasterSheetPage() {
                 <tr key={r.id}>
                   <td>{r.date}</td>
                   <td>{r.category}</td>
+                  <td style={{fontSize:'0.85rem',opacity:0.8}}>{r.account_name || 'Unassigned'}</td>
                   <td className={`right ${r.inflow>0?'text-pos':''}`}>
                     {r.inflow ? fmt(r.inflow) : '—'}
                   </td>
@@ -157,6 +164,7 @@ export default function MasterSheetPage() {
             <tfoot>
               <tr style={{borderTop:'2px solid rgba(255,255,255,0.2)'}}>
                 <th>Total</th>
+                <th></th>
                 <th></th>
                 <th className="right">{fmt(totals.inflow)}</th>
                 <th className="right">{fmt(totals.outflow)}</th>

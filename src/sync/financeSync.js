@@ -1,8 +1,8 @@
 import API_BASE_URL from '../config/api.js';
 import {
-  listInvestments, listIncome, listExpenses, listLoans, listLoanPayments,
-  saveInvestment, saveIncome, saveExpense, saveLoan, saveLoanPayment,
-  deleteInvestment, deleteIncome, deleteExpense, deleteLoan, deleteLoanPayment,
+  listInvestments, listIncome, listExpenses, listLoans, listLoanPayments, listAccounts,
+  saveInvestment, saveIncome, saveExpense, saveLoan, saveLoanPayment, saveAccount,
+  deleteInvestment, deleteIncome, deleteExpense, deleteLoan, deleteLoanPayment, deleteAccount,
   listAuditsSince
 } from '../db/stores/financeStore.js';
 
@@ -10,8 +10,8 @@ const SYNC_KEY = 'finance_last_sync_at';
 
 async function getAllLocalRecordsSince(sinceIso = '') {
   const since = sinceIso ? new Date(sinceIso) : null;
-  const [investments, income, expenses, loans, loanPayments, audits] = await Promise.all([
-    listInvestments(), listIncome(), listExpenses(), listLoans(), listLoanPayments(), listAuditsSince(sinceIso)
+  const [investments, income, expenses, loans, loanPayments, accounts, audits] = await Promise.all([
+    listInvestments(), listIncome(), listExpenses(), listLoans(), listLoanPayments(), listAccounts(), listAuditsSince(sinceIso)
   ]);
   const map = new Map(); // key: `${store}:${id}` -> record
   const wrap = (store, arr) => {
@@ -26,6 +26,7 @@ async function getAllLocalRecordsSince(sinceIso = '') {
   wrap('expenses', expenses);
   wrap('loans', loans);
   wrap('loan_payments', loanPayments);
+  wrap('accounts', accounts);
 
   // Convert delete audits to tombstones; prefer the newer of update vs delete
   for (const a of audits || []) {
@@ -63,6 +64,7 @@ async function applyRemoteRecords(records = []) {
       else if (store === 'expenses') await deleteExpense(id);
       else if (store === 'loans') await deleteLoan(id);
       else if (store === 'loan_payments') await deleteLoanPayment(id);
+      else if (store === 'accounts') await deleteAccount(id);
       continue;
     }
     if (store === 'investments') await saveInvestment({ ...data, id });
@@ -70,6 +72,7 @@ async function applyRemoteRecords(records = []) {
     else if (store === 'expenses') await saveExpense({ ...data, id });
     else if (store === 'loans') await saveLoan({ ...data, id });
     else if (store === 'loan_payments') await saveLoanPayment({ ...data, id });
+    else if (store === 'accounts') await saveAccount({ ...data, id });
   }
 }
 

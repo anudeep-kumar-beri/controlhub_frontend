@@ -21,6 +21,7 @@ import Loans from './pages/FinanceFlow/Loans.jsx';
 import MasterSheetPage from './pages/FinanceFlow/MasterSheetPage.jsx';
 import Audit from './pages/FinanceFlow/Audit.jsx';
 import Settings from './pages/FinanceFlow/Settings.jsx';
+import Accounts from './pages/FinanceFlow/Accounts.jsx';
 
 function App() {
   const location = useLocation();
@@ -58,6 +59,7 @@ function App() {
           <Route path="/finance/income" element={<Income />} />
           <Route path="/finance/expenses" element={<Expenses />} />
           <Route path="/finance/loans" element={<Loans />} />
+          <Route path="/finance/accounts" element={<Accounts />} />
           <Route path="/finance/master-sheet" element={<MasterSheetPage />} />
           <Route path="/finance/audit" element={<Audit />} />
           <Route path="/finance/settings" element={<Settings />} />

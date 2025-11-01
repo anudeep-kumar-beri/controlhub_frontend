@@ -28,6 +28,7 @@ export async function listIncome() { return getAll('income'); }
 export async function listExpenses() { return getAll('expenses'); }
 export async function listLoans() { return getAll('loans'); }
 export async function listLoanPayments() { return getAll('loan_payments'); }
+export async function listAccounts() { return getAll('accounts'); }
 
 // Generic save helpers
 async function auditLog({ action, store, before, after }) {
@@ -62,11 +63,13 @@ export async function saveInvestment(inv) { return saveRecord('investments', inv
 export async function saveIncome(rec) { return saveRecord('income', rec); }
 export async function saveExpense(rec) { return saveRecord('expenses', rec); }
 export async function saveLoan(rec) { return saveRecord('loans', rec); }
+export async function saveAccount(acc) { return saveRecord('accounts', acc); }
 
 export async function deleteInvestment(id){ return del('investments', id); }
 export async function deleteIncome(id){ return del('income', id); }
 export async function deleteExpense(id){ return del('expenses', id); }
 export async function deleteLoan(id){ return del('loans', id); }
+export async function deleteAccount(id){ return del('accounts', id); }
 
 export async function saveLoanPayment(payment) { return saveRecord('loan_payments', payment); }
 export async function deleteLoanPayment(id) { return del('loan_payments', id); }
@@ -105,17 +108,25 @@ function inDateRange(dateStr, fromDate, toDate) {
   return true;
 }
 
-export async function getMasterTransactions({ fromDate = null, toDate = null } = {}) {
-  const [investments, income, expenses, loans, payments] = await Promise.all([
-    getAll('investments'), getAll('income'), getAll('expenses'), getAll('loans'), getAll('loan_payments')
+export async function getMasterTransactions({ fromDate = null, toDate = null, accountId = null } = {}) {
+  const [investments, income, expenses, loans, payments, accounts] = await Promise.all([
+    getAll('investments'), getAll('income'), getAll('expenses'), getAll('loans'), getAll('loan_payments'), getAll('accounts')
   ]);
+
+  // Build account lookup map
+  const accountMap = new Map();
+  for (const acc of accounts || []) {
+    accountMap.set(acc.id, acc);
+  }
 
   const tx = [];
 
   // Income -> inflow on date
   for (const r of income || []) {
+    if (accountId && r.account_id !== accountId) continue;
     const dt = r.date?.slice(0,10) || todayISO();
     if (!inDateRange(dt, fromDate, toDate)) continue;
+    const account = r.account_id ? accountMap.get(r.account_id) : null;
     tx.push({
       id: `tx-inc-${r.id}`,
       date: dt,
@@ -124,14 +135,18 @@ export async function getMasterTransactions({ fromDate = null, toDate = null } =
       outflow: 0,
       notes: r.notes || '',
       ts: r.createdAt || `${dt}T00:00:00.000Z`,
-      source: { store: 'income', id: r.id }
+      source: { store: 'income', id: r.id },
+      account_id: r.account_id,
+      account_name: account?.name || 'Unassigned'
     });
   }
 
   // Expenses -> outflow on date
   for (const r of expenses || []) {
+    if (accountId && r.account_id !== accountId) continue;
     const dt = r.date?.slice(0,10) || todayISO();
     if (!inDateRange(dt, fromDate, toDate)) continue;
+    const account = r.account_id ? accountMap.get(r.account_id) : null;
     tx.push({
       id: `tx-exp-${r.id}`,
       date: dt,
@@ -140,42 +155,48 @@ export async function getMasterTransactions({ fromDate = null, toDate = null } =
       outflow: Number(r.amount ?? r.outflow ?? 0) || 0,
       notes: r.notes || '',
       ts: r.createdAt || `${dt}T00:00:00.000Z`,
-      source: { store: 'expenses', id: r.id }
+      source: { store: 'expenses', id: r.id },
+      account_id: r.account_id,
+      account_name: account?.name || 'Unassigned'
     });
   }
 
   // Investments -> outflow on creation; inflow on maturity (FD) or cashout (General)
   for (const r of investments || []) {
+    if (accountId && r.account_id !== accountId) continue;
     const start = (r.start_date || r.date || todayISO()).slice(0,10);
     const tenure = Number(r.tenure_months || r.tenure || 0);
     const maturity = (r.maturity_date && String(r.maturity_date).slice(0,10)) || addMonths(start, tenure);
     const amount = Number(r.amount ?? r.inflow ?? 0) || 0;
     const rate = Number(r.rate ?? r.interest_rate ?? 0) || 0;
     const { maturity_value } = calculateFD({ amount, interest_rate: rate, tenure_months: tenure });
+    const account = r.account_id ? accountMap.get(r.account_id) : null;
     if (inDateRange(start, fromDate, toDate)) {
-      tx.push({ id: `tx-inv-out-${r.id}`, date: start, category: `Investment — ${r.type || 'Asset'}` , inflow: 0, outflow: amount, notes: r.notes || '', ts: r.createdAt || `${start}T00:00:00.000Z`, source: { store: 'investments', id: r.id } });
+      tx.push({ id: `tx-inv-out-${r.id}`, date: start, category: `Investment — ${r.type || 'Asset'}` , inflow: 0, outflow: amount, notes: r.notes || '', ts: r.createdAt || `${start}T00:00:00.000Z`, source: { store: 'investments', id: r.id }, account_id: r.account_id, account_name: account?.name || 'Unassigned' });
     }
     // FD: auto maturity inflow; General: inflow only when cashout provided
     const invType = (r.type || '').toUpperCase();
     if (invType === 'FD') {
       if (maturity && inDateRange(maturity, fromDate, toDate)) {
-        tx.push({ id: `tx-inv-in-${r.id}`, date: maturity, category: `Investment Maturity — ${r.type || 'Asset'}` , inflow: maturity_value, outflow: 0, notes: r.notes || '', ts: `${maturity}T23:59:59.000Z`, source: { store: 'investments', id: r.id } });
+        tx.push({ id: `tx-inv-in-${r.id}`, date: maturity, category: `Investment Maturity — ${r.type || 'Asset'}` , inflow: maturity_value, outflow: 0, notes: r.notes || '', ts: `${maturity}T23:59:59.000Z`, source: { store: 'investments', id: r.id }, account_id: r.account_id, account_name: account?.name || 'Unassigned' });
       }
     } else {
       const cashDt = r.cashout_date ? String(r.cashout_date).slice(0,10) : null;
       const cashAmt = Number(r.cashout_amount || 0) || 0;
       if (cashDt && cashAmt > 0 && inDateRange(cashDt, fromDate, toDate)) {
-        tx.push({ id: `tx-inv-cash-${r.id}`, date: cashDt, category: `Investment Cashout — ${r.type || 'General'}` , inflow: cashAmt, outflow: 0, notes: r.notes || '', ts: `${cashDt}T23:59:59.000Z`, source: { store: 'investments', id: r.id } });
+        tx.push({ id: `tx-inv-cash-${r.id}`, date: cashDt, category: `Investment Cashout — ${r.type || 'General'}` , inflow: cashAmt, outflow: 0, notes: r.notes || '', ts: `${cashDt}T23:59:59.000Z`, source: { store: 'investments', id: r.id }, account_id: r.account_id, account_name: account?.name || 'Unassigned' });
       }
     }
   }
 
   // Loans -> inflow on creation (money received); outflow entries for repayments + interest
   for (const r of loans || []) {
+    if (accountId && r.account_id !== accountId) continue;
     const start = (r.start_date || r.date || todayISO()).slice(0,10);
     const principal = Number(r.amount_borrowed ?? r.outflow ?? 0) || 0;
+    const account = r.account_id ? accountMap.get(r.account_id) : null;
     if (inDateRange(start, fromDate, toDate)) {
-      tx.push({ id: `tx-loan-out-${r.id}`, date: start, category: `Loan — ${r.lender || 'Bank'}` , inflow: principal, outflow: 0, notes: r.notes || '', ts: r.createdAt || `${start}T00:00:00.000Z`, source: { store: 'loans', id: r.id } });
+      tx.push({ id: `tx-loan-out-${r.id}`, date: start, category: `Loan — ${r.lender || 'Bank'}` , inflow: principal, outflow: 0, notes: r.notes || '', ts: r.createdAt || `${start}T00:00:00.000Z`, source: { store: 'loans', id: r.id }, account_id: r.account_id, account_name: account?.name || 'Unassigned' });
     }
   }
 
@@ -198,10 +219,12 @@ export async function getMasterTransactions({ fromDate = null, toDate = null } =
     const rate = Number(loan.interest_rate || 0);
     
     for (const p of loanPayments) {
+      if (accountId && p.account_id !== accountId) continue;
       const dt = p.date?.slice(0, 10) || todayISO();
       if (!inDateRange(dt, fromDate, toDate)) continue;
       
       const paymentAmount = Number(p.amount || 0);
+      const account = p.account_id ? accountMap.get(p.account_id) : null;
       
       // Calculate interest and principal breakdown
       let interestPaid = 0;
@@ -229,7 +252,9 @@ export async function getMasterTransactions({ fromDate = null, toDate = null } =
           outflow: principalPaid,
           notes: p.notes || '',
           ts: p.createdAt || `${dt}T00:00:00.000Z`,
-          source: { store: 'loan_payments', id: p.id, type: 'principal' }
+          source: { store: 'loan_payments', id: p.id, type: 'principal' },
+          account_id: p.account_id,
+          account_name: account?.name || 'Unassigned'
         });
       }
       
@@ -243,7 +268,9 @@ export async function getMasterTransactions({ fromDate = null, toDate = null } =
           outflow: interestPaid,
           notes: `Interest on ${p.lender || loan.lender || 'loan'}`,
           ts: p.createdAt || `${dt}T00:00:01.000Z`,
-          source: { store: 'loan_payments', id: p.id, type: 'interest' }
+          source: { store: 'loan_payments', id: p.id, type: 'interest' },
+          account_id: p.account_id,
+          account_name: account?.name || 'Unassigned'
         });
       }
       
@@ -347,4 +374,111 @@ export async function updateNotesForRecord(store, id, notes) {
   if (!rec) return null;
   rec.notes = notes;
   return saveRecord(store, rec);
+}
+
+// ============= Account Management =============
+/**
+ * Get account balance by summing all transactions linked to it
+ * Returns: { balance, inflows, outflows, transactionCount }
+ */
+export async function getAccountBalance(accountId) {
+  const [income, expenses, investments, loans, payments] = await Promise.all([
+    getAll('income'), getAll('expenses'), getAll('investments'), getAll('loans'), getAll('loan_payments')
+  ]);
+  
+  let inflows = 0;
+  let outflows = 0;
+  let count = 0;
+  
+  // Income
+  for (const r of income || []) {
+    if (r.account_id === accountId) {
+      inflows += Number(r.amount ?? r.inflow ?? 0) || 0;
+      count++;
+    }
+  }
+  
+  // Expenses
+  for (const r of expenses || []) {
+    if (r.account_id === accountId) {
+      outflows += Number(r.amount ?? r.outflow ?? 0) || 0;
+      count++;
+    }
+  }
+  
+  // Investments (outflow on creation, inflow on maturity/cashout)
+  for (const r of investments || []) {
+    if (r.account_id === accountId) {
+      const amount = Number(r.amount ?? 0) || 0;
+      outflows += amount;
+      count++;
+      
+      // FD maturity or cashout
+      const invType = (r.type || '').toUpperCase();
+      if (invType === 'FD' && r.maturity_date) {
+        const { maturity_value } = calculateFD({ 
+          amount, 
+          interest_rate: Number(r.interest_rate || 0), 
+          tenure_months: Number(r.tenure_months || 0) 
+        });
+        inflows += maturity_value;
+      } else if (r.cashout_amount) {
+        inflows += Number(r.cashout_amount || 0);
+      }
+    }
+  }
+  
+  // Loans (inflow on creation)
+  for (const r of loans || []) {
+    if (r.account_id === accountId) {
+      inflows += Number(r.amount_borrowed ?? 0) || 0;
+      count++;
+    }
+  }
+  
+  // Loan payments (outflows)
+  for (const p of payments || []) {
+    if (p.account_id === accountId) {
+      outflows += Number(p.amount || 0) || 0;
+      count++;
+    }
+  }
+  
+  return { 
+    balance: inflows - outflows, 
+    inflows, 
+    outflows, 
+    transactionCount: count 
+  };
+}
+
+/**
+ * Get summary statistics across all accounts
+ * Returns: { totalBalance, accountCount, accounts: [{id, name, balance},...] }
+ */
+export async function getAllAccountsSummary() {
+  const accounts = await getAll('accounts') || [];
+  const activeAccounts = accounts.filter(a => a.status !== 'archived');
+  
+  const summaries = await Promise.all(
+    activeAccounts.map(async (acc) => {
+      const { balance } = await getAccountBalance(acc.id);
+      return {
+        id: acc.id,
+        name: acc.name,
+        type: acc.type,
+        institution: acc.institution,
+        balance,
+        currency: acc.currency || 'INR'
+      };
+    })
+  );
+  
+  const totalBalance = summaries.reduce((sum, a) => sum + a.balance, 0);
+  
+  return {
+    totalBalance,
+    accountCount: activeAccounts.length,
+    accounts: summaries
+  };
 }
