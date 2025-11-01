@@ -177,12 +177,14 @@ export async function getMasterTransactions({ fromDate = null, toDate = null, ac
     // FD: auto maturity inflow + monthly interest accruals; General: inflow only when cashout provided
     const invType = (r.type || '').toUpperCase();
     if (invType === 'FD') {
-      // Add monthly interest accrual entries for monitoring
+      // Add monthly interest accrual entries for monitoring (only up to today)
+      const today = todayISO();
       if (rate > 0 && tenure > 0) {
         const monthlyInterest = (amount * (rate / 100)) / 12;
         for (let month = 1; month <= tenure; month++) {
           const interestDate = addMonths(start, month);
-          if (inDateRange(interestDate, fromDate, toDate)) {
+          // Only add interest entries for dates that have already occurred
+          if (interestDate <= today && inDateRange(interestDate, fromDate, toDate)) {
             tx.push({
               id: `tx-inv-int-${r.id}-m${month}`,
               date: interestDate,
