@@ -174,9 +174,31 @@ export async function getMasterTransactions({ fromDate = null, toDate = null, ac
     if (inDateRange(start, fromDate, toDate)) {
       tx.push({ id: `tx-inv-out-${r.id}`, date: start, category: `Investment — ${r.type || 'Asset'}` , inflow: 0, outflow: amount, notes: r.notes || '', ts: r.createdAt || `${start}T00:00:00.000Z`, source: { store: 'investments', id: r.id }, account_id: r.account_id, account_name: account?.name || 'Unassigned' });
     }
-    // FD: auto maturity inflow; General: inflow only when cashout provided
+    // FD: auto maturity inflow + monthly interest accruals; General: inflow only when cashout provided
     const invType = (r.type || '').toUpperCase();
     if (invType === 'FD') {
+      // Add monthly interest accrual entries for monitoring
+      if (rate > 0 && tenure > 0) {
+        const monthlyInterest = (amount * (rate / 100)) / 12;
+        for (let month = 1; month <= tenure; month++) {
+          const interestDate = addMonths(start, month);
+          if (inDateRange(interestDate, fromDate, toDate)) {
+            tx.push({
+              id: `tx-inv-int-${r.id}-m${month}`,
+              date: interestDate,
+              category: `FD Interest Accrual — ${r.type || 'FD'}`,
+              inflow: monthlyInterest,
+              outflow: 0,
+              notes: `Month ${month} interest on ${r.notes || 'FD'}`,
+              ts: `${interestDate}T12:00:00.000Z`,
+              source: { store: 'investments', id: r.id, subtype: 'interest' },
+              account_id: r.account_id,
+              account_name: account?.name || 'Unassigned'
+            });
+          }
+        }
+      }
+      // Final maturity with principal + total interest
       if (maturity && inDateRange(maturity, fromDate, toDate)) {
         tx.push({ id: `tx-inv-in-${r.id}`, date: maturity, category: `Investment Maturity — ${r.type || 'Asset'}` , inflow: maturity_value, outflow: 0, notes: r.notes || '', ts: `${maturity}T23:59:59.000Z`, source: { store: 'investments', id: r.id }, account_id: r.account_id, account_name: account?.name || 'Unassigned' });
       }
@@ -293,7 +315,8 @@ export async function getDashboardTotals({ fromDate = null, toDate = null } = {}
   ]);
   const rangeFilter = (d) => inDateRange(String(d||'').slice(0,10), fromDate, toDate);
 
-  const totalInvested = (investments||[]).filter(r=>rangeFilter(r.start_date||r.date)).reduce((s,r)=> s + (Number(r.amount||0)), 0);
+  // Total invested: sum all active investments regardless of date range (cumulative)
+  const totalInvested = (investments||[]).reduce((s,r)=> s + (Number(r.amount||0)), 0);
   const totalIncome = (income||[]).filter(r=>rangeFilter(r.date)).reduce((s,r)=> s + (Number((r.amount ?? r.inflow) || 0)), 0);
   const totalExpenses = (expenses||[]).filter(r=>rangeFilter(r.date)).reduce((s,r)=> s + (Number((r.amount ?? r.outflow) || 0)), 0);
 
