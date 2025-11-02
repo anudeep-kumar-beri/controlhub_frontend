@@ -5,11 +5,12 @@ import { listInvestments, saveInvestment, deleteWithAudit } from '../../db/store
 import { calculateFD } from '../../utils/finance/financeCalc';
 import SimpleModal from '../../components/common/SimpleModal';
 import { useCurrencyFormatter, todayISO } from '../../utils/format';
+import AccountSelector from '../../components/finance/AccountSelector.jsx';
 
 export default function Investments() {
   const [items, setItems] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ type:'FD', institution:'', amount:0, rate:6.5, tenure_months:12, start_date: todayISO(), maturity_date:'', cashout_amount:0, cashout_date:'', status:'Active', notes:'' });
+  const [form, setForm] = useState({ type:'FD', institution:'', amount:0, rate:6.5, tenure_months:12, start_date: todayISO(), maturity_date:'', cashout_amount:0, cashout_date:'', status:'Active', notes:'', account_id: null });
   const [edit, setEdit] = useState(null);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState({ q:'', type:'', status:'', from:'', to:'', sort:'date_desc' });
@@ -23,7 +24,7 @@ export default function Investments() {
     const payload = { ...form, interest_rate: form.rate, date: form.start_date };
     await saveInvestment(payload);
     setShowForm(false);
-    setForm({ type:'FD', institution:'', amount:0, rate:6.5, tenure_months:12, start_date: todayISO(), maturity_date:'', cashout_amount:0, cashout_date:'', status:'Active', notes:'' });
+    setForm({ type:'FD', institution:'', amount:0, rate:6.5, tenure_months:12, start_date: todayISO(), maturity_date:'', cashout_amount:0, cashout_date:'', status:'Active', notes:'', account_id: null });
     await load();
   }
 
@@ -114,6 +115,7 @@ export default function Investments() {
               </>
             )}
             <label>Start date: <input type="date" value={form.start_date} onChange={(e)=>setForm({...form,start_date:e.target.value})} /></label>
+            <label>Deduct from Account: <AccountSelector value={form.account_id} onChange={(val)=>setForm({...form,account_id:val})} /></label>
             <label>Status:
               <select value={form.status} onChange={(e)=>setForm({...form,status:e.target.value})}>
                 <option>Active</option>
@@ -186,6 +188,7 @@ export default function Investments() {
               </>
             )}
             <label>Start date: <input type="date" value={(edit.start_date || edit.date || '').slice(0,10)} onChange={(e)=>setEdit({...edit,start_date:e.target.value})} /></label>
+            <label>Account: <AccountSelector value={edit.account_id} onChange={(val)=>setEdit({...edit,account_id:val})} /></label>
             <label>Status:
               <select value={edit.status || 'Active'} onChange={(e)=>setEdit({...edit,status:e.target.value})}>
                 <option>Active</option>
