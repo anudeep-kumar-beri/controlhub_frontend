@@ -175,7 +175,7 @@ export async function getMasterTransactions({ fromDate = null, toDate = null, ac
     const creditAcc = creditAccountId ? accountMap.get(creditAccountId) : null;
     // Outflow (debit) filter by accountId when provided
     if ((!accountId || r.account_id === accountId) && inDateRange(start, fromDate, toDate)) {
-      tx.push({ id: `tx-inv-out-${r.id}`, date: start, category: `Investment — ${r.type || 'Asset'}` , inflow: 0, outflow: amount, notes: r.notes || '', ts: r.createdAt || `${start}T00:00:00.000Z`, source: { store: 'investments', id: r.id }, account_id: r.account_id, account_name: account?.name || 'Unassigned' });
+      tx.push({ id: `tx-inv-out-${r.id}`, date: start, category: `Investment — ${r.type || 'Asset'}` , inflow: 0, outflow: amount, notes: r.notes || '', ts: r.createdAt || `${start}T00:00:00.000Z`, source: { store: 'investments', id: r.id }, account_id: r.account_id, account_name: debitAcc?.name || 'Unassigned' });
     }
     // FD: auto maturity inflow + monthly interest accruals; General: inflow only when cashout provided
     const invType = (r.type || '').toUpperCase();
