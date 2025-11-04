@@ -163,15 +163,18 @@ export async function getMasterTransactions({ fromDate = null, toDate = null, ac
 
   // Investments -> outflow on creation; inflow on maturity (FD) or cashout (General)
   for (const r of investments || []) {
-    if (accountId && r.account_id !== accountId) continue;
+    // Filter: for investment, outflow uses account_id; inflows may use payout_account_id
     const start = (r.start_date || r.date || todayISO()).slice(0,10);
     const tenure = Number(r.tenure_months || r.tenure || 0);
     const maturity = (r.maturity_date && String(r.maturity_date).slice(0,10)) || addMonths(start, tenure);
     const amount = Number(r.amount ?? r.inflow ?? 0) || 0;
     const rate = Number(r.rate ?? r.interest_rate ?? 0) || 0;
     const { maturity_value } = calculateFD({ amount, interest_rate: rate, tenure_months: tenure });
-    const account = r.account_id ? accountMap.get(r.account_id) : null;
-    if (inDateRange(start, fromDate, toDate)) {
+    const debitAcc = r.account_id ? accountMap.get(r.account_id) : null;
+    const creditAccountId = r.payout_account_id || r.account_id;
+    const creditAcc = creditAccountId ? accountMap.get(creditAccountId) : null;
+    // Outflow (debit) filter by accountId when provided
+    if ((!accountId || r.account_id === accountId) && inDateRange(start, fromDate, toDate)) {
       tx.push({ id: `tx-inv-out-${r.id}`, date: start, category: `Investment — ${r.type || 'Asset'}` , inflow: 0, outflow: amount, notes: r.notes || '', ts: r.createdAt || `${start}T00:00:00.000Z`, source: { store: 'investments', id: r.id }, account_id: r.account_id, account_name: account?.name || 'Unassigned' });
     }
     // FD: auto maturity inflow + monthly interest accruals; General: inflow only when cashout provided
@@ -184,7 +187,7 @@ export async function getMasterTransactions({ fromDate = null, toDate = null, ac
         for (let month = 1; month <= tenure; month++) {
           const interestDate = addMonths(start, month);
           // Only add interest entries for dates that have already occurred
-          if (interestDate <= today && inDateRange(interestDate, fromDate, toDate)) {
+          if (interestDate <= today && (!accountId || creditAccountId === accountId) && inDateRange(interestDate, fromDate, toDate)) {
             tx.push({
               id: `tx-inv-int-${r.id}-m${month}`,
               date: interestDate,
@@ -194,21 +197,21 @@ export async function getMasterTransactions({ fromDate = null, toDate = null, ac
               notes: `Month ${month} interest on ${r.notes || 'FD'}`,
               ts: `${interestDate}T12:00:00.000Z`,
               source: { store: 'investments', id: r.id, subtype: 'interest' },
-              account_id: r.account_id,
-              account_name: account?.name || 'Unassigned'
+              account_id: creditAccountId,
+              account_name: creditAcc?.name || 'Unassigned'
             });
           }
         }
       }
       // Final maturity with principal + total interest
-      if (maturity && inDateRange(maturity, fromDate, toDate)) {
-        tx.push({ id: `tx-inv-in-${r.id}`, date: maturity, category: `Investment Maturity — ${r.type || 'Asset'}` , inflow: maturity_value, outflow: 0, notes: r.notes || '', ts: `${maturity}T23:59:59.000Z`, source: { store: 'investments', id: r.id }, account_id: r.account_id, account_name: account?.name || 'Unassigned' });
+      if (maturity && (!accountId || creditAccountId === accountId) && inDateRange(maturity, fromDate, toDate)) {
+        tx.push({ id: `tx-inv-in-${r.id}`, date: maturity, category: `Investment Maturity — ${r.type || 'Asset'}` , inflow: maturity_value, outflow: 0, notes: r.notes || '', ts: `${maturity}T23:59:59.000Z`, source: { store: 'investments', id: r.id }, account_id: creditAccountId, account_name: creditAcc?.name || 'Unassigned' });
       }
     } else {
       const cashDt = r.cashout_date ? String(r.cashout_date).slice(0,10) : null;
       const cashAmt = Number(r.cashout_amount || 0) || 0;
-      if (cashDt && cashAmt > 0 && inDateRange(cashDt, fromDate, toDate)) {
-        tx.push({ id: `tx-inv-cash-${r.id}`, date: cashDt, category: `Investment Cashout — ${r.type || 'General'}` , inflow: cashAmt, outflow: 0, notes: r.notes || '', ts: `${cashDt}T23:59:59.000Z`, source: { store: 'investments', id: r.id }, account_id: r.account_id, account_name: account?.name || 'Unassigned' });
+      if (cashDt && cashAmt > 0 && (!accountId || creditAccountId === accountId) && inDateRange(cashDt, fromDate, toDate)) {
+        tx.push({ id: `tx-inv-cash-${r.id}`, date: cashDt, category: `Investment Cashout — ${r.type || 'General'}` , inflow: cashAmt, outflow: 0, notes: r.notes || '', ts: `${cashDt}T23:59:59.000Z`, source: { store: 'investments', id: r.id }, account_id: creditAccountId, account_name: creditAcc?.name || 'Unassigned' });
       }
     }
   }
@@ -452,20 +455,23 @@ export async function getAccountBalance(accountId) {
         // Count interest for months that have passed
         for (let month = 1; month <= tenure; month++) {
           const interestDate = addMonths(start, month);
-          if (interestDate <= today) {
+          const creditAccountId = r.payout_account_id || r.account_id;
+          if (creditAccountId === accountId && interestDate <= today) {
             inflows += monthlyInterest;
           }
         }
         
         // Add maturity principal return only if maturity date has passed
         const maturity = (r.maturity_date && String(r.maturity_date).slice(0, 10)) || addMonths(start, tenure);
-        if (maturity <= today) {
+        const creditAccountId = r.payout_account_id || r.account_id;
+        if (creditAccountId === accountId && maturity <= today) {
           inflows += amount; // Return of principal
         }
       } else if (r.cashout_amount && r.cashout_date) {
         // Non-FD investments: only count cashout if it has occurred
         const cashDate = String(r.cashout_date).slice(0, 10);
-        if (cashDate <= today) {
+        const creditAccountId = r.payout_account_id || r.account_id;
+        if (creditAccountId === accountId && cashDate <= today) {
           inflows += Number(r.cashout_amount || 0);
         }
       }

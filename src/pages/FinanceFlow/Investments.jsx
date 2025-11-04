@@ -12,6 +12,9 @@ export default function Investments() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ type:'FD', institution:'', amount:0, rate:6.5, tenure_months:12, start_date: todayISO(), maturity_date:'', cashout_amount:0, cashout_date:'', status:'Active', notes:'', account_id: null });
   const [edit, setEdit] = useState(null);
+  // Realize/Stash modal state
+  const [realize, setRealize] = useState(null); // holds investment being realized
+  const [realizeForm, setRealizeForm] = useState({ amount: 0, date: todayISO(), account_id: null, notes: '' });
   const [error, setError] = useState('');
   const [filter, setFilter] = useState({ q:'', type:'', status:'', from:'', to:'', sort:'date_desc' });
   const fmt = useCurrencyFormatter();
@@ -39,6 +42,38 @@ export default function Investments() {
   }
 
   async function remove(id){ if(!window.confirm('Delete this investment?')) return; await deleteWithAudit('investments', id); await load(); }
+
+  function openRealize(inv) {
+    const isFD = String(inv.type||'').toUpperCase() === 'FD';
+    let defaultAmount = Number(inv.cashout_amount || 0) || 0;
+    if (isFD) {
+      const rate = Number((inv.rate ?? inv.interest_rate) || 0);
+      const calc = calculateFD({ amount: Number(inv.amount||0), interest_rate: rate, tenure_months: Number(inv.tenure_months||0) });
+      defaultAmount = calc.maturity_value || Number(inv.amount||0);
+    }
+    setRealize(inv);
+    setRealizeForm({ amount: defaultAmount, date: todayISO(), account_id: inv.payout_account_id || inv.account_id || null, notes: inv.notes || '' });
+  }
+
+  async function confirmRealize() {
+    if (!realize) return;
+    const patch = {
+      ...realize,
+      cashout_amount: Number(realizeForm.amount||0),
+      cashout_date: realizeForm.date,
+      // do NOT overwrite original debit account; set payout_account_id for inflows
+      payout_account_id: realizeForm.account_id || null,
+      notes: realizeForm.notes || realize.notes || '',
+      status: 'Matured'
+    };
+    // For FD, if maturity_date not set, set it to realization date
+    if (String(realize.type||'').toUpperCase() === 'FD' && !realize.maturity_date) {
+      patch.maturity_date = realizeForm.date;
+    }
+    await saveInvestment(patch);
+    setRealize(null);
+    await load();
+  }
 
   const filtered = useMemo(()=>{
     let arr = items.slice();
@@ -151,6 +186,11 @@ export default function Investments() {
                     <td className="right">{c.maturity_value ? fmt(c.maturity_value) : '—'} {isFD ? (<span className="muted">(earned {fmt(c.interest_earned)})</span>) : (i.cashout_amount ? <span className="muted">(realized {fmt(c.interest_earned)})</span> : <span className="muted">(set cashout to realize)</span>)}</td>
                     <td>
                       <button className="btn" onClick={()=>{ setEdit(i); setError(''); }}>Edit</button>
+                      {isFD ? (
+                        <button className="btn" style={{marginLeft:6}} onClick={()=>openRealize(i)}>Mature to Account</button>
+                      ) : (
+                        <button className="btn" style={{marginLeft:6}} onClick={()=>openRealize(i)}>Realize/Stash</button>
+                      )}
                       <button className="btn danger" onClick={()=>remove(i.id)} style={{marginLeft:6}}>Delete</button>
                     </td>
                   </tr>
@@ -200,6 +240,31 @@ export default function Investments() {
             <div style={{display:'flex',gap:8,marginTop:8}}>
               <button className="btn accent" onClick={saveEdit}>Save</button>
               <button className="btn" onClick={()=>setEdit(null)}>Cancel</button>
+            </div>
+          </div>
+        )}
+      </SimpleModal>
+
+      {/* Realize/Stash Investment Modal */}
+      <SimpleModal open={!!realize} title={realize && (String(realize.type||'').toUpperCase()==='FD' ? 'Mature FD to Account' : 'Realize Investment to Account')} onClose={()=>setRealize(null)}>
+        {realize && (
+          <div style={{display:'grid', gap: 8}}>
+            <div className="muted">{realize.type} — {realize.institution}</div>
+            <label>Amount to credit:
+              <input type="number" value={realizeForm.amount} onChange={(e)=>setRealizeForm(f=>({...f, amount: Number(e.target.value)}))} />
+            </label>
+            <label>Date:
+              <input type="date" value={realizeForm.date} onChange={(e)=>setRealizeForm(f=>({...f, date: e.target.value}))} />
+            </label>
+            <label>Credit to Account:
+              <AccountSelector value={realizeForm.account_id} onChange={(val)=>setRealizeForm(f=>({...f, account_id: val}))} />
+            </label>
+            <label>Notes:
+              <input value={realizeForm.notes} onChange={(e)=>setRealizeForm(f=>({...f, notes: e.target.value}))} />
+            </label>
+            <div style={{display:'flex', gap:8, marginTop:8}}>
+              <button className="btn accent" onClick={confirmRealize}>Confirm</button>
+              <button className="btn" onClick={()=>setRealize(null)}>Cancel</button>
             </div>
           </div>
         )}
