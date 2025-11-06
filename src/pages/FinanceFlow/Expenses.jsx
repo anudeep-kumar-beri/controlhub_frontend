@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
-import { listExpenses, saveExpense, deleteWithAudit } from '../../db/stores/financeStore';
+import { listExpenses, saveExpense, deleteWithAudit, listAccounts } from '../../db/stores/financeStore';
 import SimpleModal from '../../components/common/SimpleModal';
 import { useCurrencyFormatter, todayISO } from '../../utils/format';
 import AccountSelector from '../../components/finance/AccountSelector.jsx';
 
 export default function Expenses() {
   const [items, setItems] = useState([]);
+  const [accounts, setAccounts] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ title:'', category:'General', amount:0, date: todayISO(), recurrence:'one-time', tags:'', notes:'', account_id: null });
   const [quick, setQuick] = useState({ title:'', amount:'' });
@@ -15,7 +16,11 @@ export default function Expenses() {
   const [filter, setFilter] = useState({ q:'', category:'', from:'', to:'', sort:'date_desc' });
   const fmt = useCurrencyFormatter();
 
-  async function load(){ setItems(await listExpenses()); }
+  async function load(){
+    const [exp, accs] = await Promise.all([listExpenses(), listAccounts()]);
+    setItems(exp);
+    setAccounts(accs.filter(a => a.status !== 'archived'));
+  }
   useEffect(()=>{ load(); }, []);
 
   async function add(){ if(!form.title || Number(form.amount)<=0){ setError('Title and positive amount required'); return;} await saveExpense({ ...form, outflow: form.amount, label: form.title }); setShowForm(false); setForm({ title:'', category:'General', amount:0, date: todayISO(), recurrence:'one-time', tags:'', notes:'', account_id: null }); setError(''); await load(); }
@@ -37,6 +42,12 @@ export default function Expenses() {
     else arr.sort((a,b)=> String(b.date||'').localeCompare(String(a.date||'')));
     return arr;
   }, [items, filter]);
+
+  const accountMap = useMemo(()=>{
+    const m = new Map();
+    for (const a of accounts) m.set(a.id, a);
+    return m;
+  }, [accounts]);
 
   return (
     <FinanceLayout title="Expenses">
@@ -91,16 +102,18 @@ export default function Expenses() {
         <div className="card-header"><strong>Ledger</strong></div>
         <div className="card-body">
           <table className="table">
-            <thead><tr><th>Title</th><th>Category</th><th className="right">Amount</th><th>Date</th><th>Tags</th><th>Notes</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Title</th><th>Category</th><th className="right">Amount</th><th>Date</th><th>Account</th><th>Tags</th><th>Notes</th><th>Actions</th></tr></thead>
             <tbody>
               {filtered.map(i => {
                 const amt = Number((i.amount ?? i.outflow) || 0);
+                const acc = i.account_id ? accountMap.get(i.account_id) : null;
                 return (
                   <tr key={i.id}>
                     <td>{i.title || i.label}</td>
                     <td>{i.category}</td>
                     <td className="right">{fmt(amt)}</td>
                     <td>{(i.date||'').slice(0,10)}</td>
+                    <td>{acc?.name || 'Unassigned'}</td>
                     <td>{i.tags}</td>
                     <td>{i.notes}</td>
                     <td>
@@ -123,6 +136,7 @@ export default function Expenses() {
             <label>Category: <input value={edit.category || ''} onChange={(e)=>setEdit({...edit,category:e.target.value})} /></label>
             <label>Amount: <input type="number" value={(edit.amount ?? edit.outflow) || 0} onChange={(e)=>setEdit({...edit,amount:Number(e.target.value)})} /></label>
             <label>Date: <input type="date" value={edit.date?.slice(0,10)||''} onChange={(e)=>setEdit({...edit,date:e.target.value})} /></label>
+            <label>Account: <AccountSelector value={edit.account_id} onChange={(val)=>setEdit({...edit,account_id:val})} /></label>
             <label>Recurrence:
               <select value={edit.recurrence || 'one-time'} onChange={(e)=>setEdit({...edit,recurrence:e.target.value})}>
                 <option value="one-time">One-time</option>

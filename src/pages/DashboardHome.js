@@ -2,6 +2,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import './DashboardHome.css';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
+import { getMasterTransactions } from '../db/stores/financeStore';
+import { useSettings } from '../context/SettingsContext.jsx';
+import { formatCurrencyValue } from '../utils/format';
 
 
 function DashboardHome() {
@@ -15,6 +18,10 @@ function DashboardHome() {
   const [jobs, setJobs] = useState([]);
   const [weeklyLogs, setWeeklyLogs] = useState([]);
   const [projects, setProjects] = useState([]);
+  // Finance summary state (sync with Finance header logic)
+  const { settings } = useSettings();
+  const [financeSummary, setFinanceSummary] = useState({ inflow: 0, outflow: 0, net: 0 });
+  const fmt = (n) => formatCurrencyValue(n, settings);
 
 
   useEffect(() => {
@@ -42,6 +49,28 @@ setProjects(projectsRes.data);
     };
     fetchData();
   }, []);
+
+  // Load finance summary using same period logic as FinanceLayout header (settings.defaultPeriod)
+  useEffect(() => {
+    (async () => {
+      const now = new Date();
+      let fromDate = null, toDate = null;
+      if (settings.defaultPeriod === 'this_month') {
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        fromDate = `${y}-${m}-01`;
+        toDate = new Date(y, now.getMonth() + 1, 0).toISOString().slice(0, 10);
+      } else if (settings.defaultPeriod === 'this_year') {
+        const y = now.getFullYear();
+        fromDate = `${y}-01-01`;
+        toDate = `${y}-12-31`;
+      }
+      const transactions = await getMasterTransactions({ fromDate, toDate });
+      const inflow = transactions.reduce((s, r) => s + (Number(r.inflow) || 0), 0);
+      const outflow = transactions.reduce((s, r) => s + (Number(r.outflow) || 0), 0);
+      setFinanceSummary({ inflow, outflow, net: inflow - outflow });
+    })();
+  }, [settings.defaultPeriod]);
 
   // Canvas animation
   useEffect(() => {
@@ -201,12 +230,26 @@ setProjects(projectsRes.data);
 
           <div className="card wide-card fade-in" onClick={() => navigate('/finance')}>
             <h2>FinanceFlow</h2>
-            <ul>
+            <div style={{display:'flex',gap:'1.25rem',flexWrap:'wrap',marginBottom:8}}>
+              <div style={{minWidth:120}}>
+                <div className="mini-label">Inflow</div>
+                <div className="mini-value text-pos">{fmt(financeSummary.inflow)}</div>
+              </div>
+              <div style={{minWidth:120}}>
+                <div className="mini-label">Outflow</div>
+                <div className="mini-value text-neg">{fmt(financeSummary.outflow)}</div>
+              </div>
+              <div style={{minWidth:120}}>
+                <div className="mini-label">Net P&L</div>
+                <div className={`mini-value ${financeSummary.net>=0?'text-pos':'text-neg'}`}>{fmt(financeSummary.net)}</div>
+              </div>
+            </div>
+            <ul style={{marginTop:4}}>
               <li>Master Plus/Minus Sheet</li>
               <li>Investments, Income, Expenses, Loans</li>
               <li>Export to XLSX/PDF</li>
             </ul>
-            <p><em>Tap to open Finance dashboard →</em></p>
+            <p style={{marginTop:6}}><em>Tap to open Finance dashboard →</em></p>
           </div>
 
 
