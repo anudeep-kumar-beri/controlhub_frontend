@@ -325,46 +325,6 @@ export async function getDashboardTotals({ fromDate = null, toDate = null } = {}
   const totalIncome = (income||[]).filter(r=>rangeFilter(r.date)).reduce((s,r)=> s + (Number((r.amount ?? r.inflow) || 0)), 0);
   const totalExpenses = (expenses||[]).filter(r=>rangeFilter(r.date)).reduce((s,r)=> s + (Number((r.amount ?? r.outflow) || 0)), 0);
 
-  // Cumulative (lifetime) totals across all transactions (income/expenses + investment inflows/outflows + loan flows)
-  let lifetimeInflow = 0; let lifetimeOutflow = 0;
-  // Income inflows
-  for (const r of income||[]) lifetimeInflow += Number(r.amount ?? r.inflow ?? 0) || 0;
-  // Expense outflows
-  for (const r of expenses||[]) lifetimeOutflow += Number(r.amount ?? r.outflow ?? 0) || 0;
-  // Investments: principal outflow; realized/cashout/maturity inflow
-  for (const inv of investments||[]) {
-    lifetimeOutflow += Number(inv.amount||0) || 0;
-    const type = String(inv.type||'').toUpperCase();
-    const rate = Number(inv.interest_rate || inv.rate || 0) || 0;
-    const tenure = Number(inv.tenure_months || inv.tenure || 0) || 0;
-    const start = (inv.start_date || inv.date || todayISO()).slice(0,10);
-    const maturity = (inv.maturity_date && String(inv.maturity_date).slice(0,10)) || (tenure ? addMonths(start, tenure) : null);
-    if (type === 'FD') {
-      if (maturity && maturity <= todayISO()) {
-        const { maturity_value } = calculateFD({ amount: Number(inv.amount||0), interest_rate: rate, tenure_months: tenure });
-        lifetimeInflow += maturity_value;
-      } else {
-        // Add only interest accrual to date
-        if (rate > 0 && tenure > 0) {
-          const monthlyInterest = (Number(inv.amount||0) * (rate/100)) / 12;
-          for (let m=1;m<=tenure;m++) {
-            const interestDate = addMonths(start, m);
-            if (interestDate <= todayISO()) lifetimeInflow += monthlyInterest;
-          }
-        }
-      }
-    } else {
-      const cashDt = inv.cashout_date ? String(inv.cashout_date).slice(0,10) : null;
-      const cashAmt = Number(inv.cashout_amount||0) || 0;
-      if (cashDt && cashDt <= todayISO() && cashAmt>0) lifetimeInflow += cashAmt;
-    }
-  }
-  // Loans: borrowed principal is inflow; repayments incl interest are outflows
-  for (const loan of loans||[]) lifetimeInflow += Number(loan.amount_borrowed||0) || 0;
-  for (const pay of payments||[]) lifetimeOutflow += Number(pay.amount||0) || 0;
-
-  const lifetimeNetPL = lifetimeInflow - lifetimeOutflow;
-
   // Liabilities: outstanding principal + accrued interest
   const byLoan = new Map();
   for (const l of loans||[]) {
@@ -457,7 +417,7 @@ export async function getDashboardTotals({ fromDate = null, toDate = null } = {}
   const outflow = tx.reduce((s,r)=> s + (Number(r.outflow)||0), 0);
   const netPL = inflow - outflow;
 
-  return { totalInvested, totalIncome, totalExpenses, currentLiabilities, netWorth, netPL, assetsRealized: assets, lifetimeInflow, lifetimeOutflow, lifetimeNetPL };
+  return { totalInvested, totalIncome, totalExpenses, currentLiabilities, netWorth, netPL, assetsRealized: assets };
 }
 
 export async function updateNotesForRecord(store, id, notes) {
