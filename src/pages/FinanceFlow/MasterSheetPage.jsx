@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
-import { getMasterTransactions, updateNotesForRecord, listAccounts } from '../../db/stores/financeStore';
+import { getMasterTransactions, updateNotesForRecord, patchRecord, listAccounts } from '../../db/stores/financeStore';
 import { useCurrencyFormatter, todayISO } from '../../utils/format';
 import AccountSelector from '../../components/finance/AccountSelector.jsx';
 
@@ -20,6 +20,8 @@ export default function MasterSheetPage() {
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState('');
   const [filterAccount, setFilterAccount] = useState(null);
+  const [reassignRow, setReassignRow] = useState(null);
+  const [reassignAccount, setReassignAccount] = useState(null);
   const fmt = useCurrencyFormatter();
 
   useEffect(() => { 
@@ -135,7 +137,14 @@ export default function MasterSheetPage() {
                 <tr key={r.id}>
                   <td>{r.date}</td>
                   <td>{r.category}</td>
-                  <td style={{fontSize:'0.85rem',opacity:0.8}}>{r.account_name || 'Unassigned'}</td>
+                  <td style={{fontSize:'0.85rem',opacity:0.8}}>
+                    {r.account_name || 'Unassigned'}
+                    {(!r.account_id) && r.source?.store && (
+                      <button className="btn" style={{marginLeft:6,padding:'2px 6px',fontSize:'0.65rem'}} onClick={()=>{ setReassignRow(r); setReassignAccount(null); }}>
+                        Assign
+                      </button>
+                    )}
+                  </td>
                   <td className={`right ${r.inflow>0?'text-pos':''}`}>
                     {r.inflow ? fmt(r.inflow) : '—'}
                   </td>
@@ -175,6 +184,36 @@ export default function MasterSheetPage() {
           </table>
         </div>
       </div>
+
+      {reassignRow && (
+        <div className="modal-backdrop">
+          <div className="modal" style={{maxWidth:420}}>
+            <h3 style={{marginTop:0}}>Assign Account</h3>
+            <p style={{fontSize:'0.8rem',opacity:0.7}}>Link this transaction so balances reconcile. Transaction: <strong>{reassignRow.category}</strong> on {reassignRow.date}</p>
+            <label style={{display:'block',marginBottom:12}}>Account:
+              <AccountSelector value={reassignAccount} onChange={setReassignAccount} allowUnassigned={false} />
+            </label>
+            <div style={{display:'flex',gap:8}}>
+              <button className="btn accent" disabled={!reassignAccount} onClick={async ()=>{
+                const store = reassignRow.source?.store;
+                const id = reassignRow.source?.id;
+                if (store && id && reassignAccount) {
+                  await patchRecord(store, id, { account_id: reassignAccount });
+                  // reload rows
+                  let fromDate = null, toDate = null;
+                  if (period === 'this_month') { const { from, to } = monthRangeOf(new Date()); fromDate = from; toDate = to; }
+                  else if (period === 'this_year') { const y = new Date().getFullYear(); fromDate = `${y}-01-01`; toDate = `${y}-12-31`; }
+                  else if (period === 'custom') { fromDate = range.from || null; toDate = range.to || null; }
+                  const tx = await getMasterTransactions({ fromDate, toDate, accountId: filterAccount });
+                  setRows(tx);
+                }
+                setReassignRow(null);
+              }}>Save</button>
+              <button className="btn" onClick={()=>setReassignRow(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </FinanceLayout>
   );
 }

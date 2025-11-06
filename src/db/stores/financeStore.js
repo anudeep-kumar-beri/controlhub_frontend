@@ -74,6 +74,14 @@ export async function deleteAccount(id){ return del('accounts', id); }
 export async function saveLoanPayment(payment) { return saveRecord('loan_payments', payment); }
 export async function deleteLoanPayment(id) { return del('loan_payments', id); }
 
+// Patch helper: merge partial changes into existing record safely
+export async function patchRecord(store, id, patch) {
+  const existing = await get(store, id);
+  if (!existing) return null;
+  const updated = { ...existing, ...patch };
+  return saveRecord(store, updated);
+}
+
 export async function deleteWithAudit(store, id) {
   const before = await get(store, id);
   await del(store, id);
