@@ -21,7 +21,7 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointE
 export default function FinanceDashboard() {
   const [period, setPeriod] = useState('this_month');
   const [custom, setCustom] = useState({ from: '', to: '' });
-  const [totals, setTotals] = useState({ totalInvested: 0, totalIncome: 0, totalExpenses: 0, currentLiabilities: 0, netWorth: 0, netPL: 0 });
+  const [totals, setTotals] = useState({ totalInvested: 0, totalIncome: 0, totalExpenses: 0, currentLiabilities: 0, netWorth: 0, netPL: 0, lifetimeInflow:0, lifetimeOutflow:0, lifetimeNetPL:0 });
   const fmt = useCurrencyFormatter();
   const [alloc, setAlloc] = useState({ labels: [], values: [] });
   const [series, setSeries] = useState({ months: [], income: [], expenses: [], pnl: [] });
@@ -43,7 +43,7 @@ export default function FinanceDashboard() {
       } else if (period === 'custom') {
         fromDate = custom.from || null; toDate = custom.to || null;
       }
-      const t = await getDashboardTotals({ fromDate, toDate });
+  const t = await getDashboardTotals({ fromDate, toDate });
       setTotals(t);
 
       // Portfolio allocation (overall, by type)
@@ -119,6 +119,18 @@ export default function FinanceDashboard() {
     })();
   }, [period, custom.from, custom.to]);
 
+  // Refresh cumulative KPIs right after a sync completes (poll localStorage flag)
+  useEffect(()=>{
+    const id = setInterval(async ()=>{
+      const status = localStorage.getItem('finance_sync_status');
+      if (status === 'synced') {
+        const t = await getDashboardTotals({ fromDate: null, toDate: null });
+        setTotals(prev => ({ ...prev, lifetimeInflow: t.lifetimeInflow, lifetimeOutflow: t.lifetimeOutflow, lifetimeNetPL: t.lifetimeNetPL }));
+      }
+    }, 5000);
+    return ()=> clearInterval(id);
+  }, []);
+
   const donutData = useMemo(()=>({
     labels: alloc.labels,
     datasets: [{ data: alloc.values, backgroundColor: ['#00e1c7','#7b61ff','#ffb020','#ff6b6b','#4dd0e1','#26a69a'] }]
@@ -183,7 +195,10 @@ export default function FinanceDashboard() {
               <div className="kpi-compact"><div className="kpi-label">Total Expenses</div><div className="kpi-value">{fmt(totals.totalExpenses)}</div></div>
               <div className="kpi-compact"><div className="kpi-label">Current Liabilities</div><div className="kpi-value">{fmt(totals.currentLiabilities)}</div></div>
               <div className="kpi-compact"><div className="kpi-label">Net Worth</div><div className="kpi-value text-pos">{fmt(totals.netWorth)}</div></div>
-              <div className="kpi-compact"><div className="kpi-label">Net P&L</div><div className={`kpi-value ${totals.netPL>=0?'text-pos':'text-neg'}`}>{fmt(totals.netPL)}</div></div>
+              <div className="kpi-compact"><div className="kpi-label">Net P&L (Period)</div><div className={`kpi-value ${totals.netPL>=0?'text-pos':'text-neg'}`}>{fmt(totals.netPL)}</div></div>
+              <div className="kpi-compact"><div className="kpi-label">Lifetime Inflow</div><div className="kpi-value">{fmt(totals.lifetimeInflow)}</div></div>
+              <div className="kpi-compact"><div className="kpi-label">Lifetime Outflow</div><div className="kpi-value">{fmt(totals.lifetimeOutflow)}</div></div>
+              <div className="kpi-compact"><div className="kpi-label">Net P&L (All)</div><div className={`kpi-value ${totals.lifetimeNetPL>=0?'text-pos':'text-neg'}`}>{fmt(totals.lifetimeNetPL)}</div></div>
             </div>
           </div>
         </div>
