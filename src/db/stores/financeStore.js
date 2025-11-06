@@ -368,7 +368,7 @@ export async function getDashboardTotals({ fromDate = null, toDate = null } = {}
   }
   
   let currentLiabilities = 0;
-  const today = todayISO();
+  const today = todayISO(); // used for liability accrual
   
   for (const loanData of byLoan.values()) {
     const outstandingPrincipal = Math.max(0, loanData.borrowed - loanData.principalRepaid);
@@ -383,9 +383,32 @@ export async function getDashboardTotals({ fromDate = null, toDate = null } = {}
     currentLiabilities += outstandingPrincipal + accruedInterest;
   }
 
-  // Assets (simple): total invested principal — can be refined to current value
-  const assets = (investments||[]).reduce((s,r)=> s + (Number(r.amount||0)), 0);
+  // Realized assets: treat investment principal as reducing net worth until matured/cashed out
+  // FD: include maturity value only when maturity date passed. Non-FD: include cashout_amount only when date passed.
+  const todayDash = todayISO();
+  let realizedAssets = 0;
+  for (const inv of investments || []) {
+    const amount = Number(inv.amount || 0) || 0;
+    const rate = Number(inv.interest_rate || inv.rate || 0) || 0;
+    const tenure = Number(inv.tenure_months || inv.tenure || 0) || 0;
+  const start = (inv.start_date || inv.date || todayDash).slice(0,10);
+    const maturity = (inv.maturity_date && String(inv.maturity_date).slice(0,10)) || (tenure ? addMonths(start, tenure) : null);
+    const type = String(inv.type||'').toUpperCase();
+    if (type === 'FD') {
+      if (maturity && maturity <= todayDash) {
+        const { maturity_value } = calculateFD({ amount, interest_rate: rate, tenure_months: tenure });
+        realizedAssets += maturity_value;
+      }
+    } else {
+      const cashDt = inv.cashout_date ? String(inv.cashout_date).slice(0,10) : null;
+      const cashAmt = Number(inv.cashout_amount || 0) || 0;
+      if (cashDt && cashDt <= todayDash && cashAmt > 0) {
+        realizedAssets += cashAmt;
+      }
+    }
+  }
 
+  const assets = realizedAssets;
   const netWorth = assets - currentLiabilities;
 
   // Net P&L from transactions in range
@@ -394,7 +417,7 @@ export async function getDashboardTotals({ fromDate = null, toDate = null } = {}
   const outflow = tx.reduce((s,r)=> s + (Number(r.outflow)||0), 0);
   const netPL = inflow - outflow;
 
-  return { totalInvested, totalIncome, totalExpenses, currentLiabilities, netWorth, netPL };
+  return { totalInvested, totalIncome, totalExpenses, currentLiabilities, netWorth, netPL, assetsRealized: assets };
 }
 
 export async function updateNotesForRecord(store, id, notes) {
