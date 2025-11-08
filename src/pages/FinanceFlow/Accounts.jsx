@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
 import { listAccounts, saveAccount, deleteWithAudit, getAccountBalance } from '../../db/stores/financeStore';
-import { useCurrencyFormatter, todayISO } from '../../utils/format';
+import { useCurrencyFormatter } from '../../utils/format';
 
 const ACCOUNT_TYPES = ['Checking', 'Savings', 'Credit Card', 'Investment', 'Cash', 'Other'];
 const ACCOUNT_STATUS = ['active', 'archived'];

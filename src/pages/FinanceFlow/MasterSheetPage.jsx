@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
-import { getMasterTransactions, updateNotesForRecord, patchRecord, listAccounts } from '../../db/stores/financeStore';
+import { getMasterTransactions, updateNotesForRecord, patchRecord } from '../../db/stores/financeStore';
 import { useCurrencyFormatter, todayISO } from '../../utils/format';
 import AccountSelector from '../../components/finance/AccountSelector.jsx';
 
