@@ -37,13 +37,21 @@ export default function SyncStatus() {
     setBusy(false);
   }
 
+  async function handleFullSync() {
+    if (busy) return;
+    // Clear last sync timestamp so next sync pulls everything (useful after timestamp logic change)
+    localStorage.removeItem('finance_last_sync_at');
+    await handleSync();
+  }
+
   const pillClass = status === 'error' ? 'pill danger' : 'pill success';
   const label = status === 'syncing' ? 'Syncing…' : status === 'error' ? 'Error' : 'Synced';
   return (
-    <div className="sync-status">
+    <div className="sync-status" style={{display:'flex',alignItems:'center',gap:6}}>
       <span className={pillClass}>{label}</span>
       <span className="muted">• {timeAgo(last)}</span>
-      <button className="btn icon" onClick={handleSync} disabled={busy} title="Sync now">↻</button>
+      <button className="btn icon" onClick={handleSync} disabled={busy} title="Incremental sync">↻</button>
+      <button className="btn icon" onClick={handleFullSync} disabled={busy} title="Full re-sync (pull all)">⟳</button>
     </div>
   );
 }
