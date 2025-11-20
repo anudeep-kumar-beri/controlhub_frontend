@@ -559,15 +559,23 @@ export default function Investments() {
             </div>
             {(['MF','STOCK','CRYPTO','GOLD'].includes(String(addMoreInv.type||'').toUpperCase())) ? (
               <>
-                <label>Units to Add:
-                  <input type="number" step="0.0001" value={addMoreForm.units} onChange={(e)=>setAddMoreForm(f=>({...f, units: Number(e.target.value)}))} />
+                <label>Units to Add (optional):
+                  <input type="number" step="0.0001" value={addMoreForm.units} onChange={(e)=>setAddMoreForm(f=>({...f, units: Number(e.target.value)}))} placeholder="Leave empty to add amount only" />
                 </label>
-                <label>Unit Cost:
-                  <input type="number" step="0.0001" value={addMoreForm.unit_cost} onChange={(e)=>setAddMoreForm(f=>({...f, unit_cost: Number(e.target.value)}))} />
+                {addMoreForm.units > 0 && (
+                  <>
+                    <label>Unit Cost:
+                      <input type="number" step="0.0001" value={addMoreForm.unit_cost} onChange={(e)=>setAddMoreForm(f=>({...f, unit_cost: Number(e.target.value)}))} />
+                    </label>
+                    <div style={{fontSize:13, color:'#666', marginTop:-4}}>
+                      Amount to add: {fmt((addMoreForm.units || 0) * (addMoreForm.unit_cost || 0))}
+                    </div>
+                  </>
+                )}
+                <div style={{fontSize:12, color:'#999', margin:'8px 0', fontStyle:'italic'}}>OR</div>
+                <label>Amount to Add:
+                  <input type="number" value={addMoreForm.amount} onChange={(e)=>setAddMoreForm(f=>({...f, amount: Number(e.target.value)}))} placeholder="Enter amount directly" />
                 </label>
-                <div style={{fontSize:13, color:'#666', marginTop:-4}}>
-                  Amount to add: {fmt((addMoreForm.units || 0) * (addMoreForm.unit_cost || 0))}
-                </div>
               </>
             ) : (
               <label>Amount to Add:
