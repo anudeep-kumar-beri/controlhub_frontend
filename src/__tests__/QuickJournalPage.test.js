@@ -1,3 +1,9 @@
+import React from 'react';
+import '@testing-library/jest-dom';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import QuickJournalPage from '../pages/QuickJournalPage';
+
 jest.mock('axios', () => {
   const mock = {
     get: jest.fn(() => Promise.resolve({ data: { text: 'hello', updatedAt: new Date().toISOString() } })),
@@ -16,12 +22,6 @@ jest.mock('jspdf', () => {
     internal: { pageSize: { height: 297 } }
   }));
 });
-
-import React from 'react';
-import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import QuickJournalPage from '../pages/QuickJournalPage';
 
  
 
