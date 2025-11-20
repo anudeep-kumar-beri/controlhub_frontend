@@ -18,7 +18,8 @@ export default function Investments() {
     rate:6.5, compounding:1, tenure_months:12,
     start_date: todayISO(), maturity_date:'',
     cashout_amount:0, cashout_date:'', status:'Created',
-    notes:'', account_id: null, payout_account_id: null, status_history: []
+    notes:'', account_id: null, payout_account_id: null, status_history: [],
+    is_recurring:false, recurrence_frequency:'monthly', next_payment_date:'', total_installments:0, installments_paid:0
   });
   const [edit, setEdit] = useState(null);
   // Action modal state (cash out / stash / mature)
@@ -163,6 +164,38 @@ export default function Investments() {
     else arr.sort((a,b)=> String(b.date||'').localeCompare(String(a.date||'')));
     return arr;
   }, [items, filter]);
+
+  // Group investments by type and institution
+  const grouped = useMemo(()=>{
+    const map = new Map();
+    for (const inv of filtered) {
+      const key = `${inv.type||''}::${inv.institution||''}`;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(inv);
+    }
+    return Array.from(map.entries()).map(([key, invs])=>{
+      const [type, institution] = key.split('::');
+      return {
+        type, institution, investments: invs,
+        totalPrincipal: invs.reduce((s,i)=> s + Number(i.amount||0), 0),
+        totalUnits: invs.reduce((s,i)=> s + Number(i.units||0), 0)
+      };
+    });
+  }, [filtered]);
+
+  // Open form pre-filled to add more to same fund
+  function openAddMore(type, institution) {
+    setForm({
+      ...form,
+      type: type || 'MF',
+      institution: institution || '',
+      amount: 0,
+      units: 0,
+      unit_cost: 0,
+      status: 'Running'
+    });
+    setShowForm(true);
+  }
 
   // Inline account assign confirmation
   async function confirmInlineAssign() {
