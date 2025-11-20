@@ -385,6 +385,7 @@ export default function Investments() {
                     </td>
                     <td style={{minWidth:220}}>
                       <button className="btn" onClick={()=>{ setEdit(i); setError(''); }}>Edit</button>
+                      <button className="btn" style={{marginLeft:6, background:'#667eea', color:'white'}} onClick={()=>openAddMore(i.type, i.institution)}>+ Add More</button>
                       {isFD ? (
                         <button className="btn" style={{marginLeft:6}} onClick={()=>openAction(i,'mature')}>Mature</button>
                       ) : (
