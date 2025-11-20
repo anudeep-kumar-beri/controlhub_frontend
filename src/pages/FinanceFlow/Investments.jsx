@@ -29,6 +29,9 @@ export default function Investments() {
   // Inline account assignment state
   const [inlineAssign, setInlineAssign] = useState(null); // { id, mode: 'debit'|'credit' }
   const [assignAccountId, setAssignAccountId] = useState(null);
+  // Add more modal state
+  const [addMoreInv, setAddMoreInv] = useState(null); // investment to add to
+  const [addMoreForm, setAddMoreForm] = useState({ units: 0, unit_cost: 0, amount: 0, date: todayISO() });
   const [error, setError] = useState('');
   const [filter, setFilter] = useState({ q:'', type:'', status:'', from:'', to:'', sort:'date_desc' });
   const fmt = useCurrencyFormatter();
@@ -183,18 +186,54 @@ export default function Investments() {
     });
   }, [filtered]);
 
-  // Open form pre-filled to add more to same fund
-  function openAddMore(type, institution) {
-    setForm({
-      ...form,
-      type: type || 'MF',
-      institution: institution || '',
-      amount: 0,
-      units: 0,
-      unit_cost: 0,
-      status: 'Running'
-    });
-    setShowForm(true);
+  // Open modal to add more to existing investment
+  function openAddMore(investment) {
+    setAddMoreInv(investment);
+    setAddMoreForm({ units: 0, unit_cost: 0, amount: 0, date: todayISO() });
+  }
+
+  // Confirm adding more to existing investment
+  async function confirmAddMore() {
+    if (!addMoreInv) return;
+    const newUnits = Number(addMoreForm.units || 0);
+    const newUnitCost = Number(addMoreForm.unit_cost || 0);
+    const newAmount = Number(addMoreForm.amount || 0);
+    
+    if (newUnits <= 0 && newAmount <= 0) {
+      setError('Enter units or amount to add');
+      return;
+    }
+
+    const patch = { ...addMoreInv };
+    
+    // Update units if provided
+    if (newUnits > 0) {
+      const oldUnits = Number(patch.units || 0);
+      const oldTotalAmount = Number(patch.amount || 0);
+      const newTotalUnits = oldUnits + newUnits;
+      const addedAmount = newUnits * newUnitCost;
+      const newTotalAmount = oldTotalAmount + addedAmount;
+      
+      patch.units = newTotalUnits;
+      patch.amount = newTotalAmount;
+      // Update average unit cost
+      if (newTotalUnits > 0) {
+        patch.unit_cost = newTotalAmount / newTotalUnits;
+      }
+    } else {
+      // Just add to amount
+      patch.amount = Number(patch.amount || 0) + newAmount;
+    }
+
+    // Update installments if recurring
+    if (patch.is_recurring && patch.installments_paid !== undefined) {
+      patch.installments_paid = Number(patch.installments_paid || 0) + 1;
+    }
+
+    await saveInvestment(patch);
+    setAddMoreInv(null);
+    setError('');
+    await load();
   }
 
   // Inline account assign confirmation
@@ -385,7 +424,7 @@ export default function Investments() {
                     </td>
                     <td style={{minWidth:220}}>
                       <button className="btn" onClick={()=>{ setEdit(i); setError(''); }}>Edit</button>
-                      <button className="btn" style={{marginLeft:6, background:'#667eea', color:'white'}} onClick={()=>openAddMore(i.type, i.institution)}>+ Add More</button>
+                      <button className="btn" style={{marginLeft:6, background:'#667eea', color:'white'}} onClick={()=>openAddMore(i)}>+ Add More</button>
                       {isFD ? (
                         <button className="btn" style={{marginLeft:6}} onClick={()=>openAction(i,'mature')}>Mature</button>
                       ) : (
@@ -503,6 +542,45 @@ export default function Investments() {
             <div style={{display:'flex', gap:8, marginTop:8}}>
               <button className="btn accent" onClick={confirmAction}>Confirm</button>
               <button className="btn" onClick={()=>{ setActionInv(null); setActionMode(null); }}>Cancel</button>
+            </div>
+          </div>
+        )}
+      </SimpleModal>
+
+      {/* Add More Modal */}
+      <SimpleModal open={!!addMoreInv} title="Add More to Investment" onClose={()=>{ setAddMoreInv(null); setError(''); }}>
+        {addMoreInv && (
+          <div style={{display:'grid', gap: 8}}>
+            <div style={{padding:12, background:'#f0f5ff', borderRadius:8, marginBottom:8}}>
+              <div style={{fontSize:14, fontWeight:600, marginBottom:4}}>{addMoreInv.type} — {addMoreInv.institution}</div>
+              <div style={{fontSize:13, color:'#666'}}>
+                Current: {addMoreInv.units > 0 ? `${addMoreInv.units} units @ ${fmt(addMoreInv.unit_cost || 0)}/unit` : fmt(addMoreInv.amount || 0)}
+              </div>
+            </div>
+            {(['MF','STOCK','CRYPTO','GOLD'].includes(String(addMoreInv.type||'').toUpperCase())) ? (
+              <>
+                <label>Units to Add:
+                  <input type="number" step="0.0001" value={addMoreForm.units} onChange={(e)=>setAddMoreForm(f=>({...f, units: Number(e.target.value)}))} />
+                </label>
+                <label>Unit Cost:
+                  <input type="number" step="0.0001" value={addMoreForm.unit_cost} onChange={(e)=>setAddMoreForm(f=>({...f, unit_cost: Number(e.target.value)}))} />
+                </label>
+                <div style={{fontSize:13, color:'#666', marginTop:-4}}>
+                  Amount to add: {fmt((addMoreForm.units || 0) * (addMoreForm.unit_cost || 0))}
+                </div>
+              </>
+            ) : (
+              <label>Amount to Add:
+                <input type="number" value={addMoreForm.amount} onChange={(e)=>setAddMoreForm(f=>({...f, amount: Number(e.target.value)}))} />
+              </label>
+            )}
+            <label>Date:
+              <input type="date" value={addMoreForm.date} onChange={(e)=>setAddMoreForm(f=>({...f, date: e.target.value}))} />
+            </label>
+            {error && <div style={{color:'salmon', fontSize:13}}>{error}</div>}
+            <div style={{display:'flex', gap:8, marginTop:8}}>
+              <button className="btn accent" onClick={confirmAddMore}>Add to Investment</button>
+              <button className="btn" onClick={()=>{ setAddMoreInv(null); setError(''); }}>Cancel</button>
             </div>
           </div>
         )}
