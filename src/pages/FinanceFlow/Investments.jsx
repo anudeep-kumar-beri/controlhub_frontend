@@ -526,10 +526,26 @@ export default function Investments() {
       )} onClose={()=>{ setActionInv(null); setActionMode(null); }}>
         {actionInv && (
           <div style={{display:'grid', gap: 8}}>
-            <div className="muted">{actionInv.type} — {actionInv.institution}</div>
-            <label>Amount:
+            <div style={{padding:12, background:'#f0f5ff', borderRadius:8, marginBottom:8}}>
+              <div style={{fontSize:14, fontWeight:600, marginBottom:4}}>{actionInv.type} — {actionInv.institution}</div>
+              <div style={{fontSize:13, color:'#666'}}>
+                Principal: {fmt(actionInv.amount || 0)}
+                {actionInv.units > 0 && ` (${actionInv.units} units @ ${fmt(actionInv.unit_cost || 0)}/unit)`}
+              </div>
+            </div>
+            <label>{actionMode === 'cashout' ? 'Cashout Amount (Current Value)' : 'Amount'}:
               <input type="number" value={actionForm.amount} onChange={(e)=>setActionForm(f=>({...f, amount: Number(e.target.value)}))} />
             </label>
+            {actionMode === 'cashout' && (
+              <div style={{padding:8, background: (actionForm.amount - (actionInv.amount||0)) >= 0 ? '#f6ffed' : '#fff1f0', borderRadius:6, border: (actionForm.amount - (actionInv.amount||0)) >= 0 ? '1px solid #b7eb8f' : '1px solid #ffa39e'}}>
+                <div style={{fontSize:13, fontWeight:600, color: (actionForm.amount - (actionInv.amount||0)) >= 0 ? '#52c41a' : '#f5222d'}}>
+                  {(actionForm.amount - (actionInv.amount||0)) >= 0 ? 'Profit' : 'Loss'}: {fmt(Math.abs(actionForm.amount - (actionInv.amount||0)))}
+                </div>
+                <div style={{fontSize:12, color:'#666', marginTop:2}}>
+                  {((actionForm.amount - (actionInv.amount||0)) / (actionInv.amount||1) * 100).toFixed(2)}% return
+                </div>
+              </div>
+            )}
             <label>Date:
               <input type="date" value={actionForm.date} onChange={(e)=>setActionForm(f=>({...f, date: e.target.value}))} />
             </label>
