@@ -107,7 +107,7 @@ export default function MasterSheetPage() {
         </button>
       </div>
 
-      <div className="card">
+      <div className="card" style={{display:'flex', flexDirection:'column', minHeight:0, height:'calc(100vh - 200px)'}}>
         <div className="card-header">
           <strong>Unified Master Sheet</strong>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
@@ -119,17 +119,17 @@ export default function MasterSheetPage() {
             <span style={{color:'var(--finance-muted)',fontSize:12}}>{rows.length} transactions</span>
           </div>
         </div>
-        <div className="card-body" style={{overflow:'auto', maxHeight:'60vh'}}>
-          <table className={`table ${density==='compact'?'table-compact':''}`}>
-            <thead>
+        <div className="card-body" style={{overflow:'auto', flex:1, minHeight:0}}>
+          <table className={`table ${density==='compact'?'table-compact':''}`} style={{position:'relative'}}>
+            <thead style={{position:'sticky', top:0, backgroundColor:'var(--finance-surface, #11151c)', zIndex:10, boxShadow:'0 2px 4px rgba(0,0,0,0.2)'}}>
               <tr>
-                <th style={{width: '120px'}}>Date</th>
-                <th>Category</th>
-                <th style={{width: '150px'}}>Account</th>
-                <th className="right" style={{width: '140px'}}>Inflow</th>
-                <th className="right" style={{width: '140px'}}>Outflow</th>
-                <th className="right" style={{width: '140px'}}>Net</th>
-                <th>Notes</th>
+                <th style={{width: '120px', position:'sticky', top:0, backgroundColor:'var(--finance-surface, #11151c)'}}>Date</th>
+                <th style={{position:'sticky', top:0, backgroundColor:'var(--finance-surface, #11151c)'}}>Category</th>
+                <th style={{width: '150px', position:'sticky', top:0, backgroundColor:'var(--finance-surface, #11151c)'}}>Account</th>
+                <th className="right" style={{width: '140px', position:'sticky', top:0, backgroundColor:'var(--finance-surface, #11151c)'}}>Inflow</th>
+                <th className="right" style={{width: '140px', position:'sticky', top:0, backgroundColor:'var(--finance-surface, #11151c)'}}>Outflow</th>
+                <th className="right" style={{width: '140px', position:'sticky', top:0, backgroundColor:'var(--finance-surface, #11151c)'}}>Net</th>
+                <th style={{position:'sticky', top:0, backgroundColor:'var(--finance-surface, #11151c)'}}>Notes</th>
               </tr>
             </thead>
             <tbody>

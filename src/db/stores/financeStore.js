@@ -88,6 +88,45 @@ export async function deleteWithAudit(store, id) {
   await auditLog({ action: 'delete', store, before, after: null });
 }
 
+// Reorder helper: swap display_order between two items
+export async function moveItemUp(store, item, allItems) {
+  // Ensure all items have display_order
+  const sorted = allItems.slice().sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+  const currentIndex = sorted.findIndex(i => i.id === item.id);
+  if (currentIndex <= 0) return; // Already at top
+  
+  const prevItem = sorted[currentIndex - 1];
+  const temp = item.display_order || currentIndex;
+  await patchRecord(store, item.id, { display_order: prevItem.display_order || (currentIndex - 1) });
+  await patchRecord(store, prevItem.id, { display_order: temp });
+}
+
+export async function moveItemDown(store, item, allItems) {
+  const sorted = allItems.slice().sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
+  const currentIndex = sorted.findIndex(i => i.id === item.id);
+  if (currentIndex < 0 || currentIndex >= sorted.length - 1) return; // Already at bottom
+  
+  const nextItem = sorted[currentIndex + 1];
+  const temp = item.display_order || currentIndex;
+  await patchRecord(store, item.id, { display_order: nextItem.display_order || (currentIndex + 1) });
+  await patchRecord(store, nextItem.id, { display_order: temp });
+}
+
+// Initialize display_order for items that don't have it
+export async function ensureDisplayOrder(store) {
+  const items = await getAll(store);
+  let needsUpdate = false;
+  items.forEach((item, idx) => {
+    if (item.display_order === undefined || item.display_order === null) {
+      item.display_order = idx;
+      needsUpdate = true;
+    }
+  });
+  if (needsUpdate) {
+    await Promise.all(items.map(item => put(store, item)));
+  }
+}
+
 // List audit entries since a given ISO timestamp (inclusive)
 export async function listAuditsSince(sinceIso = '') {
   const all = await getAll('audit');

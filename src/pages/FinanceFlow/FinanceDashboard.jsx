@@ -120,22 +120,60 @@ export default function FinanceDashboard() {
   }, [period, custom.from, custom.to]);
 
   const donutData = useMemo(()=>({
-    labels: alloc.labels,
-    datasets: [{ data: alloc.values, backgroundColor: ['#00e1c7','#7b61ff','#ffb020','#ff6b6b','#4dd0e1','#26a69a'] }]
+    labels: alloc.labels.length ? alloc.labels : ['No Data'],
+    datasets: [{ 
+      data: alloc.values.length ? alloc.values : [1], 
+      backgroundColor: alloc.values.length ? ['#00e1c7','#7b61ff','#ffb020','#ff6b6b','#4dd0e1','#26a69a'] : ['#333'],
+      borderWidth: 2,
+      borderColor: '#0c0f14'
+    }]
   }), [alloc]);
 
   const lineData = useMemo(()=>({
-    labels: series.months,
+    labels: series.months.length ? series.months : [''],
     datasets: [
-      { label: 'Income', data: series.income, fill: false, borderColor: '#26a69a', backgroundColor:'#26a69a', tension: 0.2 },
-      { label: 'Expenses', data: series.expenses, fill: false, borderColor: '#ff6b6b', backgroundColor:'#ff6b6b', tension: 0.2 }
+      { label: 'Income', data: series.income, fill: false, borderColor: '#26a69a', backgroundColor:'#26a69a', tension: 0.3, pointRadius: 4, pointHoverRadius: 6 },
+      { label: 'Expenses', data: series.expenses, fill: false, borderColor: '#ff6b6b', backgroundColor:'#ff6b6b', tension: 0.3, pointRadius: 4, pointHoverRadius: 6 }
     ]
   }), [series]);
 
   const barData = useMemo(()=>({
-    labels: series.months,
-    datasets: [{ label: 'Net P&L', data: series.pnl, backgroundColor: series.pnl.map(v=> v>=0 ? 'rgba(38,166,154,0.6)' : 'rgba(255,107,107,0.6)') }]
+    labels: series.months.length ? series.months : [''],
+    datasets: [{ 
+      label: 'Net P&L', 
+      data: series.pnl, 
+      backgroundColor: series.pnl.map(v=> v>=0 ? 'rgba(38,166,154,0.7)' : 'rgba(255,107,107,0.7)'),
+      borderWidth: 1,
+      borderColor: series.pnl.map(v=> v>=0 ? 'rgba(38,166,154,1)' : 'rgba(255,107,107,1)')
+    }]
   }), [series]);
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: {
+        labels: { color: '#cbd5e1', font: { size: 12 } }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(0,0,0,0.9)',
+        titleColor: '#fff',
+        bodyColor: '#fff',
+        borderColor: 'rgba(255,255,255,0.2)',
+        borderWidth: 1
+      }
+    },
+    scales: {
+      x: { 
+        ticks: { color: '#9aa3b2', font: { size: 11 } },
+        grid: { color: 'rgba(255,255,255,0.05)' }
+      },
+      y: { 
+        ticks: { color: '#9aa3b2', font: { size: 11 } },
+        grid: { color: 'rgba(255,255,255,0.05)' }
+      }
+    }
+  };
 
   function HeatmapCalendar({ days, totals, monthKey }){
     const max = Math.max(1, ...totals);
@@ -192,20 +230,61 @@ export default function FinanceDashboard() {
         <div className="tile span-4">
           <div className="tile-header">Portfolio allocation</div>
           <div className="tile-body">
-            {alloc.labels.length ? (<div style={{maxWidth:420}}><Pie data={donutData} /></div>) : (<p className="muted">No investments yet.</p>)}
+            {alloc.labels.length ? (
+              <div style={{maxWidth:420}}>
+                <Pie 
+                  key={`pie-${period}-${JSON.stringify(alloc.values)}`}
+                  data={donutData} 
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                      legend: { labels: { color: '#cbd5e1', font: { size: 12 } } },
+                      tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.9)',
+                        titleColor: '#fff',
+                        bodyColor: '#fff'
+                      }
+                    }
+                  }}
+                />
+              </div>
+            ) : (<p className="muted">No investments yet.</p>)}
           </div>
         </div>
         <div className="tile span-8">
           <div className="tile-header">Income vs Expenses (monthly)</div>
           <div className="tile-body">
-            {series.months.length ? (<div style={{width:'100%', maxWidth:900}}><Line data={lineData} options={{ plugins:{ legend:{ labels:{ color:'#cbd5e1' } }}, scales:{ x:{ ticks:{ color:'#9aa3b2' } }, y:{ ticks:{ color:'#9aa3b2' } } } }} /></div>) : (<p className="muted">Not enough data.</p>)}
+            {series.months.length ? (
+              <div style={{width:'100%', maxWidth:900}}>
+                <Line 
+                  key={`line-${period}-${series.months.length}`}
+                  data={lineData} 
+                  options={chartOptions} 
+                />
+              </div>
+            ) : (<p className="muted">Not enough data.</p>)}
           </div>
         </div>
 
         <div className="tile span-8">
           <div className="tile-header">Monthly Net P&L</div>
           <div className="tile-body">
-            {series.months.length ? (<div style={{width:'100%', maxWidth:900}}><Bar data={barData} options={{ plugins:{ legend:{ display:false }}, scales:{ x:{ ticks:{ color:'#9aa3b2' } }, y:{ ticks:{ color:'#9aa3b2' } } } }} /></div>) : (<p className="muted">Not enough data.</p>)}
+            {series.months.length ? (
+              <div style={{width:'100%', maxWidth:900}}>
+                <Bar 
+                  key={`bar-${period}-${series.months.length}`}
+                  data={barData} 
+                  options={{
+                    ...chartOptions,
+                    plugins: {
+                      ...chartOptions.plugins,
+                      legend: { display: false }
+                    }
+                  }} 
+                />
+              </div>
+            ) : (<p className="muted">Not enough data.</p>)}
           </div>
         </div>
         <div className="tile span-4">

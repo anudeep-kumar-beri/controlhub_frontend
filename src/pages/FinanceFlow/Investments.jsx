@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
 import { useEffect, useState } from 'react';
-import { listInvestments, saveInvestment, deleteWithAudit, patchRecord, listAccounts } from '../../db/stores/financeStore';
+import { listInvestments, saveInvestment, deleteWithAudit, patchRecord, listAccounts, ensureDisplayOrder, moveItemUp, moveItemDown } from '../../db/stores/financeStore';
 import { calculateFD } from '../../utils/finance/financeCalc';
 import { computePortfolio, computeMaturityInfo, computePaperValue, addMonths } from '../../utils/finance/investmentMetrics';
 import SimpleModal from '../../components/common/SimpleModal';
@@ -37,10 +37,21 @@ export default function Investments() {
   const fmt = useCurrencyFormatter();
 
   async function load() {
+    await ensureDisplayOrder('investments');
     setItems(await listInvestments());
     setAccounts(await listAccounts());
   }
   useEffect(()=>{ load(); }, []);
+
+  async function handleMoveUp(item) {
+    await moveItemUp('investments', item, items);
+    await load();
+  }
+
+  async function handleMoveDown(item) {
+    await moveItemDown('investments', item, items);
+    await load();
+  }
 
   function pushStatusHistory(record, newStatus, date) {
     const hist = Array.isArray(record.status_history) ? record.status_history.slice() : [];
@@ -423,6 +434,8 @@ export default function Investments() {
                       </div>
                     </td>
                     <td style={{minWidth:220}}>
+                      <button className="btn-icon" onClick={() => handleMoveUp(i)} title="Move Up" disabled={filtered.indexOf(i) === 0}>⬆️</button>
+                      <button className="btn-icon" onClick={() => handleMoveDown(i)} title="Move Down" disabled={filtered.indexOf(i) === filtered.length - 1}>⬇️</button>
                       <button className="btn" onClick={()=>{ setEdit(i); setError(''); }}>Edit</button>
                       <button className="btn" style={{marginLeft:6, background:'#667eea', color:'white'}} onClick={()=>openAddMore(i)}>+ Add More</button>
                       {isFD ? (

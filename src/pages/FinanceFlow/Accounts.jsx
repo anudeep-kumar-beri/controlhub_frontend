@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
-import { listAccounts, saveAccount, deleteWithAudit, getAccountBalance } from '../../db/stores/financeStore';
+import { listAccounts, saveAccount, deleteWithAudit, getAccountBalance, ensureDisplayOrder, moveItemUp, moveItemDown } from '../../db/stores/financeStore';
 import { useCurrencyFormatter } from '../../utils/format';
 
 const ACCOUNT_TYPES = ['Checking', 'Savings', 'Credit Card', 'Investment', 'Cash', 'Other'];
@@ -26,6 +26,7 @@ export default function Accounts() {
   const fmt = useCurrencyFormatter();
 
   async function load() {
+    await ensureDisplayOrder('accounts');
     const accounts = await listAccounts();
     setItems(accounts);
     
@@ -116,9 +117,22 @@ export default function Accounts() {
         const balB = balances.get(b.id)?.balance || 0;
         return balA - balB;
       });
+    } else {
+      // Default: sort by display_order
+      arr.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
     }
     return arr;
   }, [items, filter, balances]);
+
+  async function handleMoveUp(item) {
+    await moveItemUp('accounts', item, items);
+    await load();
+  }
+
+  async function handleMoveDown(item) {
+    await moveItemDown('accounts', item, items);
+    await load();
+  }
 
   const totals = useMemo(() => {
     const active = filtered.filter(a => a.status !== 'archived');
@@ -243,17 +257,17 @@ export default function Accounts() {
               No accounts found. Add your first account or card to get started.
             </div>
           ) : (
-            <table style={{ width: '100%' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Type</th>
-                  <th>Institution</th>
-                  <th>Last 4</th>
-                  <th>Balance</th>
-                  <th>Transactions</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.1)' }}>
+                  <th style={{ textAlign: 'left', padding: '12px 8px', width: '25%' }}>Name</th>
+                  <th style={{ textAlign: 'left', padding: '12px 8px', width: '12%' }}>Type</th>
+                  <th style={{ textAlign: 'left', padding: '12px 8px', width: '15%' }}>Institution</th>
+                  <th style={{ textAlign: 'center', padding: '12px 8px', width: '10%' }}>Last 4</th>
+                  <th style={{ textAlign: 'right', padding: '12px 8px', width: '12%' }}>Balance</th>
+                  <th style={{ textAlign: 'center', padding: '12px 8px', width: '8%' }}>Txns</th>
+                  <th style={{ textAlign: 'center', padding: '12px 8px', width: '8%' }}>Status</th>
+                  <th style={{ textAlign: 'center', padding: '12px 8px', width: '10%' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -303,15 +317,17 @@ export default function Accounts() {
                   }
 
                   return (
-                    <tr key={item.id}>
-                      <td>
+                    <tr key={item.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                      <td style={{ padding: '12px 8px', textAlign: 'left' }}>
                         <div style={{fontWeight:'500'}}>{item.name}</div>
                         {item.notes && <div style={{fontSize:'0.8rem',opacity:0.6}}>{item.notes}</div>}
                       </td>
-                      <td>{item.type}</td>
-                      <td>{item.institution || '—'}</td>
-                      <td style={{fontFamily:'monospace'}}>{item.last4 ? `••••${item.last4}` : '—'}</td>
+                      <td style={{ padding: '12px 8px', textAlign: 'left' }}>{item.type}</td>
+                      <td style={{ padding: '12px 8px', textAlign: 'left' }}>{item.institution || '—'}</td>
+                      <td style={{ padding: '12px 8px', textAlign: 'center', fontFamily:'monospace' }}>{item.last4 ? `••••${item.last4}` : '—'}</td>
                       <td style={{
+                        padding: '12px 8px',
+                        textAlign: 'right',
                         fontWeight:'600',
                         color: (balance?.balance || 0) >= 0 ? '#4ade80' : '#f87171'
                       }}>
@@ -322,8 +338,8 @@ export default function Accounts() {
                           </div>
                         )}
                       </td>
-                      <td>{balance?.transactionCount || 0}</td>
-                      <td>
+                      <td style={{ padding: '12px 8px', textAlign: 'center' }}>{balance?.transactionCount || 0}</td>
+                      <td style={{ padding: '12px 8px', textAlign: 'center' }}>
                         <span style={{
                           padding:'2px 8px',
                           borderRadius:4,
@@ -334,7 +350,9 @@ export default function Accounts() {
                           {item.status || 'active'}
                         </span>
                       </td>
-                      <td>
+                      <td style={{ padding: '12px 8px', textAlign: 'center' }}>
+                        <button className="btn-icon" onClick={() => handleMoveUp(item)} title="Move Up" disabled={filtered.indexOf(item) === 0}>⬆️</button>
+                        <button className="btn-icon" onClick={() => handleMoveDown(item)} title="Move Down" disabled={filtered.indexOf(item) === filtered.length - 1}>⬇️</button>
                         <button className="btn-icon" onClick={() => setEdit(item)} title="Edit">✏️</button>
                         {item.status !== 'archived' && (
                           <button className="btn-icon" onClick={() => archive(item.id)} title="Archive">📦</button>
