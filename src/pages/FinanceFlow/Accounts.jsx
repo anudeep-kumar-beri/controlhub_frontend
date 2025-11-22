@@ -160,7 +160,7 @@ export default function Accounts() {
         </div>
         <div className="card" style={{padding:12}}>
           <div style={{fontSize:'0.8rem',opacity:0.7,marginBottom:4}}>Credit Available</div>
-          <div style={{fontSize:'1.5rem',fontWeight:'600',color:'#4ade80'}}>{fmt(totals.totalCreditAvailable)}</div>
+          <div style={{fontSize:'1.5rem',fontWeight:'600',color:'#22c55e'}}>{fmt(totals.totalCreditAvailable)}</div>
           <div style={{fontSize:'0.75rem',opacity:0.6,marginTop:4}}>
             Used: {fmt(totals.totalCreditUsed)} / {fmt(totals.totalCreditLimit)}
           </div>
@@ -329,7 +329,7 @@ export default function Accounts() {
                         padding: '12px 8px',
                         textAlign: 'right',
                         fontWeight:'600',
-                        color: (balance?.balance || 0) >= 0 ? '#4ade80' : '#f87171'
+                        color: (balance?.balance || 0) >= 0 ? '#22c55e' : '#f87171'
                       }}>
                         {balance ? fmt(balance.balance) : '—'}
                         {item.type === 'Credit Card' && item.credit_limit > 0 && (
@@ -344,8 +344,8 @@ export default function Accounts() {
                           padding:'2px 8px',
                           borderRadius:4,
                           fontSize:'0.75rem',
-                          background: item.status === 'archived' ? 'rgba(100,100,100,0.2)' : 'rgba(74,222,128,0.2)',
-                          color: item.status === 'archived' ? '#999' : '#4ade80'
+                          background: item.status === 'archived' ? 'rgba(100,100,100,0.2)' : 'rgba(34,197,94,0.2)',
+                          color: item.status === 'archived' ? '#999' : '#22c55e'
                         }}>
                           {item.status || 'active'}
                         </span>

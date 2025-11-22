@@ -123,7 +123,7 @@ export default function FinanceDashboard() {
     labels: alloc.labels.length ? alloc.labels : ['No Data'],
     datasets: [{ 
       data: alloc.values.length ? alloc.values : [1], 
-      backgroundColor: alloc.values.length ? ['#00e1c7','#7b61ff','#ffb020','#ff6b6b','#4dd0e1','#26a69a'] : ['#333'],
+      backgroundColor: alloc.values.length ? ['#10b981','#7b61ff','#ffb020','#ff6b6b','#3b82f6','#f59e0b'] : ['#333'],
       borderWidth: 2,
       borderColor: '#0c0f14'
     }]
@@ -132,7 +132,7 @@ export default function FinanceDashboard() {
   const lineData = useMemo(()=>({
     labels: series.months.length ? series.months : [''],
     datasets: [
-      { label: 'Income', data: series.income, fill: false, borderColor: '#26a69a', backgroundColor:'#26a69a', tension: 0.3, pointRadius: 4, pointHoverRadius: 6 },
+      { label: 'Income', data: series.income, fill: false, borderColor: '#22c55e', backgroundColor:'#22c55e', tension: 0.3, pointRadius: 4, pointHoverRadius: 6 },
       { label: 'Expenses', data: series.expenses, fill: false, borderColor: '#ff6b6b', backgroundColor:'#ff6b6b', tension: 0.3, pointRadius: 4, pointHoverRadius: 6 }
     ]
   }), [series]);
@@ -142,9 +142,9 @@ export default function FinanceDashboard() {
     datasets: [{ 
       label: 'Net P&L', 
       data: series.pnl, 
-      backgroundColor: series.pnl.map(v=> v>=0 ? 'rgba(38,166,154,0.7)' : 'rgba(255,107,107,0.7)'),
+      backgroundColor: series.pnl.map(v=> v>=0 ? 'rgba(34,197,94,0.7)' : 'rgba(255,107,107,0.7)'),
       borderWidth: 1,
-      borderColor: series.pnl.map(v=> v>=0 ? 'rgba(38,166,154,1)' : 'rgba(255,107,107,1)')
+      borderColor: series.pnl.map(v=> v>=0 ? 'rgba(34,197,94,1)' : 'rgba(255,107,107,1)')
     }]
   }), [series]);
 
