@@ -23,6 +23,7 @@ export default function Accounts() {
   const [edit, setEdit] = useState(null);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState({ q: '', type: '', status: 'active', sort: 'name_asc' });
+  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'asc' });
   const fmt = useCurrencyFormatter();
 
   async function load() {
@@ -103,35 +104,41 @@ export default function Accounts() {
     if (filter.type) arr = arr.filter(i => (i.type || '') === filter.type);
     if (filter.status) arr = arr.filter(i => (i.status || 'active') === filter.status);
 
-    if (filter.sort === 'name_asc') arr.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-    else if (filter.sort === 'name_desc') arr.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
-    else if (filter.sort === 'balance_desc') {
-      arr.sort((a, b) => {
+    // Apply header-based sorting
+    const { key, direction } = sortConfig;
+    const multiplier = direction === 'asc' ? 1 : -1;
+    
+    arr.sort((a, b) => {
+      if (key === 'name') {
+        return (a.name || '').localeCompare(b.name || '') * multiplier;
+      } else if (key === 'type') {
+        return (a.type || '').localeCompare(b.type || '') * multiplier;
+      } else if (key === 'institution') {
+        return (a.institution || '').localeCompare(b.institution || '') * multiplier;
+      } else if (key === 'last4') {
+        return (a.last4 || '').localeCompare(b.last4 || '') * multiplier;
+      } else if (key === 'balance') {
         const balA = balances.get(a.id)?.balance || 0;
         const balB = balances.get(b.id)?.balance || 0;
-        return balB - balA;
-      });
-    } else if (filter.sort === 'balance_asc') {
-      arr.sort((a, b) => {
-        const balA = balances.get(a.id)?.balance || 0;
-        const balB = balances.get(b.id)?.balance || 0;
-        return balA - balB;
-      });
-    } else {
-      // Default: sort by display_order
-      arr.sort((a, b) => (a.display_order || 0) - (b.display_order || 0));
-    }
+        return (balA - balB) * multiplier;
+      } else if (key === 'transactions') {
+        const txnA = balances.get(a.id)?.transactionCount || 0;
+        const txnB = balances.get(b.id)?.transactionCount || 0;
+        return (txnA - txnB) * multiplier;
+      } else if (key === 'status') {
+        return (a.status || 'active').localeCompare(b.status || 'active') * multiplier;
+      }
+      return 0;
+    });
+    
     return arr;
-  }, [items, filter, balances]);
+  }, [items, filter, balances, sortConfig]);
 
-  async function handleMoveUp(item) {
-    await moveItemUp('accounts', item, items);
-    await load();
-  }
-
-  async function handleMoveDown(item) {
-    await moveItemDown('accounts', item, items);
-    await load();
+  function handleSort(key) {
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
   }
 
   const totals = useMemo(() => {
@@ -190,15 +197,6 @@ export default function Accounts() {
           <select value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
             <option value="">All</option>
             {ACCOUNT_STATUS.map(s => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </label>
-        <label>
-          Sort:
-          <select value={filter.sort} onChange={(e) => setFilter({ ...filter, sort: e.target.value })}>
-            <option value="name_asc">Name ↑</option>
-            <option value="name_desc">Name ↓</option>
-            <option value="balance_desc">Balance ↓</option>
-            <option value="balance_asc">Balance ↑</option>
           </select>
         </label>
       </div>
@@ -260,13 +258,55 @@ export default function Accounts() {
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid rgba(255,255,255,0.1)' }}>
-                  <th style={{ textAlign: 'left', padding: '12px 8px', width: '25%' }}>Name</th>
-                  <th style={{ textAlign: 'left', padding: '12px 8px', width: '12%' }}>Type</th>
-                  <th style={{ textAlign: 'left', padding: '12px 8px', width: '15%' }}>Institution</th>
-                  <th style={{ textAlign: 'center', padding: '12px 8px', width: '10%' }}>Last 4</th>
-                  <th style={{ textAlign: 'right', padding: '12px 8px', width: '12%' }}>Balance</th>
-                  <th style={{ textAlign: 'center', padding: '12px 8px', width: '8%' }}>Txns</th>
-                  <th style={{ textAlign: 'center', padding: '12px 8px', width: '8%' }}>Status</th>
+                  <th 
+                    className={`sortable ${sortConfig.key === 'name' ? sortConfig.direction : ''}`}
+                    onClick={() => handleSort('name')}
+                    style={{ textAlign: 'left', padding: '12px 8px', width: '25%' }}
+                  >
+                    Name
+                  </th>
+                  <th 
+                    className={`sortable ${sortConfig.key === 'type' ? sortConfig.direction : ''}`}
+                    onClick={() => handleSort('type')}
+                    style={{ textAlign: 'left', padding: '12px 8px', width: '12%' }}
+                  >
+                    Type
+                  </th>
+                  <th 
+                    className={`sortable ${sortConfig.key === 'institution' ? sortConfig.direction : ''}`}
+                    onClick={() => handleSort('institution')}
+                    style={{ textAlign: 'left', padding: '12px 8px', width: '15%' }}
+                  >
+                    Institution
+                  </th>
+                  <th 
+                    className={`sortable ${sortConfig.key === 'last4' ? sortConfig.direction : ''}`}
+                    onClick={() => handleSort('last4')}
+                    style={{ textAlign: 'center', padding: '12px 8px', width: '10%' }}
+                  >
+                    Last 4
+                  </th>
+                  <th 
+                    className={`sortable ${sortConfig.key === 'balance' ? sortConfig.direction : ''}`}
+                    onClick={() => handleSort('balance')}
+                    style={{ textAlign: 'right', padding: '12px 8px', width: '12%' }}
+                  >
+                    Balance
+                  </th>
+                  <th 
+                    className={`sortable ${sortConfig.key === 'transactions' ? sortConfig.direction : ''}`}
+                    onClick={() => handleSort('transactions')}
+                    style={{ textAlign: 'center', padding: '12px 8px', width: '8%' }}
+                  >
+                    Txns
+                  </th>
+                  <th 
+                    className={`sortable ${sortConfig.key === 'status' ? sortConfig.direction : ''}`}
+                    onClick={() => handleSort('status')}
+                    style={{ textAlign: 'center', padding: '12px 8px', width: '8%' }}
+                  >
+                    Status
+                  </th>
                   <th style={{ textAlign: 'center', padding: '12px 8px', width: '10%' }}>Actions</th>
                 </tr>
               </thead>
@@ -351,8 +391,6 @@ export default function Accounts() {
                         </span>
                       </td>
                       <td style={{ padding: '12px 8px', textAlign: 'center' }}>
-                        <button className="btn-icon" onClick={() => handleMoveUp(item)} title="Move Up" disabled={filtered.indexOf(item) === 0}>⬆️</button>
-                        <button className="btn-icon" onClick={() => handleMoveDown(item)} title="Move Down" disabled={filtered.indexOf(item) === filtered.length - 1}>⬇️</button>
                         <button className="btn-icon" onClick={() => setEdit(item)} title="Edit">✏️</button>
                         {item.status !== 'archived' && (
                           <button className="btn-icon" onClick={() => archive(item.id)} title="Archive">📦</button>

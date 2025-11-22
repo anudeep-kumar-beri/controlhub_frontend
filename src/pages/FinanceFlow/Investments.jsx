@@ -34,6 +34,7 @@ export default function Investments() {
   const [addMoreForm, setAddMoreForm] = useState({ units: 0, unit_cost: 0, amount: 0, date: todayISO() });
   const [error, setError] = useState('');
   const [filter, setFilter] = useState({ q:'', type:'', status:'', from:'', to:'', sort:'date_desc' });
+  const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
   const fmt = useCurrencyFormatter();
 
   async function load() {
@@ -43,14 +44,11 @@ export default function Investments() {
   }
   useEffect(()=>{ load(); }, []);
 
-  async function handleMoveUp(item) {
-    await moveItemUp('investments', item, items);
-    await load();
-  }
-
-  async function handleMoveDown(item) {
-    await moveItemDown('investments', item, items);
-    await load();
+  function handleSort(key) {
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
   }
 
   function pushStatusHistory(record, newStatus, date) {
@@ -172,12 +170,30 @@ export default function Investments() {
     const startDate = (i)=> i.start_date || i.date;
     if (filter.from) arr = arr.filter(i => (startDate(i)||'') >= filter.from);
     if (filter.to) arr = arr.filter(i => (startDate(i)||'') <= filter.to);
-    if (filter.sort === 'amount_desc') arr.sort((a,b)=> (Number(b.amount||0) - Number(a.amount||0)));
-    else if (filter.sort === 'amount_asc') arr.sort((a,b)=> (Number(a.amount||0) - Number(b.amount||0)));
-    else if (filter.sort === 'date_asc') arr.sort((a,b)=> String(a.date||'').localeCompare(String(b.date||'')));
-    else arr.sort((a,b)=> String(b.date||'').localeCompare(String(a.date||'')));
+    
+    // Apply header-based sorting
+    const { key, direction } = sortConfig;
+    const multiplier = direction === 'asc' ? 1 : -1;
+    
+    arr.sort((a, b) => {
+      if (key === 'type') {
+        return (a.type || '').localeCompare(b.type || '') * multiplier;
+      } else if (key === 'institution') {
+        return (a.institution || '').localeCompare(b.institution || '') * multiplier;
+      } else if (key === 'amount') {
+        return (Number(a.amount || 0) - Number(b.amount || 0)) * multiplier;
+      } else if (key === 'date') {
+        const dateA = a.start_date || a.date || '';
+        const dateB = b.start_date || b.date || '';
+        return dateA.localeCompare(dateB) * multiplier;
+      } else if (key === 'status') {
+        return (a.status || '').localeCompare(b.status || '') * multiplier;
+      }
+      return 0;
+    });
+    
     return arr;
-  }, [items, filter]);
+  }, [items, filter, sortConfig]);
 
   // Group investments by type and institution
   const grouped = useMemo(()=>{
@@ -311,14 +327,6 @@ export default function Investments() {
         </label>
         <label>From: <input type="date" value={filter.from} onChange={(e)=>setFilter({...filter,from:e.target.value})} /></label>
         <label>To: <input type="date" value={filter.to} onChange={(e)=>setFilter({...filter,to:e.target.value})} /></label>
-        <label>Sort:
-          <select value={filter.sort} onChange={(e)=>setFilter({...filter,sort:e.target.value})}>
-            <option value="date_desc">Date ↓</option>
-            <option value="date_asc">Date ↑</option>
-            <option value="amount_desc">Amount ↓</option>
-            <option value="amount_asc">Amount ↑</option>
-          </select>
-        </label>
       </div>
 
       {showForm && (
@@ -385,7 +393,40 @@ export default function Investments() {
           <table className="table">
             <thead>
               <tr>
-                <th>Type</th><th>Institution</th><th className="right">Principal</th><th>Derived / P&amp;L</th><th>Tenure</th><th>Maturity / Cashout</th><th>Lifecycle</th><th>Accounts</th><th>Actions</th>
+                <th 
+                  className={`sortable ${sortConfig.key === 'type' ? sortConfig.direction : ''}`}
+                  onClick={() => handleSort('type')}
+                >
+                  Type
+                </th>
+                <th 
+                  className={`sortable ${sortConfig.key === 'institution' ? sortConfig.direction : ''}`}
+                  onClick={() => handleSort('institution')}
+                >
+                  Institution
+                </th>
+                <th 
+                  className={`sortable right ${sortConfig.key === 'amount' ? sortConfig.direction : ''}`}
+                  onClick={() => handleSort('amount')}
+                >
+                  Principal
+                </th>
+                <th>Derived / P&amp;L</th>
+                <th>Tenure</th>
+                <th 
+                  className={`sortable ${sortConfig.key === 'date' ? sortConfig.direction : ''}`}
+                  onClick={() => handleSort('date')}
+                >
+                  Maturity / Cashout
+                </th>
+                <th 
+                  className={`sortable ${sortConfig.key === 'status' ? sortConfig.direction : ''}`}
+                  onClick={() => handleSort('status')}
+                >
+                  Lifecycle
+                </th>
+                <th>Accounts</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -434,8 +475,6 @@ export default function Investments() {
                       </div>
                     </td>
                     <td style={{minWidth:220}}>
-                      <button className="btn-icon" onClick={() => handleMoveUp(i)} title="Move Up" disabled={filtered.indexOf(i) === 0}>⬆️</button>
-                      <button className="btn-icon" onClick={() => handleMoveDown(i)} title="Move Down" disabled={filtered.indexOf(i) === filtered.length - 1}>⬇️</button>
                       <button className="btn" onClick={()=>{ setEdit(i); setError(''); }}>Edit</button>
                       <button className="btn" style={{marginLeft:6, background:'#667eea', color:'white'}} onClick={()=>openAddMore(i)}>+ Add More</button>
                       {isFD ? (
