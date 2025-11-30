@@ -20,7 +20,8 @@ export function computeMaturityInfo(inv) {
     const rate = Number(inv.interest_rate || inv.rate || 0);
     const tenure = Number(inv.tenure_months || inv.tenure || 0);
     const compounding = Number(inv.compounding || 1) || 1;
-    const fd = calculateFD({ amount: principal, interest_rate: rate, tenure_months: tenure, compounding });
+    const payoutMethod = inv.interest_payout_method || 'at_maturity';
+    const fd = calculateFD({ amount: principal, interest_rate: rate, tenure_months: tenure, compounding, interest_payout_method: payoutMethod });
     return { maturityValue: fd.maturity_value, interestEarned: fd.interest_earned };
   }
   // Non-deposit: use cashout if realized else paper

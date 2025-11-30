@@ -23,6 +23,11 @@ export default function FinanceLayout({ title, children }) {
         const y = now.getFullYear();
         fromDate = `${y}-01-01`;
         toDate = `${y}-12-31`;
+      } else {
+        // Fallback: default to this year if period is not recognized
+        const y = now.getFullYear();
+        fromDate = `${y}-01-01`;
+        toDate = `${y}-12-31`;
       }
       const transactions = await getMasterTransactions({ fromDate, toDate });
       const inflow = transactions.reduce((s, r) => s + (Number(r.inflow) || 0), 0);

@@ -22,6 +22,7 @@ export default function MasterSheetPage() {
   const [filterAccount, setFilterAccount] = useState(null);
   const [reassignRow, setReassignRow] = useState(null);
   const [reassignAccount, setReassignAccount] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: 'date', direction: 'desc' });
   const fmt = useCurrencyFormatter();
 
   useEffect(() => { 
@@ -43,6 +44,30 @@ export default function MasterSheetPage() {
       setRows(tx);
     })();
   }, [period, range.from, range.to, filterAccount]);
+
+  // Sorted rows based on sortConfig
+  const sortedRows = useMemo(() => {
+    const arr = [...rows];
+    const { key, direction } = sortConfig;
+    const multiplier = direction === 'asc' ? 1 : -1;
+    
+    arr.sort((a, b) => {
+      if (key === 'date') {
+        return (a.date || '').localeCompare(b.date || '') * multiplier;
+      } else if (key === 'category') {
+        return (a.category || '').localeCompare(b.category || '') * multiplier;
+      } else if (key === 'inflow') {
+        return ((Number(a.inflow) || 0) - (Number(b.inflow) || 0)) * multiplier;
+      } else if (key === 'outflow') {
+        return ((Number(a.outflow) || 0) - (Number(b.outflow) || 0)) * multiplier;
+      } else if (key === 'net') {
+        return (a.net - b.net) * multiplier;
+      }
+      return 0;
+    });
+    
+    return arr;
+  }, [rows, sortConfig]);
 
   const totals = useMemo(()=>{
     const inflow = rows.reduce((s,r)=> s + (Number(r.inflow)||0), 0);
@@ -99,6 +124,20 @@ export default function MasterSheetPage() {
         <label style={{color:'var(--finance-text)'}}>Account: 
           <AccountSelector value={filterAccount} onChange={setFilterAccount} allowUnassigned={true} />
         </label>
+        <label style={{color:'var(--finance-text)'}}>Sort:
+          <select value={`${sortConfig.key}_${sortConfig.direction}`} onChange={(e)=>{ const [key, dir] = e.target.value.split('_'); setSortConfig({key, direction:dir}); }}>
+            <option value="date_desc">Date ↓</option>
+            <option value="date_asc">Date ↑</option>
+            <option value="category_asc">Category ↑</option>
+            <option value="category_desc">Category ↓</option>
+            <option value="inflow_desc">Inflow ↓</option>
+            <option value="inflow_asc">Inflow ↑</option>
+            <option value="outflow_desc">Outflow ↓</option>
+            <option value="outflow_asc">Outflow ↑</option>
+            <option value="net_desc">Net ↓</option>
+            <option value="net_asc">Net ↑</option>
+          </select>
+        </label>
         <button className="btn" onClick={()=>{ setPeriod('this_month'); setRange(monthRangeOf(new Date())); }}>
           Current
         </button>
@@ -133,7 +172,7 @@ export default function MasterSheetPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map(r => (
+              {sortedRows.map(r => (
                 <tr key={r.id}>
                   <td>{r.date}</td>
                   <td>{r.category}</td>

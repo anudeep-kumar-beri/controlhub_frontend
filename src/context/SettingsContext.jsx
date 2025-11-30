@@ -4,7 +4,7 @@ const DEFAULTS = {
   currencyCode: 'INR',
   locale: 'en-IN',
   fiscalYearStartMonth: 4, // April
-  defaultPeriod: 'this_month'
+  defaultPeriod: 'this_year'
 };
 
 const KEY = 'finance_settings_v1';

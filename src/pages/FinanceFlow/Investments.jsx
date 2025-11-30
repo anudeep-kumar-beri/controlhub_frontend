@@ -19,7 +19,8 @@ export default function Investments() {
     start_date: todayISO(), maturity_date:'',
     cashout_amount:0, cashout_date:'', status:'Created',
     notes:'', account_id: null, payout_account_id: null, status_history: [],
-    is_recurring:false, recurrence_frequency:'monthly', next_payment_date:'', total_installments:0, installments_paid:0
+    is_recurring:false, recurrence_frequency:'monthly', next_payment_date:'', total_installments:0, installments_paid:0,
+    interest_payout_method: 'at_maturity'
   });
   const [edit, setEdit] = useState(null);
   // Action modal state (cash out / stash / mature)
@@ -71,7 +72,8 @@ export default function Investments() {
     setForm({
       type:'FD', institution:'', amount:0, units:0, unit_cost:0, current_unit_price:0,
       rate:6.5, compounding:1, tenure_months:12, start_date: todayISO(), maturity_date:'',
-      cashout_amount:0, cashout_date:'', status:'Created', notes:'', account_id: null, payout_account_id: null, status_history: []
+      cashout_amount:0, cashout_date:'', status:'Created', notes:'', account_id: null, payout_account_id: null, status_history: [],
+      interest_payout_method: 'at_maturity'
     });
     await load();
   }
@@ -98,7 +100,8 @@ export default function Investments() {
     let defaultAmount = Number(inv.cashout_amount || 0) || 0;
     if (isFD && mode === 'mature') {
       const rate = Number((inv.rate ?? inv.interest_rate) || 0);
-      const calc = calculateFD({ amount: Number(inv.amount||0), interest_rate: rate, tenure_months: Number(inv.tenure_months||0), compounding: Number(inv.compounding||1) });
+      const payoutMethod = inv.interest_payout_method || 'at_maturity';
+      const calc = calculateFD({ amount: Number(inv.amount||0), interest_rate: rate, tenure_months: Number(inv.tenure_months||0), compounding: Number(inv.compounding||1), interest_payout_method: payoutMethod });
       defaultAmount = calc.maturity_value || Number(inv.amount||0);
     } else if (mode === 'cashout') {
       // Default to paper value if units + current_unit_price
@@ -327,6 +330,20 @@ export default function Investments() {
         </label>
         <label>From: <input type="date" value={filter.from} onChange={(e)=>setFilter({...filter,from:e.target.value})} /></label>
         <label>To: <input type="date" value={filter.to} onChange={(e)=>setFilter({...filter,to:e.target.value})} /></label>
+        <label>Sort:
+          <select value={`${sortConfig.key}_${sortConfig.direction}`} onChange={(e)=>{ const [key, dir] = e.target.value.split('_'); setSortConfig({key, direction:dir}); }}>
+            <option value="date_desc">Date ↓</option>
+            <option value="date_asc">Date ↑</option>
+            <option value="amount_desc">Amount ↓</option>
+            <option value="amount_asc">Amount ↑</option>
+            <option value="type_asc">Type ↑</option>
+            <option value="type_desc">Type ↓</option>
+            <option value="institution_asc">Institution ↑</option>
+            <option value="institution_desc">Institution ↓</option>
+            <option value="status_asc">Status ↑</option>
+            <option value="status_desc">Status ↓</option>
+          </select>
+        </label>
       </div>
 
       {showForm && (
@@ -356,6 +373,14 @@ export default function Investments() {
             {(['FD','RD','BOND'].includes(String(form.type).toUpperCase())) && (
               <>
                 <label>Rate %: <input type="number" step="0.01" value={form.rate} onChange={(e)=>setForm({...form,rate: Number(e.target.value)})} /></label>
+                <label>Interest Payout Method:
+                  <select value={form.interest_payout_method || 'at_maturity'} onChange={(e)=>setForm({...form,interest_payout_method:e.target.value})}>
+                    <option value="at_maturity">At Maturity (Cumulative)</option>
+                    <option value="monthly">Monthly Payout</option>
+                    <option value="quarterly">Quarterly Payout</option>
+                    <option value="annual">Annual Payout</option>
+                  </select>
+                </label>
                 <label>Compounding per year:
                   <select value={form.compounding} onChange={(e)=>setForm({...form,compounding:Number(e.target.value)})}>
                     <option value={1}>Annual</option>
@@ -435,7 +460,16 @@ export default function Investments() {
                 const rate = Number((i.rate ?? i.interest_rate) || 0);
                 const isFD = type === 'FD' || type === 'RD' || type === 'BOND';
                 const tenureMonths = Number(i.tenure_months || i.tenure || 0);
+                const payoutMethod = i.interest_payout_method || 'at_maturity';
                 const fdCalc = isFD ? computeMaturityInfo(i) : null;
+                // Get detailed FD calc with payout info
+                const fdDetailCalc = isFD ? calculateFD({
+                  amount: Number(i.amount||0),
+                  interest_rate: rate,
+                  tenure_months: tenureMonths,
+                  compounding: Number(i.compounding||1),
+                  interest_payout_method: payoutMethod
+                }) : null;
                 let paperValue = null; let paperPL = null;
                 if (!isFD && i.units > 0 && i.current_unit_price > 0) {
                   paperValue = i.units * i.current_unit_price;
@@ -456,7 +490,21 @@ export default function Investments() {
                     <td>{i.type}</td>
                     <td>{i.institution}</td>
                     <td className="right">{fmt(i.amount)}</td>
-                    <td>{isFD ? `${rate}% → ${fmt(maturityValue)}` : (paperValue ? `${fmt(paperValue)} (${paperPL>=0?'+':''}${fmt(paperPL)})` : '—')}</td>
+                    <td>
+                      {isFD ? (
+                        <div>
+                          <div>{rate}% → {fmt(maturityValue)}</div>
+                          {fdDetailCalc && payoutMethod !== 'at_maturity' && (
+                            <div style={{fontSize:12, color:'#667eea', marginTop:2}}>
+                              {payoutMethod === 'monthly' ? 'Monthly' : payoutMethod === 'quarterly' ? 'Quarterly' : 'Annual'} payout: {fmt(fdDetailCalc.periodic_payout)}
+                            </div>
+                          )}
+                          {fdDetailCalc && payoutMethod === 'at_maturity' && (
+                            <div style={{fontSize:12, color:'#999', marginTop:2}}>Cumulative (at maturity)</div>
+                          )}
+                        </div>
+                      ) : (paperValue ? `${fmt(paperValue)} (${paperPL>=0?'+':''}${fmt(paperPL)})` : '—')}
+                    </td>
                     <td>{isFD ? `${tenureMonths||'-'}m` : '—'}</td>
                     <td>{maturity ? maturity : '—'}<br/>{isFD ? (<span className="muted">Interest {fmt(interestEarned)}</span>) : (paperPL !== null ? <span className="muted">Paper P&amp;L {paperPL>=0?'+':''}{fmt(paperPL)}</span> : (i.cashout_amount ? <span className="muted">Realized {fmt(interestEarned)}</span> : <span className="muted">Pending</span>))}</td>
                     <td style={{maxWidth:160}}>
@@ -522,6 +570,14 @@ export default function Investments() {
             {(['FD','RD','BOND'].includes(String(edit.type).toUpperCase())) && (
               <>
                 <label>Rate %: <input type="number" step="0.01" value={edit.rate ?? edit.interest_rate} onChange={(e)=>setEdit({...edit,rate:Number(e.target.value)})} /></label>
+                <label>Interest Payout Method:
+                  <select value={edit.interest_payout_method || 'at_maturity'} onChange={(e)=>setEdit({...edit,interest_payout_method:e.target.value})}>
+                    <option value="at_maturity">At Maturity (Cumulative)</option>
+                    <option value="monthly">Monthly Payout</option>
+                    <option value="quarterly">Quarterly Payout</option>
+                    <option value="annual">Annual Payout</option>
+                  </select>
+                </label>
                 <label>Compounding:
                   <select value={edit.compounding||1} onChange={(e)=>setEdit({...edit,compounding:Number(e.target.value)})}>
                     <option value={1}>Annual</option>
