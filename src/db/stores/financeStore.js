@@ -224,25 +224,41 @@ export async function getMasterTransactions({ fromDate = null, toDate = null, ac
     if ((!accountId || r.account_id === accountId) && inDateRange(start, fromDate, toDate)) {
       tx.push({ id: `tx-inv-out-${r.id}`, date: start, category: `Investment — ${r.type || 'Asset'}` , inflow: 0, outflow: amount, notes: r.notes || '', ts: r.createdAt || `${start}T00:00:00.000Z`, source: { store: 'investments', id: r.id }, account_id: r.account_id, account_name: debitAcc?.name || 'Unassigned' });
     }
-    // FD: auto maturity inflow + monthly interest accruals; General: inflow only when cashout provided
+    // FD: auto maturity inflow + interest payouts based on payout method; General: inflow only when cashout provided
     const invType = (r.type || '').toUpperCase();
     if (invType === 'FD') {
-      // Add monthly interest accrual entries for monitoring (only up to today)
       const today = todayISO();
-      if (rate > 0 && tenure > 0) {
-        const monthlyInterest = (amount * (rate / 100)) / 12;
-        for (let month = 1; month <= tenure; month++) {
-          const interestDate = addMonths(start, month);
+      const payoutMethod = r.interest_payout_method || r.payout_method || 'at_maturity';
+      
+      // Generate interest income transactions based on payout method
+      if (rate > 0 && tenure > 0 && payoutMethod !== 'at_maturity') {
+        const { periodic_payout } = calculateFD({ 
+          amount, 
+          interest_rate: rate, 
+          tenure_months: tenure,
+          interest_payout_method: payoutMethod 
+        });
+        
+        // Determine payout frequency
+        let payoutFrequency = 1; // months
+        if (payoutMethod === 'quarterly') payoutFrequency = 3;
+        else if (payoutMethod === 'annual') payoutFrequency = 12;
+        
+        // Generate income entries for each payout period
+        const totalPayouts = Math.floor(tenure / payoutFrequency);
+        for (let period = 1; period <= totalPayouts; period++) {
+          const payoutDate = addMonths(start, period * payoutFrequency);
+          
           // Only add interest entries for dates that have already occurred
-          if (interestDate <= today && (!accountId || creditAccountId === accountId) && inDateRange(interestDate, fromDate, toDate)) {
+          if (payoutDate <= today && (!accountId || creditAccountId === accountId) && inDateRange(payoutDate, fromDate, toDate)) {
             tx.push({
-              id: `tx-inv-int-${r.id}-m${month}`,
-              date: interestDate,
-              category: `FD Interest Accrual — ${r.type || 'FD'}`,
-              inflow: monthlyInterest,
+              id: `tx-inv-int-${r.id}-p${period}`,
+              date: payoutDate,
+              category: `Income — FD Interest (${payoutMethod})`,
+              inflow: periodic_payout,
               outflow: 0,
-              notes: `Month ${month} interest on ${r.notes || 'FD'}`,
-              ts: `${interestDate}T12:00:00.000Z`,
+              notes: `${payoutMethod.charAt(0).toUpperCase() + payoutMethod.slice(1)} interest payout on ${r.institution || 'FD'}`,
+              ts: `${payoutDate}T12:00:00.000Z`,
               source: { store: 'investments', id: r.id, subtype: 'interest' },
               account_id: creditAccountId,
               account_name: creditAcc?.name || 'Unassigned'
@@ -250,9 +266,22 @@ export async function getMasterTransactions({ fromDate = null, toDate = null, ac
           }
         }
       }
-      // Final maturity with principal + total interest
+      
+      // Final maturity: principal + remaining interest (or all interest if at_maturity)
       if (maturity && (!accountId || creditAccountId === accountId) && inDateRange(maturity, fromDate, toDate)) {
-        tx.push({ id: `tx-inv-in-${r.id}`, date: maturity, category: `Investment Maturity — ${r.type || 'Asset'}` , inflow: maturity_value, outflow: 0, notes: r.notes || '', ts: `${maturity}T23:59:59.000Z`, source: { store: 'investments', id: r.id }, account_id: creditAccountId, account_name: creditAcc?.name || 'Unassigned' });
+        const maturityInflow = payoutMethod === 'at_maturity' ? maturity_value : amount; // Return principal only if interest already paid
+        tx.push({ 
+          id: `tx-inv-in-${r.id}`, 
+          date: maturity, 
+          category: `Investment Maturity — ${r.type || 'FD'}`, 
+          inflow: maturityInflow, 
+          outflow: 0, 
+          notes: payoutMethod === 'at_maturity' ? 'Principal + accumulated interest' : 'Principal return', 
+          ts: `${maturity}T23:59:59.000Z`, 
+          source: { store: 'investments', id: r.id }, 
+          account_id: creditAccountId, 
+          account_name: creditAcc?.name || 'Unassigned' 
+        });
       }
     } else {
       const cashDt = r.cashout_date ? String(r.cashout_date).slice(0,10) : null;
@@ -516,26 +545,48 @@ export async function getAccountBalance(accountId) {
       outflows += amount;
       count++;
       
-      // FD: Add monthly interest accruals that have occurred
+      // FD: Add interest payouts based on payout method
       const invType = (r.type || '').toUpperCase();
       if (invType === 'FD' && rate > 0 && tenure > 0) {
         const start = (r.start_date || r.date || today).slice(0, 10);
-        const monthlyInterest = (amount * (rate / 100)) / 12;
+        const payoutMethod = r.interest_payout_method || r.payout_method || 'at_maturity';
+        const creditAccountId = r.payout_account_id || r.account_id;
         
-        // Count interest for months that have passed
-        for (let month = 1; month <= tenure; month++) {
-          const interestDate = addMonths(start, month);
-          const creditAccountId = r.payout_account_id || r.account_id;
-          if (creditAccountId === accountId && interestDate <= today) {
-            inflows += monthlyInterest;
+        // Add interest inflows based on payout method
+        if (payoutMethod !== 'at_maturity' && creditAccountId === accountId) {
+          const { periodic_payout } = calculateFD({ 
+            amount, 
+            interest_rate: rate, 
+            tenure_months: tenure,
+            interest_payout_method: payoutMethod 
+          });
+          
+          // Determine payout frequency
+          let payoutFrequency = 1; // monthly
+          if (payoutMethod === 'quarterly') payoutFrequency = 3;
+          else if (payoutMethod === 'annual') payoutFrequency = 12;
+          
+          // Count payouts that have occurred
+          const totalPayouts = Math.floor(tenure / payoutFrequency);
+          for (let period = 1; period <= totalPayouts; period++) {
+            const payoutDate = addMonths(start, period * payoutFrequency);
+            if (payoutDate <= today) {
+              inflows += periodic_payout;
+            }
           }
         }
         
-        // Add maturity principal return only if maturity date has passed
+        // Add maturity principal (+ interest if at_maturity) return only if maturity date has passed
         const maturity = (r.maturity_date && String(r.maturity_date).slice(0, 10)) || addMonths(start, tenure);
-        const creditAccountId = r.payout_account_id || r.account_id;
         if (creditAccountId === accountId && maturity <= today) {
-          inflows += amount; // Return of principal
+          if (payoutMethod === 'at_maturity') {
+            // Return principal + all accumulated interest
+            const { maturity_value } = calculateFD({ amount, interest_rate: rate, tenure_months: tenure });
+            inflows += maturity_value;
+          } else {
+            // Return principal only (interest already paid periodically)
+            inflows += amount;
+          }
         }
       } else if (r.cashout_amount && r.cashout_date) {
         // Non-FD investments: only count cashout if it has occurred

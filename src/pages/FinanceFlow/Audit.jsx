@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
 import { listInvestments, listIncome, listExpenses, listLoans, listAccounts, getMasterTransactions } from '../../db/stores/financeStore';
 import { useCurrencyFormatter, todayISO } from '../../utils/format';
+import { calculateFD } from '../../utils/finance/financeCalc';
+
+// Helper function to add months to a date
+function addMonths(dateStr, months) {
+  const d = new Date(dateStr);
+  d.setMonth(d.getMonth() + months);
+  return d.toISOString().slice(0, 10);
+}
 
 export default function Audit() {
   const [balanceSheet, setBalanceSheet] = useState(null);
@@ -21,77 +29,141 @@ export default function Audit() {
   const calculateBalanceSheet = async () => {
     setLoading(true);
     try {
-      const [investments, income, expenses, loans, accounts, transactions] = await Promise.all([
+      const [investments, income, expenses, loans, accounts, allTransactions] = await Promise.all([
         listInvestments(),
         listIncome(),
         listExpenses(),
         listLoans(),
         listAccounts(),
-        getMasterTransactions({ fromDate: dateRange.from, toDate: dateRange.to })
+        getMasterTransactions() // Get ALL transactions for accurate account balances
       ]);
 
-      // Filter by date range
-      const filterByDate = (items, dateField = 'date') => {
-        return items.filter(item => {
-          const date = item[dateField] || item.start_date || item.date || '';
-          return (!dateRange.from || date >= dateRange.from) && (!dateRange.to || date <= dateRange.to);
-        });
-      };
+      // Get transactions for the specific date range for P&L statements
+      const rangeTransactions = allTransactions.filter(tx => {
+        return (!dateRange.from || tx.date >= dateRange.from) && (!dateRange.to || tx.date <= dateRange.to);
+      });
 
-      const filteredInvestments = filterByDate(investments);
-      const filteredIncome = filterByDate(income);
-      const filteredExpenses = filterByDate(expenses);
-      const filteredLoans = filterByDate(loans);
-
-      // ASSETS
-      const investmentAssets = filteredInvestments.reduce((sum, inv) => {
-        if (['Matured', 'CashedOut'].includes(inv.status)) {
-          return sum + (Number(inv.cashout_amount) || Number(inv.amount) || 0);
-        }
-        return sum + (Number(inv.amount) || 0);
-      }, 0);
-
-      const accountBalances = accounts.reduce((sum, acc) => sum + (Number(acc.balance) || 0), 0);
+      // Calculate ACTUAL account balances from all transactions up to the 'to' date
+      const accountBalances = {};
+      let totalAccountBalance = 0;
       
-      const totalAssets = investmentAssets + accountBalances;
+      for (const acc of accounts) {
+        // Get all transactions for this account up to the report date
+        const accTransactions = allTransactions.filter(tx => 
+          tx.account_id === acc.id && tx.date <= dateRange.to
+        );
+        
+        const balance = accTransactions.reduce((sum, tx) => 
+          sum + (Number(tx.inflow) || 0) - (Number(tx.outflow) || 0), 0
+        );
+        
+        accountBalances[acc.id] = { name: acc.name, balance };
+        totalAccountBalance += balance;
+      }
 
-      // LIABILITIES
-      const outstandingLoans = filteredLoans.reduce((sum, loan) => {
-        if (loan.status === 'Paid') return sum;
-        const outstanding = Number(loan.outstanding_balance) || Number(loan.amount) || 0;
-        return sum + outstanding;
-      }, 0);
+      // Calculate CURRENT VALUE of investments (as of 'to' date)
+      let totalInvestmentValue = 0;
+      const today = dateRange.to;
+      
+      for (const inv of investments) {
+        const startDate = inv.start_date || inv.date || today;
+        
+        // Only include investments that started before or on the report date
+        if (startDate > today) continue;
+        
+        const amount = Number(inv.amount) || 0;
+        const rate = Number(inv.interest_rate || inv.rate) || 0;
+        const tenure = Number(inv.tenure_months || inv.tenure) || 0;
+        const invType = (inv.type || '').toUpperCase();
+        
+        if (invType === 'FD' && rate > 0 && tenure > 0) {
+          // Calculate current value based on time elapsed
+          const maturityDate = inv.maturity_date || addMonths(startDate, tenure);
+          
+          if (today >= maturityDate) {
+            // Matured - use maturity value
+            const { maturity_value } = calculateFD({ amount, interest_rate: rate, tenure_months: tenure });
+            totalInvestmentValue += maturity_value;
+          } else {
+            // Still active - calculate pro-rata value
+            const monthsElapsed = Math.max(0, Math.floor(
+              (new Date(today) - new Date(startDate)) / (1000 * 60 * 60 * 24 * 30.44)
+            ));
+            const { maturity_value } = calculateFD({ 
+              amount, 
+              interest_rate: rate, 
+              tenure_months: Math.min(monthsElapsed, tenure) 
+            });
+            totalInvestmentValue += maturity_value;
+          }
+        } else if (inv.cashout_date && inv.cashout_date <= today && inv.cashout_amount) {
+          // Cashed out investment
+          totalInvestmentValue += Number(inv.cashout_amount) || 0;
+        } else {
+          // Active non-FD investment - use original amount
+          totalInvestmentValue += amount;
+        }
+      }
 
-      const pendingExpenses = filteredExpenses.reduce((sum, exp) => {
-        if (exp.status === 'Paid') return sum;
-        return sum + (Number(exp.outflow) || 0);
-      }, 0);
+      // TOTAL ASSETS = Current Investment Value + Actual Account Balances
+      const totalAssets = totalInvestmentValue + totalAccountBalance;
 
-      const totalLiabilities = outstandingLoans + pendingExpenses;
+      // LIABILITIES - Calculate actual outstanding amounts
+      let totalOutstandingLoans = 0;
+      
+      for (const loan of loans) {
+        const loanAmount = Number(loan.amount_borrowed || loan.amount) || 0;
+        
+        // Calculate total payments made on this loan up to report date
+        const loanPayments = allTransactions.filter(tx => 
+          tx.source?.store === 'loan_payments' &&
+          tx.source?.type === 'principal' &&
+          tx.date <= today &&
+          tx.category?.includes(loan.lender || '')
+        );
+        
+        const totalPaid = loanPayments.reduce((sum, tx) => sum + (Number(tx.outflow) || 0), 0);
+        const outstanding = Math.max(0, loanAmount - totalPaid);
+        
+        totalOutstandingLoans += outstanding;
+      }
 
-      // EQUITY
+      // Pending expenses (unpaid/pending status only)
+      const pendingExpenses = expenses
+        .filter(exp => exp.status !== 'Paid' && (!exp.date || exp.date <= today))
+        .reduce((sum, exp) => sum + (Number(exp.outflow || exp.amount) || 0), 0);
+
+      const totalLiabilities = totalOutstandingLoans + pendingExpenses;
+
+      // EQUITY = Assets - Liabilities (fundamental accounting equation)
       const totalEquity = totalAssets - totalLiabilities;
 
-      // INCOME STATEMENT
-      const totalRevenue = filteredIncome.reduce((sum, inc) => sum + (Number(inc.inflow) || 0), 0);
-      const totalExpenses = filteredExpenses.reduce((sum, exp) => sum + (Number(exp.outflow) || 0), 0);
+      // INCOME STATEMENT (for date range)
+      const totalRevenue = rangeTransactions
+        .filter(tx => tx.inflow > 0 && tx.category?.toLowerCase().includes('income'))
+        .reduce((sum, tx) => sum + (Number(tx.inflow) || 0), 0);
+      
+      const totalExpenses = rangeTransactions
+        .filter(tx => tx.outflow > 0 && tx.category?.toLowerCase().includes('expense'))
+        .reduce((sum, tx) => sum + (Number(tx.outflow) || 0), 0);
+      
       const netIncome = totalRevenue - totalExpenses;
 
-      // CASH FLOW
-      const operatingCashFlow = transactions.reduce((sum, tx) => {
-        if (tx.category?.toLowerCase().includes('investment') || 
-            tx.category?.toLowerCase().includes('loan')) return sum;
+      // CASH FLOW STATEMENT (for date range)
+      const operatingCashFlow = rangeTransactions.reduce((sum, tx) => {
+        const cat = tx.category?.toLowerCase() || '';
+        if (cat.includes('investment') || cat.includes('loan')) return sum;
         return sum + ((Number(tx.inflow) || 0) - (Number(tx.outflow) || 0));
       }, 0);
 
-      const investingCashFlow = transactions.reduce((sum, tx) => {
+      const investingCashFlow = rangeTransactions.reduce((sum, tx) => {
         if (tx.category?.toLowerCase().includes('investment')) {
           return sum + ((Number(tx.inflow) || 0) - (Number(tx.outflow) || 0));
         }
         return sum;
       }, 0);
 
-      const financingCashFlow = transactions.reduce((sum, tx) => {
+      const financingCashFlow = rangeTransactions.reduce((sum, tx) => {
         if (tx.category?.toLowerCase().includes('loan')) {
           return sum + ((Number(tx.inflow) || 0) - (Number(tx.outflow) || 0));
         }
@@ -100,17 +172,19 @@ export default function Audit() {
 
       setBalanceSheet({
         assets: {
-          investments: investmentAssets,
-          accounts: accountBalances,
+          investments: totalInvestmentValue,
+          accounts: totalAccountBalance,
+          accountDetails: accountBalances, // Detailed breakdown by account
           total: totalAssets
         },
         liabilities: {
-          loans: outstandingLoans,
+          loans: totalOutstandingLoans,
           pendingExpenses: pendingExpenses,
           total: totalLiabilities
         },
         equity: {
-          netWorth: totalEquity
+          netWorth: totalEquity,
+          retainedEarnings: netIncome // For the period
         },
         incomeStatement: {
           revenue: totalRevenue,
@@ -135,6 +209,7 @@ export default function Audit() {
     if (dateRange.from && dateRange.to) {
       calculateBalanceSheet();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateRange]);
 
   const handleExport = async (type) => {
@@ -174,6 +249,17 @@ export default function Audit() {
         </div>
       </div>
 
+      {/* Important Note */}
+      <div className="card" style={{marginBottom: 16, borderLeft: '4px solid #667eea', backgroundColor: '#f7fafc'}}>
+        <div className="card-body">
+          <p style={{margin: 0, fontSize: '0.9em', color: '#4a5568'}}>
+            <strong>📊 Balance Sheet Calculation:</strong> Account balances are calculated from <strong>actual transaction history</strong> (all inflows - outflows) up to the selected date. 
+            Investments show their <strong>current/maturity value</strong>, not just original amounts. 
+            This ensures the balance sheet accurately reflects your true financial position.
+          </p>
+        </div>
+      </div>
+
       {/* Export Options */}
       <div className="card" style={{marginBottom: 16}}>
         <div className="card-header"><strong>Export Options</strong></div>
@@ -204,11 +290,25 @@ export default function Audit() {
                     <table style={{width: '100%', marginBottom: 16}}>
                       <tbody>
                         <tr>
-                          <td style={{padding: '8px 0'}}>Investments</td>
+                          <td style={{padding: '8px 0'}}>Investments (Current Value)</td>
                           <td style={{textAlign: 'right', fontWeight: 600}}>{fmt(balanceSheet.assets.investments)}</td>
                         </tr>
                         <tr>
-                          <td style={{padding: '8px 0'}}>Cash & Bank Accounts</td>
+                          <td style={{padding: '8px 0', paddingLeft: 16, fontSize: '0.9em', color: '#666'}}>
+                            Cash & Bank Accounts:
+                          </td>
+                          <td style={{textAlign: 'right'}}></td>
+                        </tr>
+                        {balanceSheet.assets.accountDetails && Object.entries(balanceSheet.assets.accountDetails).map(([id, acc]) => (
+                          <tr key={id}>
+                            <td style={{padding: '4px 0', paddingLeft: 32, fontSize: '0.85em', color: '#555'}}>
+                              {acc.name}
+                            </td>
+                            <td style={{textAlign: 'right', fontSize: '0.9em'}}>{fmt(acc.balance)}</td>
+                          </tr>
+                        ))}
+                        <tr>
+                          <td style={{padding: '8px 0', paddingLeft: 16, fontWeight: 600}}>Total Cash & Bank</td>
                           <td style={{textAlign: 'right', fontWeight: 600}}>{fmt(balanceSheet.assets.accounts)}</td>
                         </tr>
                         <tr style={{borderTop: '2px solid #ddd'}}>
