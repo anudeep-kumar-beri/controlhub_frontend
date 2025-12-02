@@ -40,64 +40,100 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
       // ===== BALANCE SHEET =====
       if (balanceSheet && (reportType === 'balance_sheet' || reportType === 'comprehensive')) {
         const bsRows = [
-          ['BALANCE SHEET', '', ''],
-          [`As of ${dateRange.to || 'Today'}`, '', ''],
-          ['', '', ''],
-          ['ASSETS', '', 'Amount'],
-          ['Investments', '', fmtNumber(balanceSheet.assets.investments)],
-          ['Cash & Bank Accounts', '', fmtNumber(balanceSheet.assets.accounts)],
-          ['', 'Total Assets', fmtNumber(balanceSheet.assets.total)],
-          ['', '', ''],
-          ['LIABILITIES', '', 'Amount'],
-          ['Outstanding Loans', '', fmtNumber(balanceSheet.liabilities.loans)],
-          ['Pending Expenses', '', fmtNumber(balanceSheet.liabilities.pendingExpenses)],
-          ['', 'Total Liabilities', fmtNumber(balanceSheet.liabilities.total)],
-          ['', '', ''],
-          ['EQUITY', '', 'Amount'],
-          ['', 'Net Worth', fmtNumber(balanceSheet.equity.netWorth)],
-          ['', '', ''],
-          ['Balance Check:', 'Assets', fmtNumber(balanceSheet.assets.total)],
-          ['', 'Liabilities + Equity', fmtNumber(balanceSheet.liabilities.total + balanceSheet.equity.netWorth)],
+          ['BALANCE SHEET', '', '', ''],
+          [`As of ${dateRange.to || 'Today'}`, '', '', ''],
+          ['', '', '', ''],
+          ['ASSETS', '', '', 'Amount'],
+          ['  Investments (Current Value)', '', '', fmtCurrency(balanceSheet.assets.investments)],
+          ['  Cash & Bank Accounts', '', '', fmtCurrency(balanceSheet.assets.accounts)],
+          ['', '', 'Total Assets', fmtCurrency(balanceSheet.assets.total)],
+          ['', '', '', ''],
+          ['LIABILITIES', '', '', 'Amount'],
+          ['  Outstanding Loans', '', '', fmtCurrency(balanceSheet.liabilities.loans)],
+          ['  Pending Expenses', '', '', fmtCurrency(balanceSheet.liabilities.pendingExpenses)],
+          ['', '', 'Total Liabilities', fmtCurrency(balanceSheet.liabilities.total)],
+          ['', '', '', ''],
+          ['EQUITY', '', '', 'Amount'],
+          ['', '', 'Net Worth', fmtCurrency(balanceSheet.equity.netWorth)],
+          ['', '', '', ''],
+          ['VERIFICATION', '', '', ''],
+          ['  Assets', '', '', fmtCurrency(balanceSheet.assets.total)],
+          ['  Liabilities + Equity', '', '', fmtCurrency(balanceSheet.liabilities.total + balanceSheet.equity.netWorth)],
+          ['  Difference', '', '', fmtCurrency(balanceSheet.assets.total - (balanceSheet.liabilities.total + balanceSheet.equity.netWorth))],
         ];
         const wsBS = XLSX.utils.aoa_to_sheet(bsRows);
-        // Style: merge cells for headers, bold titles
+        
+        // Column widths for better readability
+        wsBS['!cols'] = [
+          { wch: 5 }, { wch: 5 }, { wch: 30 }, { wch: 20 }
+        ];
+        
+        // Merge cells for headers
         if (!wsBS['!merges']) wsBS['!merges'] = [];
-        wsBS['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }); // Title
+        wsBS['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }); // Title
+        wsBS['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: 3 } }); // Date
+        
         XLSX.utils.book_append_sheet(wb, wsBS, 'Balance Sheet');
       }
 
       // ===== INCOME STATEMENT =====
       if (balanceSheet && (reportType === 'income_statement' || reportType === 'comprehensive')) {
         const isRows = [
-          ['INCOME STATEMENT', '', ''],
-          [dateLabel, '', ''],
-          ['', '', ''],
-          ['Revenue', '', fmtNumber(balanceSheet.incomeStatement.revenue)],
-          ['Expenses', '', fmtNumber(balanceSheet.incomeStatement.expenses)],
-          ['', '', ''],
-          ['Net Income', '', fmtNumber(balanceSheet.incomeStatement.netIncome)],
+          ['INCOME STATEMENT', '', '', ''],
+          [dateLabel, '', '', ''],
+          ['', '', '', ''],
+          ['REVENUE', '', '', ''],
+          ['  Total Revenue', '', '', fmtCurrency(balanceSheet.incomeStatement.revenue)],
+          ['', '', '', ''],
+          ['EXPENSES', '', '', ''],
+          ['  Total Expenses', '', '', fmtCurrency(balanceSheet.incomeStatement.expenses)],
+          ['', '', '', ''],
+          ['', '', 'NET INCOME', fmtCurrency(balanceSheet.incomeStatement.netIncome)],
+          ['', '', '', ''],
+          ['', '', 'Profit Margin %', balanceSheet.incomeStatement.revenue > 0 ? 
+            `${((balanceSheet.incomeStatement.netIncome / balanceSheet.incomeStatement.revenue) * 100).toFixed(2)}%` : '0%'],
         ];
         const wsIS = XLSX.utils.aoa_to_sheet(isRows);
+        
+        // Column widths
+        wsIS['!cols'] = [
+          { wch: 5 }, { wch: 5 }, { wch: 25 }, { wch: 20 }
+        ];
+        
         if (!wsIS['!merges']) wsIS['!merges'] = [];
-        wsIS['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } });
+        wsIS['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }); // Title
+        wsIS['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: 3 } }); // Date
+        
         XLSX.utils.book_append_sheet(wb, wsIS, 'Income Statement');
       }
 
       // ===== CASH FLOW STATEMENT =====
       if (balanceSheet && (reportType === 'cash_flow' || reportType === 'comprehensive')) {
         const cfRows = [
-          ['CASH FLOW STATEMENT', '', ''],
-          [dateLabel, '', ''],
-          ['', '', ''],
-          ['Operating Activities', '', fmtNumber(balanceSheet.cashFlow.operating)],
-          ['Investing Activities', '', fmtNumber(balanceSheet.cashFlow.investing)],
-          ['Financing Activities', '', fmtNumber(balanceSheet.cashFlow.financing)],
-          ['', '', ''],
-          ['Net Cash Flow', '', fmtNumber(balanceSheet.cashFlow.total)],
+          ['CASH FLOW STATEMENT', '', '', ''],
+          [dateLabel, '', '', ''],
+          ['', '', '', ''],
+          ['CASH FLOWS FROM:', '', '', ''],
+          ['  Operating Activities', '', '', fmtCurrency(balanceSheet.cashFlow.operating)],
+          ['  Investing Activities', '', '', fmtCurrency(balanceSheet.cashFlow.investing)],
+          ['  Financing Activities', '', '', fmtCurrency(balanceSheet.cashFlow.financing)],
+          ['', '', '', ''],
+          ['', '', 'NET CASH FLOW', fmtCurrency(balanceSheet.cashFlow.total)],
+          ['', '', '', ''],
+          ['SUMMARY', '', '', ''],
+          ['  Cash Increase/(Decrease)', '', '', balanceSheet.cashFlow.total >= 0 ? 'Positive' : 'Negative'],
         ];
         const wsCF = XLSX.utils.aoa_to_sheet(cfRows);
+        
+        // Column widths
+        wsCF['!cols'] = [
+          { wch: 5 }, { wch: 5 }, { wch: 28 }, { wch: 20 }
+        ];
+        
         if (!wsCF['!merges']) wsCF['!merges'] = [];
-        wsCF['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } });
+        wsCF['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }); // Title
+        wsCF['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: 3 } }); // Date
+        
         XLSX.utils.book_append_sheet(wb, wsCF, 'Cash Flow Statement');
       }
       
@@ -111,41 +147,102 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
         entry.outflow += Number(t.outflow || 0);
       }
       const masterRows = Array.from(categoryMap.entries()).map(([label, { inflow, outflow }]) => ({
-        Label: label,
-        Inflow: inflow,
-        Outflow: outflow,
-        Net: inflow - outflow,
-        Notes: ''
+        'Category': label,
+        'Inflow': fmtCurrency(inflow),
+        'Outflow': fmtCurrency(outflow),
+        'Net': fmtCurrency(inflow - outflow),
+        'Balance Type': inflow - outflow >= 0 ? 'Surplus' : 'Deficit'
       }));
-      const totals = masterRows.reduce((acc, r)=>{
-        acc.in += Number(r.Inflow)||0; acc.out += Number(r.Outflow)||0; return acc;
+      const totals = Array.from(categoryMap.values()).reduce((acc, r)=>{
+        acc.in += Number(r.inflow)||0; acc.out += Number(r.outflow)||0; return acc;
       }, { in:0, out:0 });
+      
       const wsMaster = XLSX.utils.json_to_sheet(masterRows);
-      // Append totals row (keep numbers numeric for Excel)
-      XLSX.utils.sheet_add_aoa(wsMaster, [[ 'TOTAL', totals.in, totals.out, totals.in - totals.out, '' ]], { origin: -1 });
+      
+      // Column widths
+      wsMaster['!cols'] = [
+        { wch: 35 }, { wch: 18 }, { wch: 18 }, { wch: 18 }, { wch: 15 }
+      ];
+      
+      // Append totals row
+      XLSX.utils.sheet_add_aoa(wsMaster, [[ 'TOTAL', fmtCurrency(totals.in), fmtCurrency(totals.out), fmtCurrency(totals.in - totals.out), totals.in - totals.out >= 0 ? 'Surplus' : 'Deficit' ]], { origin: -1 });
+      
       XLSX.utils.book_append_sheet(wb, wsMaster, 'Master Summary');
 
-      const wsInv = XLSX.utils.json_to_sheet(investments || []);
+      // Investments sheet with better formatting
+      const invData = (investments || []).map(inv => ({
+        'Type': inv.type || '',
+        'Institution': inv.institution || '',
+        'Amount': fmtCurrency(inv.amount || 0),
+        'Rate (%)': inv.interest_rate || inv.rate || '',
+        'Tenure (months)': inv.tenure_months || inv.tenure || '',
+        'Start Date': inv.start_date || inv.date || '',
+        'Maturity Date': inv.maturity_date || '',
+        'Status': inv.status || '',
+        'Payout Method': inv.interest_payout_method || 'at_maturity',
+        'Notes': inv.notes || ''
+      }));
+      const wsInv = XLSX.utils.json_to_sheet(invData);
+      wsInv['!cols'] = [
+        { wch: 10 }, { wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 15 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 15 }, { wch: 30 }
+      ];
       XLSX.utils.book_append_sheet(wb, wsInv, 'Investments');
-      const wsInc = XLSX.utils.json_to_sheet(income || []);
+      
+      // Income sheet
+      const incData = (income || []).map(inc => ({
+        'Date': inc.date || '',
+        'Source/Category': inc.source || inc.category || '',
+        'Amount': fmtCurrency(inc.inflow || inc.amount || 0),
+        'Account': inc.account_id || 'Unassigned',
+        'Status': inc.status || 'Received',
+        'Notes': inc.notes || ''
+      }));
+      const wsInc = XLSX.utils.json_to_sheet(incData);
+      wsInc['!cols'] = [{ wch: 12 }, { wch: 25 }, { wch: 15 }, { wch: 18 }, { wch: 12 }, { wch: 35 }];
       XLSX.utils.book_append_sheet(wb, wsInc, 'Income');
-      const wsExp = XLSX.utils.json_to_sheet(expenses || []);
+      
+      // Expenses sheet
+      const expData = (expenses || []).map(exp => ({
+        'Date': exp.date || '',
+        'Category': exp.category || exp.title || '',
+        'Amount': fmtCurrency(exp.outflow || exp.amount || 0),
+        'Account': exp.account_id || 'Unassigned',
+        'Status': exp.status || 'Paid',
+        'Notes': exp.notes || ''
+      }));
+      const wsExp = XLSX.utils.json_to_sheet(expData);
+      wsExp['!cols'] = [{ wch: 12 }, { wch: 25 }, { wch: 15 }, { wch: 18 }, { wch: 12 }, { wch: 35 }];
       XLSX.utils.book_append_sheet(wb, wsExp, 'Expenses');
-      const wsLoan = XLSX.utils.json_to_sheet(loans || []);
+      
+      // Loans sheet
+      const loanData = (loans || []).map(loan => ({
+        'Lender': loan.lender || '',
+        'Amount Borrowed': fmtCurrency(loan.amount_borrowed || loan.amount || 0),
+        'Interest Rate (%)': loan.interest_rate || '',
+        'Start Date': loan.start_date || loan.date || '',
+        'Status': loan.status || 'Active',
+        'Outstanding': loan.outstanding_balance ? fmtCurrency(loan.outstanding_balance) : '',
+        'Notes': loan.notes || ''
+      }));
+      const wsLoan = XLSX.utils.json_to_sheet(loanData);
+      wsLoan['!cols'] = [{ wch: 20 }, { wch: 18 }, { wch: 15 }, { wch: 12 }, { wch: 12 }, { wch: 18 }, { wch: 35 }];
       XLSX.utils.book_append_sheet(wb, wsLoan, 'Loans');
 
       // Transactions sheet with totals footer
       const inflow = tx.reduce((s,r)=> s + (Number(r.inflow)||0), 0);
       const outflow = tx.reduce((s,r)=> s + (Number(r.outflow)||0), 0);
-      const wsTx = XLSX.utils.json_to_sheet((tx||[]).map(r => ({
-        Date: r.date,
-        Category: r.category,
-        Inflow: r.inflow || 0,
-        Outflow: r.outflow || 0,
-        Net: (Number(r.inflow)||0) - (Number(r.outflow)||0),
-        Notes: r.notes || ''
-      })));
-      XLSX.utils.sheet_add_aoa(wsTx, [[ 'TOTAL', '', inflow, outflow, inflow - outflow, '' ]], { origin: -1 });
+      const txData = (tx||[]).map(r => ({
+        'Date': r.date,
+        'Category': r.category,
+        'Account': r.account_name || 'Unassigned',
+        'Inflow': fmtCurrency(r.inflow || 0),
+        'Outflow': fmtCurrency(r.outflow || 0),
+        'Net': fmtCurrency((Number(r.inflow)||0) - (Number(r.outflow)||0)),
+        'Notes': (r.notes || '').substring(0, 50)
+      }));
+      const wsTx = XLSX.utils.json_to_sheet(txData);
+      wsTx['!cols'] = [{ wch: 12 }, { wch: 30 }, { wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 40 }];
+      XLSX.utils.sheet_add_aoa(wsTx, [[ 'TOTAL', '', '', fmtCurrency(inflow), fmtCurrency(outflow), fmtCurrency(inflow - outflow), '' ]], { origin: -1 });
       XLSX.utils.book_append_sheet(wb, wsTx, 'Transactions');
 
       const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
