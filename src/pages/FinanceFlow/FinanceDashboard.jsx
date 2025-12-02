@@ -19,7 +19,7 @@ import {
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, PointElement, LineElement, BarElement);
 
 export default function FinanceDashboard() {
-  const [period, setPeriod] = useState('this_month');
+  const [period, setPeriod] = useState('this_year');
   const [custom, setCustom] = useState({ from: '', to: '' });
   const [totals, setTotals] = useState({ totalInvested: 0, totalIncome: 0, totalExpenses: 0, currentLiabilities: 0, netWorth: 0, netPL: 0 });
   const fmt = useCurrencyFormatter();
