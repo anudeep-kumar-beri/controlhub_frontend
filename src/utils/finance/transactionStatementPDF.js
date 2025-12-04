@@ -36,14 +36,9 @@ export async function generateTransactionStatementPDF(options = {}) {
   const { from, to, accountFilter, categoryFilter } = options;
 
   try {
-    // Dynamic import jsPDF
-    let jsPDF;
-    try {
-      jsPDF = (await import('jspdf')).default || (await import('jspdf'));
-      await import('jspdf-autotable');
-    } catch (e) {
-      return { ok: false, message: 'jsPDF library not available. Please install jspdf and jspdf-autotable.' };
-    }
+    // Dynamic import jsPDF and autoTable
+    const { jsPDF } = await import('jspdf');
+    await import('jspdf-autotable');
 
     // Fetch all transactions
     let transactions = await getMasterTransactions({ from, to });
