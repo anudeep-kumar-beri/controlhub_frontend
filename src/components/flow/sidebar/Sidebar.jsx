@@ -5,6 +5,7 @@ import NodeLibrary from './NodeLibrary';
 import FlowControls from './FlowControls';
 import ImportExportPanel from './ImportExportPanel';
 import NodeConfigurator from './NodeConfigurator';
+import SearchFilter from './SearchFilter';
 import './sidebar.css';
 
 export default function Sidebar({
@@ -50,6 +51,11 @@ export default function Sidebar({
           />
         ) : (
           <>
+            <SearchFilter
+              nodes={workspaceData[currentWorkspace]?.nodes || []}
+              onNodeSelect={setSelectedNode}
+              currentWorkspace={currentWorkspace}
+            />
             <NodeLibrary />
             <FlowControls
               showGrid={localGrid}

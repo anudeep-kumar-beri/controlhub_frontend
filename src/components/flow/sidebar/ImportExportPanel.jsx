@@ -6,7 +6,37 @@ export default function ImportExportPanel({ wrapperRef, flowData, currentWorkspa
   const [fileName, setFileName] = useState('FlowCanvas');
   const [paperSize, setPaperSize] = useState('a4');
   const [orientation, setOrientation] = useState('landscape');
-  const [expanded, setExpanded] = useState(false); // 🆕
+  const [expanded, setExpanded] = useState(false);
+
+  const downloadJSON = () => {
+    if (!flowData?.nodes || !flowData?.edges) {
+      alert("Flow data missing!");
+      return;
+    }
+
+    try {
+      const dataStr = JSON.stringify(
+        {
+          workspace: currentWorkspace,
+          nodes: flowData.nodes,
+          edges: flowData.edges,
+          exportedAt: new Date().toISOString(),
+        },
+        null,
+        2
+      );
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${fileName || 'FlowCanvas'}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("JSON Export Error:", err);
+      alert("Failed to export JSON.");
+    }
+  };
 
   const downloadPDF = () => {
     if (!flowData?.nodes || !flowData?.edges) {
@@ -27,6 +57,29 @@ export default function ImportExportPanel({ wrapperRef, flowData, currentWorkspa
       console.error("PDF Export Error:", err);
       alert("Failed to generate PDF.");
     }
+  };
+
+  const importJSON = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (data.nodes && data.edges) {
+          // Trigger import callback (would need to be passed as prop)
+          console.log('Imported data:', data);
+          alert('Import successful! (Feature needs parent callback implementation)');
+        } else {
+          alert('Invalid JSON format');
+        }
+      } catch (err) {
+        console.error("JSON Import Error:", err);
+        alert("Failed to import JSON.");
+      }
+    };
+    reader.readAsText(file);
   };
 
   return (
@@ -60,7 +113,26 @@ export default function ImportExportPanel({ wrapperRef, flowData, currentWorkspa
           <option value="portrait">Portrait</option>
         </select>
 
-        <button onClick={downloadPDF}>Download PDF</button>
+        <div className="export-buttons">
+          <button onClick={downloadJSON} className="export-btn json-btn">
+            📄 Export JSON
+          </button>
+          <button onClick={downloadPDF} className="export-btn pdf-btn">
+            📕 Export PDF
+          </button>
+        </div>
+
+        <div className="import-section">
+          <label className="import-label">
+            📥 Import JSON
+            <input
+              type="file"
+              accept=".json"
+              onChange={importJSON}
+              className="file-input"
+            />
+          </label>
+        </div>
       </div>
     </div>
   );

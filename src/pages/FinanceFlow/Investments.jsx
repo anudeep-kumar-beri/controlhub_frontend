@@ -234,6 +234,14 @@ export default function Investments() {
       return;
     }
 
+    // Calculate the additional amount being invested
+    let additionalAmount = 0;
+    if (newUnits > 0) {
+      additionalAmount = newUnits * newUnitCost;
+    } else {
+      additionalAmount = newAmount;
+    }
+
     const patch = { ...addMoreInv };
     
     // Update units if provided
@@ -241,8 +249,7 @@ export default function Investments() {
       const oldUnits = Number(patch.units || 0);
       const oldTotalAmount = Number(patch.amount || 0);
       const newTotalUnits = oldUnits + newUnits;
-      const addedAmount = newUnits * newUnitCost;
-      const newTotalAmount = oldTotalAmount + addedAmount;
+      const newTotalAmount = oldTotalAmount + additionalAmount;
       
       patch.units = newTotalUnits;
       patch.amount = newTotalAmount;
@@ -259,6 +266,16 @@ export default function Investments() {
     if (patch.is_recurring && patch.installments_paid !== undefined) {
       patch.installments_paid = Number(patch.installments_paid || 0) + 1;
     }
+
+    // Store additional investment history in the investment record
+    if (!patch.addition_history) patch.addition_history = [];
+    patch.addition_history.push({
+      date: addMoreForm.date,
+      amount: additionalAmount,
+      units: newUnits > 0 ? newUnits : null,
+      unit_cost: newUnits > 0 ? newUnitCost : null,
+      timestamp: new Date().toISOString()
+    });
 
     await saveInvestment(patch);
     setAddMoreInv(null);

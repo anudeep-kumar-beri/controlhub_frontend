@@ -6,13 +6,30 @@
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
   color: white;
   font-family: 'Inter', sans-serif;
-  transition: all 0.2s ease;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(255, 255, 255, 0.12);
+  /* Hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
 }
 
 .custom-node:hover {
   box-shadow: 0 0 25px rgba(255, 255, 255, 0.15);
   cursor: pointer;
+  transform: translateZ(0) scale(1.02);
+}
+
+.custom-node.dragging {
+  opacity: 0.8;
+  transform: translateZ(0) scale(1.05);
+  box-shadow: 0 10px 40px rgba(0, 255, 255, 0.3);
+}
+
+.custom-node.selected {
+  border-color: rgba(0, 255, 255, 0.6);
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
 }
 
 /* Node Type Variants */

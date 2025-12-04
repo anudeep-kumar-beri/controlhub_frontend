@@ -220,9 +220,41 @@ export async function getMasterTransactions({ fromDate = null, toDate = null, ac
     const debitAcc = r.account_id ? accountMap.get(r.account_id) : null;
     const creditAccountId = r.payout_account_id || r.account_id;
     const creditAcc = creditAccountId ? accountMap.get(creditAccountId) : null;
-    // Outflow (debit) filter by accountId when provided
-    if ((!accountId || r.account_id === accountId) && inDateRange(start, fromDate, toDate)) {
-      tx.push({ id: `tx-inv-out-${r.id}`, date: start, category: `Investment — ${r.type || 'Asset'}` , inflow: 0, outflow: amount, notes: r.notes || '', ts: r.createdAt || `${start}T00:00:00.000Z`, source: { store: 'investments', id: r.id }, account_id: r.account_id, account_name: debitAcc?.name || 'Unassigned' });
+    
+    // Initial investment outflow (debit) filter by accountId when provided
+    // Calculate initial investment amount (subtract any additions)
+    let initialAmount = amount;
+    const additionHistory = Array.isArray(r.addition_history) ? r.addition_history : [];
+    const totalAdditions = additionHistory.reduce((sum, add) => sum + (Number(add.amount || 0)), 0);
+    initialAmount = amount - totalAdditions;
+    
+    if (initialAmount > 0 && (!accountId || r.account_id === accountId) && inDateRange(start, fromDate, toDate)) {
+      tx.push({ id: `tx-inv-out-${r.id}`, date: start, category: `Investment — ${r.type || 'Asset'}` , inflow: 0, outflow: initialAmount, notes: r.notes || '', ts: r.createdAt || `${start}T00:00:00.000Z`, source: { store: 'investments', id: r.id }, account_id: r.account_id, account_name: debitAcc?.name || 'Unassigned' });
+    }
+    
+    // Add separate transactions for each "add more" entry
+    for (let i = 0; i < additionHistory.length; i++) {
+      const addition = additionHistory[i];
+      const addDate = (addition.date || todayISO()).slice(0, 10);
+      const addAmount = Number(addition.amount || 0);
+      
+      if (addAmount > 0 && (!accountId || r.account_id === accountId) && inDateRange(addDate, fromDate, toDate)) {
+        const addNotes = addition.units > 0 
+          ? `Added ${addition.units} units @ ${addition.unit_cost}/unit` 
+          : 'Additional investment';
+        tx.push({ 
+          id: `tx-inv-add-${r.id}-${i}`, 
+          date: addDate, 
+          category: `Investment — ${r.type || 'Asset'} (Additional)`, 
+          inflow: 0, 
+          outflow: addAmount, 
+          notes: addNotes, 
+          ts: addition.timestamp || `${addDate}T00:00:00.000Z`, 
+          source: { store: 'investments', id: r.id, subtype: 'addition' }, 
+          account_id: r.account_id, 
+          account_name: debitAcc?.name || 'Unassigned' 
+        });
+      }
     }
     // FD: auto maturity inflow + interest payouts based on payout method; General: inflow only when cashout provided
     const invType = (r.type || '').toUpperCase();
@@ -541,9 +573,13 @@ export async function getAccountBalance(accountId) {
       const rate = Number(r.interest_rate || r.rate || 0);
       const tenure = Number(r.tenure_months || r.tenure || 0);
       
-      // Initial investment is an outflow from account
+      // Total investment amount (initial + all additions) is an outflow from account
       outflows += amount;
       count++;
+      
+      // Count each addition as a separate transaction
+      const additionHistory = Array.isArray(r.addition_history) ? r.addition_history : [];
+      count += additionHistory.length;
       
       // FD: Add interest payouts based on payout method
       const invType = (r.type || '').toUpperCase();

@@ -10,14 +10,22 @@
   height: 100%;
   position: relative;
   background-color: #000000;
+  /* Hardware acceleration for smooth rendering */
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* + Node button positioning */
 .addNodeButtonContainer {
   position: absolute;
   top: 10px;
-  left: 10px; /* Adjust depending on sidebar width */
+  left: 10px;
   z-index: 20;
+  display: flex;
+  gap: 8px;
 }
 
 .addNodeButton {
@@ -28,11 +36,23 @@
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
 .addNodeButton:hover {
   background-color: #222;
+  border-color: rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+}
+
+.help-button {
+  padding: 6px 10px;
+  font-size: 16px;
+}
+
+.help-button:hover {
+  border-color: rgba(251, 191, 36, 0.5);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
 }
 @keyframes edgeGlow {
   0% { stroke: #0ff; stroke-width: 1; }
@@ -46,6 +66,20 @@
   animation: edgeGlow 1.2s infinite ease-in-out;
 }
 
+.react-flow__edge {
+  /* Smooth edge rendering */
+  will-change: d;
+  pointer-events: all;
+}
+
+.react-flow__edge path {
+  transition: stroke 0.15s ease, stroke-width 0.15s ease;
+}
+
+.react-flow__edge:hover path {
+  stroke-width: 3;
+}
+
 .react-flow__handle {
   width: 10px;
   height: 10px;
@@ -53,6 +87,14 @@
   background: white;
   box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.3);
   border: none;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.react-flow__handle:hover {
+  transform: scale(1.3);
+  box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.6);
 }
 .modalOverlay {
   position: fixed;
@@ -196,17 +238,23 @@ transition: all 0.2s ease-in-out;
   border-radius: 12px;
   box-shadow: 0 0 10px rgba(0, 255, 255, 0.05);
   overflow: hidden;
+  /* Hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .react-flow__controls-button {
   background: rgba(0, 0, 0, 0.3);
   color: #00ffff;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  transition: background 0.2s ease;
+  transition: background 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, background;
 }
 .react-flow__controls-button svg {
   fill: white !important;
   stroke: white !important;
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .react-flow__controls-button:last-child {
@@ -215,4 +263,209 @@ transition: all 0.2s ease-in-out;
 
 .react-flow__controls-button:hover {
   background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05);
 }
+
+.react-flow__controls-button:hover svg {
+  transform: scale(1.1);
+}
+
+.react-flow__controls-button:active {
+  transform: scale(0.95);
+}
+
+/* Loading Overlay */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+  color: white;
+  font-family: 'Inter', sans-serif;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #00ffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-overlay p {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+}
+
+/* Save Status Indicator */
+.save-status-indicator {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.save-status-indicator.saved {
+  border-color: rgba(34, 197, 94, 0.5);
+  color: #22c55e;
+  animation: fadeOut 2s ease-in-out 1s forwards;
+}
+
+.save-status-indicator.saving {
+  border-color: rgba(59, 130, 246, 0.5);
+  color: #3b82f6;
+}
+
+.save-status-indicator.unsaved {
+  border-color: rgba(251, 191, 36, 0.5);
+  color: #fbbf24;
+}
+
+.save-status-indicator.error {
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+  animation: shake 0.5s ease-in-out;
+}
+
+.save-status-indicator.loading {
+  border-color: rgba(168, 85, 247, 0.5);
+  color: #a855f7;
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Smooth panning and zooming */
+.react-flow__renderer {
+  transition: transform 0.05s ease-out;
+}
+
+.react-flow__viewport {
+  /* Smooth viewport transformations */
+  will-change: transform;
+}
+
+/* Selection box styling */
+.react-flow__selection {
+  background: rgba(0, 255, 255, 0.08);
+  border: 2px solid rgba(0, 255, 255, 0.5);
+  border-radius: 4px;
+}
+
+/* Node selection outline */
+.react-flow__node.selected {
+  outline: 2px solid rgba(0, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
+/* Smooth edge updates during interactions */
+.react-flow__edge.updating .react-flow__edge-path {
+  stroke: #0ff;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.6));
+}
+
+/* Optimize minimap rendering */
+.react-flow__minimap {
+  /* Hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.react-flow__minimap-mask {
+  fill: rgba(0, 255, 255, 0.1);
+  stroke: rgba(0, 255, 255, 0.4);
+  stroke-width: 2;
+}
+
+/* Connection line styling */
+.react-flow__connection-path {
+  stroke: #0ff;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 6px rgba(0, 255, 255, 0.8));
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* Optimize font rendering */
+* {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent text selection during drag */
+.react-flow__pane {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Static grid background that doesn't move */
+.react-flow__background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.react-flow__background svg {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+/* Enhanced grid visibility */
+.react-flow__background pattern circle {
+  fill: rgba(255, 255, 255, 0.3);
+}
+
+.react-flow__background pattern rect,
+.react-flow__background pattern line {
+  stroke: rgba(255, 255, 255, 0.3);
+  stroke-width: 1;
+}
+
