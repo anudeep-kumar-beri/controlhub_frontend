@@ -63,7 +63,7 @@
 }
 
 .project-detail-container a {
-  color: #00cfff;
+  color: #58a6ff;
   text-decoration: underline;
   word-break: break-word;
 }
@@ -87,7 +87,7 @@
 }
 
 .status-badge.progress {
-  background-color: #00cfff;
+  background-color: #58a6ff;
   color: #000;
 }
 
@@ -111,7 +111,7 @@
 
 .edit-button,
 .save-button {
-  background-color: #00cfff;
+  background-color: #58a6ff;
   color: #000;
   border: none;
   padding: 0.4rem 0.8rem;
@@ -124,7 +124,7 @@
 
 .edit-button:hover,
 .save-button:hover {
-  background-color: #66e0ff;
+  background-color: #79b8ff;
 }
 
 /* Responsive */

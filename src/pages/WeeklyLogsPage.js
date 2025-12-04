@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { applyHeader, applyFooter } from '../utils/brand/pdfBranding';
+import { loadTierLogo } from '../utils/brand/logoLoader';
 import './WeeklyLogsPage.css';
 import WeeklyLogsAnimation from '../components/animations/WeeklyLogsAnimation';
 
@@ -82,34 +84,43 @@ function WeeklyLogsPage() {
     setEditingId(log._id);
   };
 
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
     const doc = new jsPDF();
-    doc.setFontSize(18);
-    doc.setTextColor('#ffffff');
-    doc.text('Weekly Objectives Summary', 14, 20);
-    let y = 30;
+    let y = await applyHeader(doc, { brandTier: 2, title: 'Weekly Objectives Summary', subtitle: weekRange || '', theme: 'uiLight' });
+    // Preload Tier 2 mini shield once
+    let shield = null;
+    try { shield = await loadTierLogo(2); } catch (_) {}
     logs.forEach((log) => {
       doc.setFontSize(14);
-      doc.setTextColor('#ffffff');
+      doc.setTextColor('#000000');
       doc.text(`Week: ${log.weekRange}`, 14, y);
+      // Table subtitle stamp: Tier 2 mini shield emblem next to week title
+      if (shield) {
+        doc.addImage(shield, 'PNG', 90, y - 5, 6, 6);
+      }
       const rows = log.objectives.map(obj => [`• ${obj.trim()}`]);
       doc.autoTable({
         startY: y + 5,
         head: [['Objectives']],
         body: rows,
         styles: {
-          textColor: [255, 255, 255],
-          fillColor: '#0e0e0e',
+          textColor: [38, 38, 38],
+          fillColor: [249, 250, 251],
           fontSize: 11,
         },
         headStyles: {
-          fillColor: '#333333',
-          textColor: '#ffffff',
+          // Subdued slate head for a calmer functional look
+          fillColor: [67, 83, 103],
+          textColor: [255, 255, 255],
         },
         margin: { left: 14, right: 14 },
+        didDrawPage: () => {
+          // Footer per page remains consistent
+        }
       });
       y = doc.lastAutoTable.finalY + 10;
     });
+    await applyFooter(doc, { brandTier: 3, text: 'ControlHub — Weekly Objectives' });
     doc.save('weekly_objectives.pdf');
   };
 

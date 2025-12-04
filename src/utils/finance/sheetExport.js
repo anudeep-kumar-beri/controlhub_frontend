@@ -7,15 +7,21 @@ function loadSettings() {
 }
 function fmtCurrency(n) {
   const s = loadSettings();
-  try { return new Intl.NumberFormat(s.locale, { style:'currency', currency:s.currencyCode, maximumFractionDigits:2 }).format(Number(n)||0); }
-  catch { return `${(Number(n)||0).toLocaleString(s.locale)} ${s.currencyCode}`; }
+  try {
+    return new Intl.NumberFormat(s.locale, {
+      style: 'decimal',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(Number(n) || 0);
+  }
+  catch { return (Number(n)||0).toLocaleString(s.locale); }
 }
 function fmtNumber(n) {
   return Number(n)||0;
 }
 
 export async function exportWorkbook(type = 'xlsx', options = {}) {
-  const { reportType = 'comprehensive', dateRange = {}, balanceSheet = null } = options;
+  const { reportType = 'comprehensive', dateRange = {}, balanceSheet = null, brandTier = 2, theme = 'uiLight' } = options;
   const dateLabel = dateRange.from && dateRange.to ? ` (${dateRange.from} to ${dateRange.to})` : '';
   
   try {
@@ -317,11 +323,24 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
       }
 
       const doc = new jsPDF();
+      const { getThemeColors, drawDivider } = await import('../brand/pdfBranding');
+      const palette = getThemeColors(theme);
       let yPos = 15;
+
+      // Add tiered logo to header for UI reports (Tier 2 by default)
+      try {
+        const { loadTierLogo } = await import('../brand/logoLoader');
+        // FinanceFlow header: Tier 2 shield for functional docs; choose outline variant based on light theme
+        const logoImg = await loadTierLogo(2, { theme: theme === 'uiDark' ? 'outline_white' : 'outline_black' });
+        if (logoImg) {
+          doc.addImage(logoImg, 'PNG', 14, yPos - 5, 18, 18);
+        }
+      } catch (_) { /* non-blocking */ }
 
       // Header
       doc.setFontSize(20);
       doc.setFont(undefined, 'bold');
+      doc.setTextColor(...(palette.fg || [38,38,38]));
       doc.text('FinanceFlow Report', 105, yPos, { align: 'center' });
       yPos += 8;
       doc.setFontSize(10);
@@ -334,6 +353,10 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
       } else {
         yPos += 8;
       }
+
+      // Functional header divider for FinanceFlow
+      await drawDivider(doc, { theme, type: 'single', y: yPos });
+      yPos += 6;
 
       // ===== BALANCE SHEET =====
       if (balanceSheet && (reportType === 'balance_sheet' || reportType === 'comprehensive')) {
@@ -352,9 +375,14 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
              { content: fmtCurrency(balanceSheet.assets.total), styles: { fontStyle: 'bold', fillColor: [230, 240, 255] } }],
           ],
           theme: 'striped',
-          headStyles: { fillColor: [102, 126, 234], fontSize: 11, fontStyle: 'bold' },
-          styles: { fontSize: 10 },
+          headStyles: { fillColor: palette.accent || [102,126,234], textColor: [255,255,255], fontSize: 11, fontStyle: 'bold' },
+          styles: { fontSize: 10, textColor: (palette.fg || [38,38,38]) },
+          alternateRowStyles: { fillColor: theme === 'uiDark' ? [32,32,32] : [249,250,251] },
           margin: { left: 14, right: 110 },
+          didDrawPage: () => {
+            // Apply per-page watermark (Tier 2 for UI report)
+            // Import from shared branding to keep consistency
+          }
         });
 
         autoTable(doc, {
@@ -372,9 +400,13 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
              { content: fmtCurrency(balanceSheet.equity.netWorth), styles: { fontStyle: 'bold', fillColor: [235, 255, 235] } }],
           ],
           theme: 'striped',
-          headStyles: { fillColor: [245, 101, 101], fontSize: 11, fontStyle: 'bold' },
-          styles: { fontSize: 10 },
+          headStyles: { fillColor: [245, 101, 101], textColor: [255,255,255], fontSize: 11, fontStyle: 'bold' },
+          styles: { fontSize: 10, textColor: (palette.fg || [38,38,38]) },
+          alternateRowStyles: { fillColor: theme === 'uiDark' ? [32,32,32] : [249,250,251] },
           margin: { left: 110, right: 14 },
+          didDrawPage: () => {
+            // watermark applied in first table already for the page
+          }
         });
 
         yPos = doc.lastAutoTable.finalY + 15;
@@ -405,8 +437,9 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
                  textColor: balanceSheet.incomeStatement.netIncome >= 0 ? [0, 100, 0] : [150, 0, 0] } }],
           ],
           theme: 'striped',
-          headStyles: { fillColor: [72, 187, 120], fontSize: 11, fontStyle: 'bold' },
-          styles: { fontSize: 10 },
+          headStyles: { fillColor: [72, 187, 120], textColor: [255,255,255], fontSize: 11, fontStyle: 'bold' },
+          styles: { fontSize: 10, textColor: (palette.fg || [38,38,38]) },
+          alternateRowStyles: { fillColor: theme === 'uiDark' ? [32,32,32] : [249,250,251] },
         });
 
         yPos = doc.lastAutoTable.finalY + 15;
@@ -479,8 +512,9 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
           startY: yPos, 
           head, 
           body, 
-          styles: { fontSize: 8 },
-          headStyles: { fillColor: [52, 73, 94], fontSize: 9, fontStyle: 'bold' },
+          styles: { fontSize: 8, textColor: (palette.fg || [38,38,38]) },
+          headStyles: { fillColor: [52, 73, 94], textColor: [255,255,255], fontSize: 9, fontStyle: 'bold' },
+          alternateRowStyles: { fillColor: theme === 'uiDark' ? [32,32,32] : [249,250,251] },
           columnStyles: {
             0: { cellWidth: 22 },
             1: { cellWidth: 30 },
@@ -492,6 +526,23 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
         });
       }
 
+      const { applyFooter, applyWatermark } = await import('../brand/pdfBranding');
+      // Section break emblem (Tier 2 shield) and per-page watermark
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        try {
+          const { loadTierLogo } = await import('../brand/logoLoader');
+          const emblem = await loadTierLogo(2, { theme: theme === 'uiDark' ? 'outline_white' : 'outline_black' });
+          if (emblem) {
+            const pageWidth = doc.internal.pageSize.getWidth();
+            doc.addImage(emblem, 'PNG', pageWidth - 22, 10, 8, 8);
+          }
+        } catch (_) {}
+        await applyWatermark(doc, { brandTier: 2, opacity: 0.04, scale: 0.5 });
+      }
+      // Footer: Tier 3 minimal icon for all PDFs (contrast-aware)
+      await applyFooter(doc, { brandTier: 3, theme: theme === 'uiDark' ? 'white' : 'black', text: `ControlHub — FinanceFlow ${reportType.replace('_',' ')}` });
       const blob = doc.output('blob');
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');

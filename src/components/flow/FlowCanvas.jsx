@@ -1,4 +1,6 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
+import jsPDF from 'jspdf';
+import { applyHeader, applyFooter } from '../../utils/brand/pdfBranding';
 import Sidebar from './sidebar/Sidebar';
 import ReactFlow, {
   Background,
@@ -797,6 +799,111 @@ export default function FlowCanvas() {
         showGrid={showGrid}
         snapToGrid={snapToGrid}
         showMinimap={showMinimap}
+        onExportPDF={async () => {
+          const doc = new jsPDF('landscape', 'mm', 'a4');
+          let headerY = await applyHeader(doc, { brandTier: 2, title: 'Flow Workspace Export', subtitle: currentWorkspace, theme: 'uiLight' });
+          const pageWidth = doc.internal.pageSize.getWidth();
+          const pageHeight = doc.internal.pageSize.getHeight();
+          const marginMM = 14;
+          const availableWidthMM = pageWidth - marginMM * 2;
+          const availableHeightMM = pageHeight - (headerY + marginMM) - 12; // header + bottom margin + footer
+          try {
+            const html2canvasMod = await import('html2canvas');
+            const html2canvas = html2canvasMod.default || html2canvasMod;
+            const rootEl = wrapperRef.current;
+            // Prefer inner React Flow canvas for accurate edges rendering
+            const el = rootEl?.querySelector('.react-flow') || rootEl;
+            const nodes = workspaceData[currentWorkspace]?.nodes || [];
+            const padPx = 40;
+            const minX = Math.min(...nodes.map(n => n.position.x), 0) - padPx;
+            const minY = Math.min(...nodes.map(n => n.position.y), 0) - padPx;
+            const maxX = Math.max(...nodes.map(n => n.position.x + (n?.width || 180)), el?.scrollWidth || 0) + padPx;
+            const maxY = Math.max(...nodes.map(n => n.position.y + (n?.height || 80)), el?.scrollHeight || 0) + padPx;
+            const contentWidthPx = Math.max(0, maxX - minX);
+            const contentHeightPx = Math.max(0, maxY - minY);
+
+            const baseScale = 2; // high DPI
+            const fullCanvas = await html2canvas(el, { scale: baseScale, useCORS: true, backgroundColor: '#ffffff', removeContainer: true });
+
+            const cropCanvas = document.createElement('canvas');
+            cropCanvas.width = Math.ceil(contentWidthPx * baseScale);
+            cropCanvas.height = Math.ceil(contentHeightPx * baseScale);
+            const ctx = cropCanvas.getContext('2d');
+            ctx.drawImage(
+              fullCanvas,
+              Math.max(0, minX * baseScale),
+              Math.max(0, minY * baseScale),
+              cropCanvas.width,
+              cropCanvas.height,
+              0,
+              0,
+              cropCanvas.width,
+              cropCanvas.height
+            );
+
+            const mmPerPx = 25.4 / 96;
+            const contentWidthMM = (cropCanvas.width / baseScale) * mmPerPx;
+            const contentHeightMM = (cropCanvas.height / baseScale) * mmPerPx;
+
+            const scaleX = availableWidthMM / contentWidthMM;
+            const scaleY = availableHeightMM / contentHeightMM;
+            const fitScale = Math.min(scaleX, scaleY, 1);
+
+            const renderedWidthMM = contentWidthMM * fitScale;
+            const renderedHeightMM = contentHeightMM * fitScale;
+            const imgData = cropCanvas.toDataURL('image/png');
+
+            if (renderedHeightMM <= availableHeightMM && renderedWidthMM <= availableWidthMM) {
+              const xMM = marginMM + (availableWidthMM - renderedWidthMM) / 2;
+              const yMM = headerY + 6;
+              doc.addImage(imgData, 'PNG', xMM, yMM, renderedWidthMM, renderedHeightMM, undefined, 'FAST');
+            } else {
+              const tileHeightMM = availableHeightMM;
+              const tileWidthMM = availableWidthMM;
+              const pxPerMM = 1 / (25.4 / 96);
+              const tileWidthPx = Math.floor((tileWidthMM / fitScale) * pxPerMM);
+              const tileHeightPx = Math.floor((tileHeightMM / fitScale) * pxPerMM);
+              const cols = Math.ceil((cropCanvas.width / baseScale) / tileWidthPx);
+              const rows = Math.ceil((cropCanvas.height / baseScale) / tileHeightPx);
+
+              let pageIndex = 1;
+              for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                  const sx = (c * tileWidthPx) * baseScale;
+                  const sy = (r * tileHeightPx) * baseScale;
+                  const sw = Math.min(cropCanvas.width - sx, tileWidthPx * baseScale);
+                  const sh = Math.min(cropCanvas.height - sy, tileHeightPx * baseScale);
+
+                  const tileCanvas = document.createElement('canvas');
+                  tileCanvas.width = sw;
+                  tileCanvas.height = sh;
+                  const tctx = tileCanvas.getContext('2d');
+                  tctx.drawImage(cropCanvas, sx, sy, sw, sh, 0, 0, sw, sh);
+                  const tileImg = tileCanvas.toDataURL('image/png');
+
+                  if (!(r === 0 && c === 0)) {
+                    doc.addPage('landscape', 'a4');
+                    pageIndex += 1;
+                    headerY = await applyHeader(doc, { brandTier: 2, title: 'Flow Workspace Export', subtitle: `${currentWorkspace} — Page ${pageIndex}` , theme: 'uiLight' });
+                  }
+
+                  const xMM = marginMM;
+                  const yMM = headerY + 6;
+                  doc.addImage(tileImg, 'PNG', xMM, yMM, tileWidthMM, tileHeightMM, undefined, 'FAST');
+                  await applyFooter(doc, { brandTier: 3, text: 'ControlHub — Flow Workspace' });
+                }
+              }
+            }
+          } catch (e) {
+            doc.setFontSize(10); doc.setTextColor(80,80,80);
+            doc.text('Visual capture unavailable — showing summary.', marginMM, headerY + 4);
+            const nodes = workspaceData[currentWorkspace]?.nodes || [];
+            const edges = workspaceData[currentWorkspace]?.edges || [];
+            doc.text([`Total Nodes: ${nodes.length}`, `Total Edges: ${edges.length}`], marginMM, headerY + 12);
+          }
+          await applyFooter(doc, { brandTier: 3, text: 'ControlHub — Flow Workspace' });
+          doc.save(`FlowWorkspace_${currentWorkspace}.pdf`);
+        }}
         onWorkspaceAction={(mode) => {
           setModalMode(mode);
           setModalOpen(true);

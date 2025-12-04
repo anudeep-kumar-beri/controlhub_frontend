@@ -1,5 +1,7 @@
 // transactionStatementPDF.js — Professional Transaction Statement PDF Generator
 import { getMasterTransactions } from '../../db/stores/financeStore';
+import { loadTierLogo } from '../brand/logoLoader';
+import { applyFooter, applyWatermark, drawDivider, nextY } from '../brand/pdfBranding';
 
 function loadSettings() {
   const DEFAULTS = { currencyCode: 'INR', locale: 'en-IN' };
@@ -14,13 +16,14 @@ function loadSettings() {
 function fmtCurrency(n) {
   const s = loadSettings();
   try { 
+    // Render numeric amount only (no currency code/symbol)
     return new Intl.NumberFormat(s.locale, { 
-      style:'currency', 
-      currency:s.currencyCode, 
-      maximumFractionDigits:2 
-    }).format(Number(n)||0); 
+      style: 'decimal', 
+      minimumFractionDigits: 2, 
+      maximumFractionDigits: 2 
+    }).format(Number(n) || 0); 
   } catch { 
-    return `${(Number(n)||0).toLocaleString(s.locale)} ${s.currencyCode}`; 
+    return (Number(n) || 0).toLocaleString(s.locale);
   }
 }
 
@@ -33,7 +36,7 @@ function fmtCurrency(n) {
  * @param {string} options.categoryFilter - Optional category filter
  */
 export async function generateTransactionStatementPDF(options = {}) {
-  const { from, to, accountFilter, categoryFilter } = options;
+  const { from, to, accountFilter, categoryFilter, brandTier = 1, theme = 'authorityCreamBlack', printMode = false } = options;
 
   try {
     // Dynamic import jsPDF and autoTable
@@ -96,13 +99,13 @@ export async function generateTransactionStatementPDF(options = {}) {
     // ===== HEADER SECTION =====
     let yPos = 20;
 
-    // Try to add logo (if available)
+    // Try to add logo (tiered branding)
     try {
-      // Load logo as base64 - using the 192x192 PNG
-      const logoPath = '/android-chrome-192x192.png';
-      const logoImg = await loadImageAsBase64(logoPath);
+      // Header uses Tier 1 white crest version as requested
+      const logoImg = await loadTierLogo(1, { theme: 'white' });
       if (logoImg) {
-        doc.addImage(logoImg, 'PNG', margin, yPos - 5, 20, 20);
+        doc.addImage(logoImg, 'PNG', margin, yPos - 5, 22, 22);
+        // Removed duplicate wordmark to avoid double "ControlHub" under the subtitle
       }
     } catch (e) {
       console.warn('Logo not loaded:', e);
@@ -125,14 +128,12 @@ export async function generateTransactionStatementPDF(options = {}) {
     doc.setTextColor(52, 73, 94);
     doc.text('Transaction Statement', pageWidth - margin, yPos + 5, { align: 'right' });
 
-    // Divider line
+    // Official double divider
     yPos += 18;
-    doc.setDrawColor(102, 126, 234);
-    doc.setLineWidth(0.8);
-    doc.line(margin, yPos, pageWidth - margin, yPos);
+    drawDivider(doc, { theme, type: 'double' });
 
     // ===== STATEMENT INFO SECTION =====
-    yPos += 8;
+    yPos = nextY(yPos, 1.5);
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
     doc.setTextColor(66, 66, 66);
@@ -145,7 +146,7 @@ export async function generateTransactionStatementPDF(options = {}) {
     doc.setFont(undefined, 'normal');
     doc.text(`${from || 'Beginning'} to ${to || 'Today'}`, margin + 40, yPos);
     
-    yPos += 6;
+    yPos = nextY(yPos);
     doc.setFont(undefined, 'bold');
     doc.text('Generated:', margin, yPos);
     doc.setFont(undefined, 'normal');
@@ -158,7 +159,7 @@ export async function generateTransactionStatementPDF(options = {}) {
       minute: '2-digit'
     }), margin + 40, yPos);
 
-    yPos += 6;
+    yPos = nextY(yPos);
     if (accountFilter && accountFilter !== 'all') {
       doc.setFont(undefined, 'bold');
       doc.text('Account Filter:', margin, yPos);
@@ -177,11 +178,11 @@ export async function generateTransactionStatementPDF(options = {}) {
     yPos = Math.max(yPos, infoStartY + 18);
 
     // ===== SUMMARY SECTION =====
-    yPos += 5;
+    yPos = nextY(yPos);
     doc.setFillColor(247, 250, 252);
     doc.rect(margin, yPos, pageWidth - 2 * margin, 30, 'F');
 
-    yPos += 8;
+    yPos = nextY(yPos, 1.5);
     doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
     doc.setTextColor(52, 73, 94);
@@ -216,13 +217,13 @@ export async function generateTransactionStatementPDF(options = {}) {
     doc.setTextColor(netAmount >= 0 ? 72 : 245, netAmount >= 0 ? 187 : 101, netAmount >= 0 ? 120 : 101);
     doc.text(fmtCurrency(netAmount), margin + 4 + 2 * summaryColWidth, yPos + 5);
 
-    yPos += 12;
+    yPos = nextY(yPos, 2);
     doc.setFontSize(9);
     doc.setFont(undefined, 'normal');
     doc.setTextColor(100, 100, 100);
     doc.text(`Total Transactions: ${transactionCount}`, margin + 4, yPos);
 
-    yPos += 10;
+    yPos = nextY(yPos, 1.5);
 
     // ===== TRANSACTION TABLE =====
     doc.setFontSize(12);
@@ -249,7 +250,7 @@ export async function generateTransactionStatementPDF(options = {}) {
       body: tableData,
       theme: 'grid',
       headStyles: {
-        fillColor: [102, 126, 234],
+        fillColor: [207, 175, 89],
         textColor: [255, 255, 255],
         fontSize: 9,
         fontStyle: 'bold',
@@ -273,6 +274,8 @@ export async function generateTransactionStatementPDF(options = {}) {
       },
       margin: { left: margin, right: margin },
       didDrawPage: (data) => {
+        // Apply per-page crest watermark
+        applyWatermark(doc, { brandTier: 1, opacity: 0.06, scale: 0.45 });
         // Add page number at bottom
         const pageCount = doc.internal.getNumberOfPages();
         const pageNum = doc.internal.getCurrentPageInfo().pageNumber;
@@ -293,11 +296,14 @@ export async function generateTransactionStatementPDF(options = {}) {
         doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
         
         // Footer text
-        doc.text('ControlHub - Confidential Transaction Statement', pageWidth / 2, pageHeight - 6, { align: 'center' });
       }
     });
 
     // ===== EXPORT PDF =====
+    // Footer uses Tier 2 shield for secondary identity
+    // Footer uses Tier 2 shield for secondary identity — contrast-aware theme
+    const footerTheme = theme === 'authorityGoldBlack' ? 'outline_white' : 'outline_black';
+    await applyFooter(doc, { brandTier: 2, text: 'ControlHub — Transaction Statement', theme: footerTheme });
     const blob = doc.output('blob');
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -315,27 +321,4 @@ export async function generateTransactionStatementPDF(options = {}) {
   }
 }
 
-/**
- * Helper function to load image as base64
- */
-async function loadImageAsBase64(path) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = 'Anonymous';
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      try {
-        const dataURL = canvas.toDataURL('image/png');
-        resolve(dataURL);
-      } catch (e) {
-        reject(e);
-      }
-    };
-    img.onerror = (e) => reject(e);
-    img.src = path;
-  });
-}
+// image loader moved to shared utils/brand/logoLoader

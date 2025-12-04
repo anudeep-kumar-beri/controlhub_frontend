@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
+import { applyHeader, applyFooter, applyWatermark, getThemeColors } from '../utils/brand/pdfBranding';
 import './QuickJournalPage.css';
 import JournalAnimation from '../components/animations/JournalAnimation';
 
@@ -57,23 +58,18 @@ function QuickJournalPage() {
     }
   };
 
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
     const doc = new jsPDF();
-    doc.setFontSize(18);
-    doc.setTextColor('#cc66ff');
-    doc.text('Quick Journal Entry', 14, 20);
+    const palette = getThemeColors('uiLight');
+    const yStart = await applyHeader(doc, { brandTier: 2, title: 'Quick Journal Entry', subtitle: lastUpdated ? `Last updated: ${lastUpdated}` : '', theme: 'uiLight' });
+    await applyWatermark(doc, { brandTier: 1, opacity: 0.05, scale: 0.7 });
 
     doc.setFontSize(12);
-    doc.setTextColor('#000000');
+    doc.setTextColor(...(palette.fg || [0,0,0]));
     const textLines = doc.splitTextToSize(journal || '(No journal entry)', 180);
-    doc.text(textLines, 14, 40);
+    doc.text(textLines, 14, yStart + 6);
 
-    if (lastUpdated) {
-      doc.setTextColor('#666666');
-      doc.setFontSize(10);
-      doc.text(`Last updated: ${lastUpdated}`, 14, doc.internal.pageSize.height - 10);
-    }
-
+    await applyFooter(doc, { brandTier: 3, theme: 'black', text: 'ControlHub — Journal' });
     doc.save('quick_journal.pdf');
   };
 

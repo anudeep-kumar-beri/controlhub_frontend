@@ -13,6 +13,7 @@ export default function Sidebar({
   showGrid,
   snapToGrid,
   showMinimap,
+  onExportPDF,
   onWorkspaceAction,
   currentWorkspace,
   workspaces,
@@ -70,6 +71,11 @@ export default function Sidebar({
               currentWorkspace={currentWorkspace}
               flowData={workspaceData[currentWorkspace]}
             />
+            <div className="export-actions">
+              <button className="export-pdf-button" onClick={onExportPDF}>
+                ⬇ Export Workspace PDF
+              </button>
+            </div>
           </>
         )}
       </div>
