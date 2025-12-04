@@ -306,8 +306,15 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
     }
 
     if (type === 'pdf') {
-      const { jsPDF } = await import('jspdf');
-      await import('jspdf-autotable');
+      // jsPDF v3 requires named import; autotable should be called via function
+      let jsPDF, autoTable;
+      try {
+        ({ jsPDF } = await import('jspdf'));
+        const autoTableMod = await import('jspdf-autotable');
+        autoTable = autoTableMod.default || autoTableMod.autoTable || autoTableMod;
+      } catch (e) {
+        return { ok: false, message: 'jsPDF or autotable not available' };
+      }
 
       const doc = new jsPDF();
       let yPos = 15;
@@ -335,7 +342,7 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
         doc.text('Balance Sheet', 14, yPos);
         yPos += 8;
 
-        doc.autoTable({
+        autoTable(doc, {
           startY: yPos,
           head: [['ASSETS', 'Amount']],
           body: [
@@ -350,7 +357,7 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
           margin: { left: 14, right: 110 },
         });
 
-        doc.autoTable({
+        autoTable(doc, {
           startY: yPos,
           head: [['LIABILITIES & EQUITY', 'Amount']],
           body: [
@@ -385,7 +392,7 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
         doc.text('Income Statement', 14, yPos);
         yPos += 8;
 
-        doc.autoTable({
+        autoTable(doc, {
           startY: yPos,
           head: [['Item', 'Amount']],
           body: [
@@ -417,7 +424,7 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
         doc.text('Cash Flow Statement', 14, yPos);
         yPos += 8;
 
-        doc.autoTable({
+        autoTable(doc, {
           startY: yPos,
           head: [['Activity', 'Amount']],
           body: [
@@ -468,7 +475,7 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
           (r.notes || '').substring(0, 30)
         ]);
 
-        doc.autoTable({ 
+        autoTable(doc, { 
           startY: yPos, 
           head, 
           body, 

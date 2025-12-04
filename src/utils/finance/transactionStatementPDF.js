@@ -38,7 +38,8 @@ export async function generateTransactionStatementPDF(options = {}) {
   try {
     // Dynamic import jsPDF and autoTable
     const { jsPDF } = await import('jspdf');
-    await import('jspdf-autotable');
+    const autoTableMod = await import('jspdf-autotable');
+    const autoTable = autoTableMod.default || autoTableMod.autoTable || autoTableMod;
 
     // Fetch all transactions
     let transactions = await getMasterTransactions({ from, to });
@@ -242,7 +243,7 @@ export async function generateTransactionStatementPDF(options = {}) {
       (tx.notes || '').substring(0, 25)
     ]);
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: yPos + 3,
       head: tableHeaders,
       body: tableData,
