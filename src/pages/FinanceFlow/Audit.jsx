@@ -3,6 +3,7 @@ import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
 import { listInvestments, listIncome, listExpenses, listLoans, listAccounts, getMasterTransactions } from '../../db/stores/financeStore';
 import { useCurrencyFormatter, todayISO } from '../../utils/format';
 import { calculateFD } from '../../utils/finance/financeCalc';
+import { generateTransactionStatementPDF } from '../../utils/finance/transactionStatementPDF';
 
 // Helper function to add months to a date
 function addMonths(dateStr, months) {
@@ -29,9 +30,8 @@ export default function Audit() {
   const calculateBalanceSheet = async () => {
     setLoading(true);
     try {
-      const [investments, income, expenses, loans, accounts, allTransactions] = await Promise.all([
+      const [investments, expenses, loans, accounts, allTransactions] = await Promise.all([
         listInvestments(),
-        listIncome(),
         listExpenses(),
         listLoans(),
         listAccounts(),
@@ -129,8 +129,17 @@ export default function Audit() {
       }
 
       // Pending expenses (unpaid/pending status only)
+      // An expense is a liability ONLY if it's not yet paid AND not yet recorded in transactions
       const pendingExpenses = expenses
-        .filter(exp => exp.status !== 'Paid' && (!exp.date || exp.date <= today))
+        .filter(exp => {
+          // Exclude if explicitly marked as paid
+          if (exp.status === 'Paid' || exp.status === 'paid') return false;
+          // Exclude if date is in the future
+          if (exp.date && exp.date > today) return false;
+          // Include ONLY if status is explicitly "Pending" or "pending" or "Unpaid"
+          // This ensures paid expenses (even without status field) don't count as liabilities
+          return exp.status && (exp.status === 'Pending' || exp.status === 'pending' || exp.status === 'Unpaid' || exp.status === 'unpaid');
+        })
         .reduce((sum, exp) => sum + (Number(exp.outflow || exp.amount) || 0), 0);
 
       const totalLiabilities = totalOutstandingLoans + pendingExpenses;
@@ -211,11 +220,25 @@ export default function Audit() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateRange]);
-
   const handleExport = async (type) => {
     const m = await import('../../utils/finance/sheetExport');
     const res = await m.exportWorkbook(type, { reportType, dateRange, balanceSheet });
     alert(res?.message || 'Export triggered');
+  };
+
+  const handleTransactionStatement = async () => {
+    setLoading(true);
+    try {
+      const res = await generateTransactionStatementPDF({
+        from: dateRange.from,
+        to: dateRange.to
+      });
+      alert(res?.message || 'Transaction statement generated');
+    } catch (err) {
+      alert('Failed to generate transaction statement: ' + (err.message || String(err)));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -263,16 +286,43 @@ export default function Audit() {
       {/* Export Options */}
       <div className="card" style={{marginBottom: 16}}>
         <div className="card-header"><strong>Export Options</strong></div>
-        <div className="card-body" style={{display:'flex', gap:8, flexWrap: 'wrap'}}>
-          <button className="btn primary" onClick={() => handleExport('xlsx')}>
-            📊 Export to Excel
-          </button>
-          <button className="btn primary" onClick={() => handleExport('pdf')}>
-            📄 Export to PDF
-          </button>
-          <button className="btn" onClick={() => handleExport('csv')}>
-            📋 Export to CSV
-          </button>
+        <div className="card-body">
+          {/* Financial Reports Section */}
+          <div style={{marginBottom: 16}}>
+            <h4 style={{fontSize: '0.95em', marginBottom: 8, color: '#667eea', fontWeight: 600}}>
+              📊 Financial Reports
+            </h4>
+            <p style={{fontSize: '0.85em', color: '#666', marginBottom: 10}}>
+              Balance Sheet, Income Statement, and Cash Flow based on selected report type
+            </p>
+            <div style={{display:'flex', gap:8, flexWrap: 'wrap'}}>
+              <button className="btn primary" onClick={() => handleExport('xlsx')}>
+                📊 Export to Excel
+              </button>
+              <button className="btn primary" onClick={() => handleExport('pdf')}>
+                📄 Export to PDF
+              </button>
+              <button className="btn" onClick={() => handleExport('csv')}>
+                📋 Export to CSV
+              </button>
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div style={{borderTop: '1px solid #e2e8f0', margin: '16px 0'}}></div>
+
+          {/* Transaction Statement Section */}
+          <div>
+            <h4 style={{fontSize: '0.95em', marginBottom: 8, color: '#48bb78', fontWeight: 600}}>
+              📋 Transaction Statement
+            </h4>
+            <p style={{fontSize: '0.85em', color: '#666', marginBottom: 10}}>
+              Detailed transaction-by-transaction statement with ControlHub branding and running balance
+            </p>
+            <button className="btn" style={{backgroundColor: '#48bb78', color: 'white', border: 'none'}} onClick={handleTransactionStatement}>
+              📄 Generate Transaction Statement PDF
+            </button>
+          </div>
         </div>
       </div>
 

@@ -40,32 +40,52 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
       // ===== BALANCE SHEET =====
       if (balanceSheet && (reportType === 'balance_sheet' || reportType === 'comprehensive')) {
         const bsRows = [
-          ['BALANCE SHEET', '', '', ''],
+          ['CONTROLHUB - BALANCE SHEET', '', '', ''],
           [`As of ${dateRange.to || 'Today'}`, '', '', ''],
           ['', '', '', ''],
-          ['ASSETS', '', '', 'Amount'],
-          ['  Investments (Current Value)', '', '', fmtCurrency(balanceSheet.assets.investments)],
-          ['  Cash & Bank Accounts', '', '', fmtCurrency(balanceSheet.assets.accounts)],
-          ['', '', 'Total Assets', fmtCurrency(balanceSheet.assets.total)],
-          ['', '', '', ''],
-          ['LIABILITIES', '', '', 'Amount'],
-          ['  Outstanding Loans', '', '', fmtCurrency(balanceSheet.liabilities.loans)],
-          ['  Pending Expenses', '', '', fmtCurrency(balanceSheet.liabilities.pendingExpenses)],
-          ['', '', 'Total Liabilities', fmtCurrency(balanceSheet.liabilities.total)],
-          ['', '', '', ''],
-          ['EQUITY', '', '', 'Amount'],
-          ['', '', 'Net Worth', fmtCurrency(balanceSheet.equity.netWorth)],
-          ['', '', '', ''],
-          ['VERIFICATION', '', '', ''],
-          ['  Assets', '', '', fmtCurrency(balanceSheet.assets.total)],
-          ['  Liabilities + Equity', '', '', fmtCurrency(balanceSheet.liabilities.total + balanceSheet.equity.netWorth)],
-          ['  Difference', '', '', fmtCurrency(balanceSheet.assets.total - (balanceSheet.liabilities.total + balanceSheet.equity.netWorth))],
+          ['ASSETS', '', '', 'Amount (₹)'],
+          ['Current Assets', '', '', ''],
+          ['  💰 Investments (Current Value)', '', '', balanceSheet.assets.investments],
+          ['  🏦 Cash & Bank Accounts', '', '', balanceSheet.assets.accounts],
         ];
+        
+        // Add detailed account breakdown
+        if (balanceSheet.assets.accountDetails) {
+          Object.entries(balanceSheet.assets.accountDetails).forEach(([id, acc]) => {
+            bsRows.push(['    • ' + acc.name, '', '', acc.balance]);
+          });
+        }
+        
+        bsRows.push(
+          ['', '', '', ''],
+          ['', '', '📊 Total Assets', balanceSheet.assets.total],
+          ['', '', '', ''],
+          ['', '', '', ''],
+          ['LIABILITIES', '', '', 'Amount (₹)'],
+          ['Current Liabilities', '', '', ''],
+          ['  💳 Outstanding Loans', '', '', balanceSheet.liabilities.loans],
+          ['  📋 Pending Expenses', '', '', balanceSheet.liabilities.pendingExpenses],
+          ['', '', '', ''],
+          ['', '', '📊 Total Liabilities', balanceSheet.liabilities.total],
+          ['', '', '', ''],
+          ['', '', '', ''],
+          ['EQUITY', '', '', 'Amount (₹)'],
+          ['', '', '💎 Net Worth', balanceSheet.equity.netWorth],
+          ['', '', '', ''],
+          ['', '', '', ''],
+          ['═══ VERIFICATION ═══', '', '', ''],
+          ['  ✓ Assets', '', '', balanceSheet.assets.total],
+          ['  ✓ Liabilities + Equity', '', '', balanceSheet.liabilities.total + balanceSheet.equity.netWorth],
+          ['  ✓ Difference', '', '', balanceSheet.assets.total - (balanceSheet.liabilities.total + balanceSheet.equity.netWorth)],
+          ['', '', '', ''],
+          ['Status:', balanceSheet.assets.total === (balanceSheet.liabilities.total + balanceSheet.equity.netWorth) ? '✅ BALANCED' : '⚠️ DISCREPANCY', '', '']
+        );
+        
         const wsBS = XLSX.utils.aoa_to_sheet(bsRows);
         
-        // Column widths for better readability
+        // Enhanced column widths
         wsBS['!cols'] = [
-          { wch: 5 }, { wch: 5 }, { wch: 30 }, { wch: 20 }
+          { wch: 8 }, { wch: 8 }, { wch: 35 }, { wch: 22 }
         ];
         
         // Merge cells for headers
@@ -73,31 +93,49 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
         wsBS['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }); // Title
         wsBS['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: 3 } }); // Date
         
+        // Apply styling to cells
+        const headerCell = wsBS['A1'];
+        if (headerCell) {
+          headerCell.s = {
+            font: { bold: true, sz: 16, color: { rgb: "FFFFFF" } },
+            fill: { fgColor: { rgb: "667EEA" } },
+            alignment: { horizontal: "center", vertical: "center" }
+          };
+        }
+        
         XLSX.utils.book_append_sheet(wb, wsBS, 'Balance Sheet');
       }
 
       // ===== INCOME STATEMENT =====
       if (balanceSheet && (reportType === 'income_statement' || reportType === 'comprehensive')) {
+        const profitMargin = balanceSheet.incomeStatement.revenue > 0 
+          ? ((balanceSheet.incomeStatement.netIncome / balanceSheet.incomeStatement.revenue) * 100).toFixed(2)
+          : '0';
         const isRows = [
-          ['INCOME STATEMENT', '', '', ''],
-          [dateLabel, '', '', ''],
+          ['CONTROLHUB - INCOME STATEMENT', '', '', ''],
+          [`Period: ${dateLabel}`, '', '', ''],
           ['', '', '', ''],
-          ['REVENUE', '', '', ''],
-          ['  Total Revenue', '', '', fmtCurrency(balanceSheet.incomeStatement.revenue)],
+          ['REVENUE', '', '', 'Amount (₹)'],
+          ['  💰 Total Revenue', '', '', balanceSheet.incomeStatement.revenue],
           ['', '', '', ''],
-          ['EXPENSES', '', '', ''],
-          ['  Total Expenses', '', '', fmtCurrency(balanceSheet.incomeStatement.expenses)],
           ['', '', '', ''],
-          ['', '', 'NET INCOME', fmtCurrency(balanceSheet.incomeStatement.netIncome)],
+          ['EXPENSES', '', '', 'Amount (₹)'],
+          ['  💸 Total Expenses', '', '', balanceSheet.incomeStatement.expenses],
           ['', '', '', ''],
-          ['', '', 'Profit Margin %', balanceSheet.incomeStatement.revenue > 0 ? 
-            `${((balanceSheet.incomeStatement.netIncome / balanceSheet.incomeStatement.revenue) * 100).toFixed(2)}%` : '0%'],
+          ['', '', '', ''],
+          ['═══ PROFITABILITY ═══', '', '', ''],
+          ['', '', '📊 Gross Profit', balanceSheet.incomeStatement.netIncome],
+          ['', '', '📈 Profit Margin', `${profitMargin}%`],
+          ['', '', '', ''],
+          ['', '', '💎 NET INCOME', balanceSheet.incomeStatement.netIncome],
+          ['', '', '', ''],
+          ['Financial Health:', balanceSheet.incomeStatement.netIncome >= 0 ? '✅ PROFITABLE' : '⚠️ LOSS', '', ''],
         ];
         const wsIS = XLSX.utils.aoa_to_sheet(isRows);
         
-        // Column widths
+        // Enhanced column widths
         wsIS['!cols'] = [
-          { wch: 5 }, { wch: 5 }, { wch: 25 }, { wch: 20 }
+          { wch: 8 }, { wch: 8 }, { wch: 30 }, { wch: 22 }
         ];
         
         if (!wsIS['!merges']) wsIS['!merges'] = [];
@@ -110,24 +148,34 @@ export async function exportWorkbook(type = 'xlsx', options = {}) {
       // ===== CASH FLOW STATEMENT =====
       if (balanceSheet && (reportType === 'cash_flow' || reportType === 'comprehensive')) {
         const cfRows = [
-          ['CASH FLOW STATEMENT', '', '', ''],
-          [dateLabel, '', '', ''],
+          ['CONTROLHUB - CASH FLOW STATEMENT', '', '', ''],
+          [`Period: ${dateLabel}`, '', '', ''],
           ['', '', '', ''],
-          ['CASH FLOWS FROM:', '', '', ''],
-          ['  Operating Activities', '', '', fmtCurrency(balanceSheet.cashFlow.operating)],
-          ['  Investing Activities', '', '', fmtCurrency(balanceSheet.cashFlow.investing)],
-          ['  Financing Activities', '', '', fmtCurrency(balanceSheet.cashFlow.financing)],
+          ['CASH FLOWS FROM:', '', '', 'Amount (₹)'],
           ['', '', '', ''],
-          ['', '', 'NET CASH FLOW', fmtCurrency(balanceSheet.cashFlow.total)],
+          ['Operating Activities', '', '', ''],
+          ['  💼 Day-to-day business operations', '', '', balanceSheet.cashFlow.operating],
+          ['  Status:', balanceSheet.cashFlow.operating >= 0 ? '✅ Cash Generated' : '⚠️ Cash Used', '', ''],
           ['', '', '', ''],
-          ['SUMMARY', '', '', ''],
-          ['  Cash Increase/(Decrease)', '', '', balanceSheet.cashFlow.total >= 0 ? 'Positive' : 'Negative'],
+          ['Investing Activities', '', '', ''],
+          ['  📈 Investment purchases/sales', '', '', balanceSheet.cashFlow.investing],
+          ['  Status:', balanceSheet.cashFlow.investing >= 0 ? '✅ Cash Generated' : '⚠️ Cash Invested', '', ''],
+          ['', '', '', ''],
+          ['Financing Activities', '', '', ''],
+          ['  🏦 Loans and borrowings', '', '', balanceSheet.cashFlow.financing],
+          ['  Status:', balanceSheet.cashFlow.financing >= 0 ? '✅ Cash Received' : '⚠️ Cash Repaid', '', ''],
+          ['', '', '', ''],
+          ['═══ SUMMARY ═══', '', '', ''],
+          ['', '', '💰 NET CASH FLOW', balanceSheet.cashFlow.total],
+          ['', '', '', ''],
+          ['Overall Liquidity:', balanceSheet.cashFlow.total >= 0 ? '✅ POSITIVE' : '⚠️ NEGATIVE', '', ''],
+          ['Cash Position:', balanceSheet.cashFlow.total >= 0 ? 'Improving' : 'Declining', '', ''],
         ];
         const wsCF = XLSX.utils.aoa_to_sheet(cfRows);
         
-        // Column widths
+        // Enhanced column widths
         wsCF['!cols'] = [
-          { wch: 5 }, { wch: 5 }, { wch: 28 }, { wch: 20 }
+          { wch: 8 }, { wch: 8 }, { wch: 35 }, { wch: 22 }
         ];
         
         if (!wsCF['!merges']) wsCF['!merges'] = [];
