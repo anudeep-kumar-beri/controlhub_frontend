@@ -28,7 +28,7 @@
 }
 
 .sort-select {
-  padding: 0.6rem 1rem;
+  padding: 0.75rem 1rem;
   background-color: #121212;
   border: 1px solid #444;
   color: #ffffffcc;
@@ -99,7 +99,7 @@
 
 .job-input input,
 .job-input select {
-  padding: 0.6rem 1rem;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
   border: 1px solid #444;
   background-color: #121212;
@@ -117,7 +117,7 @@
 
 .add-btn,
 .clear-btn {
-  padding: 0.6rem 1.2rem;
+  padding: 0.75rem 1.2rem;
   border: none;
   border-radius: 8px;
   font-size: 1rem;

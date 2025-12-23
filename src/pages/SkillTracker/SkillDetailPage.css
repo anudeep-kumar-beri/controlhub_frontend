@@ -40,11 +40,11 @@
 .skill-detail-container select,
 .skill-detail-container textarea {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem 1rem;
   background: #181a1b;
   color: #e0f7fa;
   border: 1px solid #444;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.9rem;
   outline: none;
 }
@@ -70,8 +70,8 @@
 .skill-detail-actions button {
   background: transparent;
   border: 1px solid #e0f7fa;
-  padding: 0.5rem 1.2rem;
-  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
   font-size: 0.9rem;
   font-weight: bold;
   color: #e0f7fa;

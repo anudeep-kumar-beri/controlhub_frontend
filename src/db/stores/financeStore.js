@@ -300,7 +300,8 @@ export async function getMasterTransactions({ fromDate = null, toDate = null, ac
       }
       
       // Final maturity: principal + remaining interest (or all interest if at_maturity)
-      if (maturity && (!accountId || creditAccountId === accountId) && inDateRange(maturity, fromDate, toDate)) {
+      // Only include maturity transaction if it has actually matured (maturity date <= today)
+      if (maturity && maturity <= today && (!accountId || creditAccountId === accountId) && inDateRange(maturity, fromDate, toDate)) {
         const maturityInflow = payoutMethod === 'at_maturity' ? maturity_value : amount; // Return principal only if interest already paid
         tx.push({ 
           id: `tx-inv-in-${r.id}`, 
@@ -318,7 +319,8 @@ export async function getMasterTransactions({ fromDate = null, toDate = null, ac
     } else {
       const cashDt = r.cashout_date ? String(r.cashout_date).slice(0,10) : null;
       const cashAmt = Number(r.cashout_amount || 0) || 0;
-      if (cashDt && cashAmt > 0 && (!accountId || creditAccountId === accountId) && inDateRange(cashDt, fromDate, toDate)) {
+      // Only include cashout transaction if it has actually occurred (cashout date <= today)
+      if (cashDt && cashDt <= today && cashAmt > 0 && (!accountId || creditAccountId === accountId) && inDateRange(cashDt, fromDate, toDate)) {
         tx.push({ id: `tx-inv-cash-${r.id}`, date: cashDt, category: `Investment Cashout — ${r.type || 'General'}` , inflow: cashAmt, outflow: 0, notes: r.notes || '', ts: `${cashDt}T23:59:59.000Z`, source: { store: 'investments', id: r.id }, account_id: creditAccountId, account_name: creditAcc?.name || 'Unassigned' });
       }
     }
