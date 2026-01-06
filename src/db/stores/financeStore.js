@@ -258,8 +258,8 @@ export async function getMasterTransactions({ fromDate = null, toDate = null, ac
     }
     // FD: auto maturity inflow + interest payouts based on payout method; General: inflow only when cashout provided
     const invType = (r.type || '').toUpperCase();
+    const today = todayISO();
     if (invType === 'FD') {
-      const today = todayISO();
       const payoutMethod = r.interest_payout_method || r.payout_method || 'at_maturity';
       
       // Generate interest income transactions based on payout method
