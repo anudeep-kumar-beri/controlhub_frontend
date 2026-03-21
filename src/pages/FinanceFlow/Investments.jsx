@@ -1,9 +1,9 @@
 import React, { useMemo } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
 import { useEffect, useState } from 'react';
-import { listInvestments, saveInvestment, deleteWithAudit, patchRecord, listAccounts, ensureDisplayOrder, moveItemUp, moveItemDown } from '../../db/stores/financeStore.js';
+import { listInvestments, saveInvestment, deleteWithAudit, patchRecord, listAccounts, ensureDisplayOrder } from '../../db/stores/financeStore.js';
 import { calculateFD } from '../../utils/finance/financeCalc.js';
-import { computePortfolio, computeMaturityInfo, computePaperValue, addMonths } from '../../utils/finance/investmentMetrics.js';
+import { computePortfolio, computeMaturityInfo, addMonths } from '../../utils/finance/investmentMetrics.js';
 import SimpleModal from '../../components/common/SimpleModal.jsx';
 import { useCurrencyFormatter, todayISO } from '../../utils/format.js';
 import AccountSelector from '../../components/finance/AccountSelector.jsx';
@@ -198,23 +198,23 @@ export default function Investments() {
     return arr;
   }, [items, filter, sortConfig]);
 
-  // Group investments by type and institution
-  const grouped = useMemo(()=>{
-    const map = new Map();
-    for (const inv of filtered) {
-      const key = `${inv.type||''}::${inv.institution||''}`;
-      if (!map.has(key)) map.set(key, []);
-      map.get(key).push(inv);
-    }
-    return Array.from(map.entries()).map(([key, invs])=>{
-      const [type, institution] = key.split('::');
-      return {
-        type, institution, investments: invs,
-        totalPrincipal: invs.reduce((s,i)=> s + Number(i.amount||0), 0),
-        totalUnits: invs.reduce((s,i)=> s + Number(i.units||0), 0)
-      };
-    });
-  }, [filtered]);
+  // Group investments by type and institution (reserved for future use)
+  // const grouped = useMemo(()=>{
+  //   const map = new Map();
+  //   for (const inv of filtered) {
+  //     const key = `${inv.type||''}::${inv.institution||''}`;
+  //     if (!map.has(key)) map.set(key, []);
+  //     map.get(key).push(inv);
+  //   }
+  //   return Array.from(map.entries()).map(([key, invs])=>{
+  //     const [type, institution] = key.split('::');
+  //     return {
+  //       type, institution, investments: invs,
+  //       totalPrincipal: invs.reduce((s,i)=> s + Number(i.amount||0), 0),
+  //       totalUnits: invs.reduce((s,i)=> s + Number(i.units||0), 0)
+  //     };
+  //   });
+  // }, [filtered]);
 
   // Open modal to add more to existing investment
   function openAddMore(investment) {

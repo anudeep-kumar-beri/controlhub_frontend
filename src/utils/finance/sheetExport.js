@@ -1,5 +1,5 @@
 // sheetExport.js — Professional financial exports with Balance Sheet support
-import { listInvestments, listIncome, listExpenses, listLoans, getMasterTransactions, listAccounts } from '../../db/stores/financeStore';
+import { listInvestments, listIncome, listExpenses, listLoans, getMasterTransactions } from '../../db/stores/financeStore';
 
 function loadSettings() {
   const DEFAULTS = { currencyCode: 'INR', locale: 'en-IN' };
@@ -21,7 +21,7 @@ function fmtNumber(n) {
 }
 
 export async function exportWorkbook(type = 'xlsx', options = {}) {
-  const { reportType = 'comprehensive', dateRange = {}, balanceSheet = null, brandTier = 2, theme = 'uiLight' } = options;
+  const { reportType = 'comprehensive', dateRange = {}, balanceSheet = null, theme = 'uiLight' } = options;
   const dateLabel = dateRange.from && dateRange.to ? ` (${dateRange.from} to ${dateRange.to})` : '';
   
   try {

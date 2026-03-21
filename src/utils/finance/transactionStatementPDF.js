@@ -36,7 +36,7 @@ function fmtCurrency(n) {
  * @param {string} options.categoryFilter - Optional category filter
  */
 export async function generateTransactionStatementPDF(options = {}) {
-  const { from, to, accountFilter, categoryFilter, brandTier = 1, theme = 'authorityCreamBlack', printMode = false } = options;
+  const { from, to, accountFilter, categoryFilter, theme = 'authorityCreamBlack' } = options;
 
   try {
     // Dynamic import jsPDF and autoTable

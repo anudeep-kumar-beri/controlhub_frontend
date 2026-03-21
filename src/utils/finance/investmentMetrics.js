@@ -53,8 +53,8 @@ export function computePortfolio(investments, today = todayISO()) {
     totalPrincipal += principal;
     allocation.set(type, (allocation.get(type) || 0) + principal);
     const isFD = ['FD','RD','BOND'].includes(type);
-    if (isFD) {
-      const { maturityValue, interestEarned } = computeMaturityInfo(inv);
+      if (isFD) {
+        const { interestEarned } = computeMaturityInfo(inv);
       const tenure = Number(inv.tenure_months || inv.tenure || 0);
       const start = (inv.start_date || inv.date || '').slice(0,10);
       const maturity = (inv.maturity_date && String(inv.maturity_date).slice(0,10)) || (start && tenure ? addMonths(start, tenure) : null);
@@ -71,7 +71,7 @@ export function computePortfolio(investments, today = todayISO()) {
         }
       }
     } else {
-      const { paperValue, paperPL } = computePaperValue(inv);
+      const { paperPL } = computePaperValue(inv);
       if (inv.cashout_amount && inv.cashout_date && String(inv.cashout_date).slice(0,10) <= today && ['CashedOut','Matured'].includes(inv.status)) {
         realizedPL += (Number(inv.cashout_amount||0) - principal);
       } else if (paperPL !== null) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
-import { listInvestments, listIncome, listExpenses, listLoans, listAccounts, getMasterTransactions } from '../../db/stores/financeStore.js';
+import { listInvestments, listExpenses, listLoans, listAccounts, getMasterTransactions } from '../../db/stores/financeStore.js';
 import { useCurrencyFormatter, todayISO } from '../../utils/format.js';
 import { calculateFD } from '../../utils/finance/financeCalc.js';
 import { generateTransactionStatementPDF } from '../../utils/finance/transactionStatementPDF.js';
