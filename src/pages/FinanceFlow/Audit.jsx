@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
-import { listInvestments, listIncome, listExpenses, listLoans, listAccounts, getMasterTransactions } from '../../db/stores/financeStore';
-import { useCurrencyFormatter, todayISO } from '../../utils/format';
-import { calculateFD } from '../../utils/finance/financeCalc';
-import { generateTransactionStatementPDF } from '../../utils/finance/transactionStatementPDF';
+import { listInvestments, listIncome, listExpenses, listLoans, listAccounts, getMasterTransactions } from '../../db/stores/financeStore.js';
+import { useCurrencyFormatter, todayISO } from '../../utils/format.js';
+import { calculateFD } from '../../utils/finance/financeCalc.js';
+import { generateTransactionStatementPDF } from '../../utils/finance/transactionStatementPDF.js';
 
 // Helper function to add months to a date
 function addMonths(dateStr, months) {
@@ -221,7 +221,7 @@ export default function Audit() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateRange]);
   const handleExport = async (type) => {
-    const m = await import('../../utils/finance/sheetExport');
+    const m = await import('../../utils/finance/sheetExport.js');
     const res = await m.exportWorkbook(type, { reportType, dateRange, balanceSheet });
     alert(res?.message || 'Export triggered');
   };

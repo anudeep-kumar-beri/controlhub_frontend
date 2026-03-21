@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
-import { getMasterTransactions, updateNotesForRecord, patchRecord } from '../../db/stores/financeStore';
-import { useCurrencyFormatter, todayISO } from '../../utils/format';
+import { getMasterTransactions, updateNotesForRecord, patchRecord } from '../../db/stores/financeStore.js';
+import { useCurrencyFormatter, todayISO } from '../../utils/format.js';
 import AccountSelector from '../../components/finance/AccountSelector.jsx';
 
 function monthRangeOf(date = new Date()) {

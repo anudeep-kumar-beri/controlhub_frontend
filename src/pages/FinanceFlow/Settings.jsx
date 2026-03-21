@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
 import { useSettings } from '../../context/SettingsContext.jsx';
-import { listInvestments, listIncome, listExpenses, listLoans, saveInvestment, saveIncome, saveExpense, saveLoan } from '../../db/stores/financeStore';
+import { listInvestments, listIncome, listExpenses, listLoans, saveInvestment, saveIncome, saveExpense, saveLoan } from '../../db/stores/financeStore.js';
 
 export default function Settings() {
   const { settings, setSettings } = useSettings();

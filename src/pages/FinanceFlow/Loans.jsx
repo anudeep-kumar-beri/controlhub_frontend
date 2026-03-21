@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
-import { listLoans, saveLoan, deleteWithAudit, listLoanPayments, saveLoanPayment } from '../../db/stores/financeStore';
-import SimpleModal from '../../components/common/SimpleModal';
-import { useCurrencyFormatter, todayISO } from '../../utils/format';
-import { calculatePaymentBreakdown, calculateAccruedInterest } from '../../utils/finance/loanCalculations';
+import { listLoans, saveLoan, deleteWithAudit, listLoanPayments, saveLoanPayment } from '../../db/stores/financeStore.js';
+import SimpleModal from '../../components/common/SimpleModal.jsx';
+import { useCurrencyFormatter, todayISO } from '../../utils/format.js';
+import { calculatePaymentBreakdown, calculateAccruedInterest } from '../../utils/finance/loanCalculations.js';
 
 export default function Loans() {
   const [items, setItems] = useState([]);

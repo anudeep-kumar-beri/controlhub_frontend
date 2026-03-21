@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
-import { startBackgroundSync } from '../../sync/financeSync';
-import { getDashboardTotals, listInvestments, getMasterTransactions } from '../../db/stores/financeStore';
-import { useCurrencyFormatter } from '../../utils/format';
+import { startBackgroundSync } from '../../sync/financeSync.js';
+import { getDashboardTotals, listInvestments, getMasterTransactions } from '../../db/stores/financeStore.js';
+import { useCurrencyFormatter } from '../../utils/format.js';
 import { Pie, Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,

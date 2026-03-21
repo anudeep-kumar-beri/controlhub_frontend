@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './finance.css';
 import FinanceNav from './FinanceNav.jsx';
-import { getMasterTransactions } from '../../db/stores/financeStore';
+import { getMasterTransactions } from '../../db/stores/financeStore.js';
 import { useSettings } from '../../context/SettingsContext.jsx';
-import { formatCurrencyValue } from '../../utils/format';
+import { formatCurrencyValue } from '../../utils/format.js';
 import SyncStatus from './SyncStatus.jsx';
 
 export default function FinanceLayout({ title, children }) {

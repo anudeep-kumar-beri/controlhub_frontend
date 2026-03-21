@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import './DashboardHome.css';
 import { useNavigate } from 'react-router-dom';
-import api from '../api';
-import { getMasterTransactions } from '../db/stores/financeStore';
+import api from '../api.js';
+import { getMasterTransactions } from '../db/stores/financeStore.js';
 import { useSettings } from '../context/SettingsContext.jsx';
-import { formatCurrencyValue } from '../utils/format';
+import { formatCurrencyValue } from '../utils/format.js';
 
 
 function DashboardHome() {

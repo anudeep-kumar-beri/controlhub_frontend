@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'; // ⬅️ Add useNavigate
 import axios from 'axios';
 import API_BASE_URL from '../config/api.js';
-import ControlHubBackground from '../components/backgrounds/ControlHubBackground';
-import ProjectDetailAnimation from '../components/animations/ProjectDetailAnimation';
+import ControlHubBackground from '../components/backgrounds/ControlHubBackground.js';
+import ProjectDetailAnimation from '../components/animations/ProjectDetailAnimation.js';
 import './ProjectDetailPage.css';
 
 const API_URL = `${API_BASE_URL}/projects`;

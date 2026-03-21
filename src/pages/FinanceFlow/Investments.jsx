@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import FinanceLayout from '../../components/finance/FinanceLayout.jsx';
 import { useEffect, useState } from 'react';
-import { listInvestments, saveInvestment, deleteWithAudit, patchRecord, listAccounts, ensureDisplayOrder, moveItemUp, moveItemDown } from '../../db/stores/financeStore';
-import { calculateFD } from '../../utils/finance/financeCalc';
-import { computePortfolio, computeMaturityInfo, computePaperValue, addMonths } from '../../utils/finance/investmentMetrics';
-import SimpleModal from '../../components/common/SimpleModal';
-import { useCurrencyFormatter, todayISO } from '../../utils/format';
+import { listInvestments, saveInvestment, deleteWithAudit, patchRecord, listAccounts, ensureDisplayOrder, moveItemUp, moveItemDown } from '../../db/stores/financeStore.js';
+import { calculateFD } from '../../utils/finance/financeCalc.js';
+import { computePortfolio, computeMaturityInfo, computePaperValue, addMonths } from '../../utils/finance/investmentMetrics.js';
+import SimpleModal from '../../components/common/SimpleModal.jsx';
+import { useCurrencyFormatter, todayISO } from '../../utils/format.js';
 import AccountSelector from '../../components/finance/AccountSelector.jsx';
 
 export default function Investments() {
